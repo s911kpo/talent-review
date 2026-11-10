@@ -1,8 +1,10 @@
 import type { ExistingPopulation, PopulationRow } from '../lib/namelist/namelist';
-import { supabase } from './client';
+import { isDemoMode, supabase } from './client';
+import { demo } from './demo';
 import type { Cycle } from './team';
 
 export async function listCycles(): Promise<Cycle[]> {
+  if (isDemoMode) return [demo.cycle];
   const { data, error } = await supabase()
     .from('cycles')
     .select('id, code, quarter_label, status, due_at')
@@ -23,6 +25,7 @@ export async function setCycleStatus(id: string, status: Cycle['status']): Promi
 }
 
 export async function listPopulation(cycleId: string): Promise<ExistingPopulation[]> {
+  if (isDemoMode) return demo.population();
   const pageSize = 1000;
   const out: ExistingPopulation[] = [];
   for (let from = 0; ; from += pageSize) {
@@ -60,6 +63,7 @@ export interface ExpectedReviewer {
 }
 
 export async function listExpectedReviewers(cycleId: string): Promise<ExpectedReviewer[]> {
+  if (isDemoMode) return [];
   const { data, error } = await supabase().rpc('expected_reviewers', { p_cycle_id: cycleId });
   if (error) throw error;
   return data ?? [];
@@ -74,6 +78,7 @@ export interface AppUserRow {
 }
 
 export async function listAppUsers(): Promise<AppUserRow[]> {
+  if (isDemoMode) return [];
   const { data, error } = await supabase()
     .from('app_users')
     .select('user_id, employee_id, role, display_name, is_active')

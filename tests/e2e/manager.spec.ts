@@ -107,6 +107,63 @@ test('manager completes a review, survives reload, and submits', async ({ page }
   await expect(page.getByRole('textbox')).toBeDisabled();
 });
 
+test('full cycle: submit, HR returns, manager fixes, HR confirms, locks and exports', async ({ page }) => {
+  await login(page);
+  await selectFirstKeyTalent(page);
+  await answerAll(page);
+  await expect(page.getByText(/^已儲存 ·/)).toBeVisible({ timeout: 10_000 });
+  const reviewUrl = page.url().replace('step=summary', 'step=COMMENTS');
+
+  await page.goto('/team/check');
+  await page.getByLabel('我已確認').check();
+  await page.getByRole('button', { name: '提交給 HR' }).click();
+  await expect(page).toHaveURL(/\/team\/submitted$/);
+
+  const switchToHr = async () => {
+    await page.getByRole('button', { name: '登出' }).click();
+    await page.goto('/hr/login');
+    await page.getByLabel('Email').fill('demo-hr@talentreview.local');
+    await page.getByLabel('密碼').fill('demo-password');
+    await page.getByRole('button', { name: '登入', exact: true }).click();
+    await expect(page).toHaveURL(/\/hr$/);
+  };
+  const openQueue = async () => {
+    await page.getByRole('tab', { name: '審核佇列' }).click();
+    await page.getByLabel('選擇團隊').selectOption('900002');
+  };
+
+  await switchToHr();
+  await openQueue();
+  await page.getByLabel(/^給 .* 的留言$/).fill('請補上具體數字');
+  await page.getByRole('button', { name: /退回有留言的人/ }).click();
+  await expect(page.locator('.tag', { hasText: '已退回' })).toBeVisible();
+
+  await page.getByRole('button', { name: '登出' }).click();
+  await login(page);
+  await page.goto(reviewUrl);
+  await expect(page.getByText('請補上具體數字')).toBeVisible();
+  await page.getByRole('textbox').fill('已補充');
+  await expect(page.getByText(/^已儲存 ·/)).toBeVisible({ timeout: 10_000 });
+  await page.goto('/team/check');
+  await page.getByLabel('我已確認').check();
+  await page.getByRole('button', { name: '提交給 HR' }).click();
+  await expect(page).toHaveURL(/\/team\/submitted$/);
+
+  await switchToHr();
+  await openQueue();
+  await page.getByRole('button', { name: '確認整個團隊' }).click();
+  await expect(page.getByRole('button', { name: '鎖定' })).toBeVisible();
+  await page.getByRole('button', { name: '鎖定' }).click();
+  await expect(page.getByRole('button', { name: '解鎖回草稿' })).toBeVisible();
+
+  await page.getByRole('tab', { name: '匯出' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: '匯出', exact: true }).click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(/^TalentReview_Q4-2026_All_\d{8}-\d{4}\.xlsx$/);
+});
+
 test('guidance opens from the lightbulb and leaves inputs empty', async ({ page }) => {
   await login(page);
   await selectFirstKeyTalent(page);

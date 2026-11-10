@@ -30,7 +30,7 @@ export async function signInWithPin(employeeId: string, pin: string): Promise<Lo
 }
 
 export async function signInHr(email: string, password: string): Promise<LoginResult> {
-  if (isDemoMode) return 'unavailable';
+  if (isDemoMode) return demo.signInHr(email) ? 'ok' : 'invalid';
   const { error } = await supabase().auth.signInWithPassword({ email, password });
   if (!error) return 'ok';
   return error.status === 400 ? 'invalid' : 'unavailable';

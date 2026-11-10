@@ -27,12 +27,13 @@ export function useRef_(): ReferenceData {
   return value;
 }
 
-export function ReferenceProvider({ children }: { children: ReactNode }) {
+/** `managerId` lets HR screens view a specific team; `bare` renders inside an existing page shell. */
+export function ReferenceProvider({ children, managerId: override, bare }: { children: ReactNode; managerId?: number; bare?: boolean }) {
   const { t, i18n } = useTranslation();
   const { profile } = useSession();
   const [data, setData] = useState<{ cycle: Cycle | null; team: TeamMember[]; options: OptionItem[]; questions: Question[] } | null>(null);
   const [failed, setFailed] = useState(false);
-  const managerId = profile?.employeeId ?? 0;
+  const managerId = override ?? profile?.employeeId ?? 0;
 
   const load = useCallback(async () => {
     setFailed(false);
@@ -64,8 +65,9 @@ export function ReferenceProvider({ children }: { children: ReactNode }) {
     };
   }, [data, managerId, isEn]);
 
-  if (failed) return <AppShell><ErrorNotice onRetry={() => void load()} /></AppShell>;
-  if (!data) return <AppShell><p role="status" className="text-muted">{t('app.loading')}</p></AppShell>;
-  if (!value) return <AppShell><div className="card p-6 text-muted">{t('team.noCycle')}</div></AppShell>;
+  const wrap = (node: ReactNode) => (bare ? node : <AppShell>{node}</AppShell>);
+  if (failed) return wrap(<ErrorNotice onRetry={() => void load()} />);
+  if (!data) return wrap(<p role="status" className="text-muted">{t('app.loading')}</p>);
+  if (!value) return wrap(<div className="card p-6 text-muted">{t('team.noCycle')}</div>);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

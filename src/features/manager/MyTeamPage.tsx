@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CircleHelp, Users, X } from 'lucide-react';
+import { CircleHelp, Download, Users, X } from 'lucide-react';
+import { runExport } from '../admin/ExportPanel';
 import { useSession } from '../../app/session';
 import { AppShell, ErrorNotice } from '../../components/AppShell';
 import { getTeamSubmission, listLineTeams, listReviewsByReviewer } from '../../data/review';
@@ -31,6 +32,7 @@ export function MyTeamPage() {
   const [lineTeams, setLineTeams] = useState<LineTeam[]>([]);
   const [failed, setFailed] = useState(false);
   const [tab, setTab] = useState<'team' | 'line'>('team');
+  const [exporting, setExporting] = useState(false);
   const [tourOpen, setTourOpen] = useState(() => readLocal(`tourSeen.${profile?.userId}`) !== '1');
   const [bannerOpen, setBannerOpen] = useState(() => readLocal('mobileBannerSeen') !== '1');
 
@@ -102,6 +104,17 @@ export function MyTeamPage() {
             <button type="button" className="btn-secondary" onClick={() => setTourOpen(true)}>
               <CircleHelp className="h-4 w-4" aria-hidden="true" />{t('home.help')}
             </button>
+            {keyTalent.length > 0 && (
+              <button
+                type="button" className="btn-secondary" disabled={exporting}
+                onClick={() => {
+                  setExporting(true);
+                  void runExport(cycle, managerId, profile?.displayName ?? String(managerId)).finally(() => setExporting(false));
+                }}
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />{exporting ? t('exp.running') : t('exp.myTeam')}
+              </button>
+            )}
           </div>
         </div>
         <ProgressRing pct={pct} label={t('home.progress')} value={t('home.progressValue', { done: complete.length, total: keyTalent.length })} />

@@ -3,18 +3,21 @@
 import type { Profile } from './auth';
 import type { Cycle, TeamMember } from './team';
 import type { SaveResult } from './review';
+import type { TeamOverview } from './hr';
+import type { ExportRow } from '../lib/export/planningTool';
 import { ConflictError } from './conflict';
 import questionsJson from './generated/questionBank.json';
 import optionsJson from './generated/options.json';
 import { readLocal, writeLocal } from '../lib/localPrefs';
 import { emptyReview, isEditable, missingSteps } from '../lib/review/steps';
 import type {
-  DevPlanItem, DirectoryEntry, LineTeam, NextRole, OptionItem, Question, Review, Successor, TeamSubmission,
+  DevPlanItem, DirectoryEntry, LineTeam, NextRole, OptionItem, Question, Review, ReviewComment, Successor, TeamSubmission,
 } from '../lib/review/types';
 
 const GM = 900001;
 const MANAGER = 900002;
 const CYCLE_ID = 'demo-cycle';
+const HR_DEMO = -1;
 
 const given = ['Alder', 'Birch', 'Cedar', 'Dune', 'Ember', 'Fern', 'Grove', 'Hazel', 'Iris', 'Juniper', 'Kestrel', 'Linden', 'Maple'];
 const zhGiven = ['赤楊', '白樺', '雪松', '沙丘', '餘燼', '蕨葉', '樹林', '榛果', '鳶尾', '杜松', '紅隼', '椴樹', '楓葉'];
@@ -45,6 +48,7 @@ interface Store {
   user: number | null;
   reviews: Review[];
   teams: Record<string, TeamSubmission>;
+  comments?: ReviewComment[];
 }
 
 const blankTeam = (): TeamSubmission => ({
@@ -89,6 +93,9 @@ export const demo = {
   },
   profile(): Profile | null {
     if (!store.user) return null;
+    if (store.user === HR_DEMO) {
+      return { userId: 'demo-hr', employeeId: null, role: 'hr', displayName: 'Demo HR', locale: readLocal('locale') === 'en' ? 'en' : 'zh-TW', fontScale: Number(readLocal('fontScale')) || 1 };
+    }
     return {
       userId: `demo-${store.user}`, employeeId: store.user, role: 'manager',
       displayName: store.user === GM ? 'Wang, Demo GM' : 'Lin, Alder',
@@ -171,6 +178,86 @@ export const demo = {
     Object.assign(team(me()), { discussion_status: 'scheduled', discussion_date: date });
     persist();
   },
+
+  population: () => people.map((p) => ({ employee_id: p.employeeId, in_scope: true, supervisor_id: p.supervisor })),
+
+  signInHr(email: string): boolean {
+    if (email !== 'demo-hr@talentreview.local') return false;
+    store.user = HR_DEMO;
+    persist();
+    return true;
+  },
+
+  hrOverview: async (): Promise<TeamOverview[]> => {
+    return [MANAGER, 900003].map((id) => {
+      const p = people.find((x) => x.employeeId === id)!;
+      const mine = store.reviews.filter((r) => r.reviewer_id === id && r.is_key_talent);
+      const t = team(id);
+      return {
+        reviewer_id: id, full_name: p.fullName, local_name: p.localName,
+        direct_count: people.filter((x) => x.supervisor === id).length,
+        key_count: mine.length, complete_count: mine.filter((r) => missingSteps(r).length === 0).length,
+        status: t.status, last_updated: mine[0]?.updated_at ?? null, discussion_status: t.discussion_status,
+        discussion_date: t.discussion_date, reopen_requested_at: t.reopen_requested_at, reopen_reason: t.reopen_reason,
+      };
+    });
+  },
+
+  async hrReturn(reviewerId: number, items: { review_id: string; comment: string }[]) {
+    for (const item of items) {
+      const r = store.reviews.find((x) => x.id === item.review_id && x.reviewer_id === reviewerId);
+      if (r?.status !== 'submitted') throw new Error('review_not_returnable');
+      r.status = 'returned';
+      r.version += 1;
+      r.rev += 1;
+      (store.comments ??= []).push({ id: `c${Date.now()}`, review_id: r.id, body: item.comment, created_at: new Date().toISOString() });
+    }
+    team(reviewerId).status = 'returned';
+    persist();
+  },
+
+  async hrSetTeam(reviewerId: number, from: TeamSubmission['status'], to: 'confirmed' | 'locked' | 'draft') {
+    if (team(reviewerId).status !== from) throw new Error('illegal_status_transition');
+    for (const r of store.reviews) {
+      if (r.reviewer_id === reviewerId && r.status === from) {
+        r.status = to;
+        r.version += 1;
+        r.rev += 1;
+      }
+    }
+    team(reviewerId).status = to;
+    persist();
+  },
+
+  async hrDecideReopen(reviewerId: number, approve: boolean, employeeIds: number[] | null) {
+    if (approve) {
+      for (const r of store.reviews) {
+        if (r.reviewer_id === reviewerId && ['submitted', 'confirmed'].includes(r.status)
+          && (employeeIds === null || employeeIds.includes(r.employee_id))) {
+          r.status = 'draft';
+          r.version += 1;
+          r.rev += 1;
+        }
+      }
+      team(reviewerId).status = 'draft';
+    }
+    Object.assign(team(reviewerId), { reopen_requested_at: null, reopen_reason: null });
+    persist();
+  },
+
+  comments: async (ids: string[]): Promise<ReviewComment[]> => (store.comments ?? []).filter((c) => ids.includes(c.review_id)),
+
+  exportRows: async (reviewerId: number | null): Promise<ExportRow[]> =>
+    store.reviews
+      .filter((r) => r.is_key_talent && (reviewerId === null || r.reviewer_id === reviewerId))
+      .map((review) => {
+        const p = people.find((x) => x.employeeId === review.employee_id)!;
+        return {
+          review,
+          employee: { fullName: p.fullName, localName: p.localName, position: p.position, dept: p.dept },
+          supervisorName: people.find((x) => x.employeeId === review.reviewer_id)?.fullName ?? '',
+        };
+      }),
 
   directory: async (query: string): Promise<DirectoryEntry[]> => {
     const q = query.trim().toLowerCase();

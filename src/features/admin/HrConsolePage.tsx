@@ -1,20 +1,33 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CalendarRange, FileUp, KeyRound } from 'lucide-react';
+import { CalendarRange, ClipboardCheck, Eye, FileDown, FileUp, KeyRound, LayoutGrid, ListTree, ScrollText, SlidersHorizontal } from 'lucide-react';
 import { AppShell } from '../../components/AppShell';
-import { CyclesPanel } from './CyclesPanel';
-import { NamelistPanel } from './NamelistPanel';
 import { AccountsPanel } from './AccountsPanel';
+import { CyclesPanel } from './CyclesPanel';
+import { AuditPanel, OptionsPanel, QuestionsPanel } from './EditorsPanels';
+import { ExportPanel } from './ExportPanel';
+import { NamelistPanel } from './NamelistPanel';
+import { OverviewPanel } from './OverviewPanel';
+import { PreviewPanel } from './PreviewPanel';
+import { QueuePanel } from './QueuePanel';
 
 const TABS = [
-  { key: 'cycles', label: 'hr.tabCycles', Icon: CalendarRange },
-  { key: 'namelist', label: 'hr.tabNamelist', Icon: FileUp },
-  { key: 'accounts', label: 'hr.tabAccounts', Icon: KeyRound },
+  { key: 'overview', label: 'hrq.tabOverview', Icon: LayoutGrid, Panel: OverviewPanel },
+  { key: 'queue', label: 'hrq.tabQueue', Icon: ClipboardCheck, Panel: QueuePanel },
+  { key: 'export', label: 'hrq.tabExport', Icon: FileDown, Panel: ExportPanel },
+  { key: 'preview', label: 'hrq.tabPreview', Icon: Eye, Panel: PreviewPanel },
+  { key: 'cycles', label: 'hr.tabCycles', Icon: CalendarRange, Panel: CyclesPanel },
+  { key: 'namelist', label: 'hr.tabNamelist', Icon: FileUp, Panel: NamelistPanel },
+  { key: 'accounts', label: 'hr.tabAccounts', Icon: KeyRound, Panel: AccountsPanel },
+  { key: 'options', label: 'hrq.tabOptions', Icon: SlidersHorizontal, Panel: OptionsPanel },
+  { key: 'questions', label: 'hrq.tabQuestions', Icon: ListTree, Panel: QuestionsPanel },
+  { key: 'audit', label: 'hrq.tabAudit', Icon: ScrollText, Panel: AuditPanel },
 ] as const;
 
 export function HrConsolePage() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('cycles');
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('overview');
+  const Active = TABS.find((x) => x.key === tab)!.Panel;
   return (
     <AppShell>
       <h1 className="text-2xl font-semibold">{t('hr.title')}</h1>
@@ -30,11 +43,7 @@ export function HrConsolePage() {
           </button>
         ))}
       </div>
-      <div className="mt-6">
-        {tab === 'cycles' && <CyclesPanel />}
-        {tab === 'namelist' && <NamelistPanel />}
-        {tab === 'accounts' && <AccountsPanel />}
-      </div>
+      <div className="mt-6"><Active /></div>
     </AppShell>
   );
 }

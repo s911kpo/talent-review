@@ -41,13 +41,13 @@ export async function listQuestions(): Promise<Question[]> {
   return data ?? [];
 }
 
-type ReviewRow = Omit<Review, 'next_roles' | 'successors' | 'dev_plan'> & {
+export type ReviewRow = Omit<Review, 'next_roles' | 'successors' | 'dev_plan'> & {
   next_roles: Review['next_roles'] | null;
   successors: Review['successors'] | null;
   dev_plan: Review['dev_plan'] | null;
 };
 
-async function hydrate(rows: ReviewRow[]): Promise<Review[]> {
+export async function hydrate(rows: ReviewRow[]): Promise<Review[]> {
   const ids = [...new Set(rows.flatMap((r) => (r.successors ?? []).map((s) => s.successor_employee_id)).filter((v) => v !== null))];
   const names = new Map<number, string>();
   if (ids.length > 0) {
@@ -74,7 +74,7 @@ async function hydrate(rows: ReviewRow[]): Promise<Review[]> {
   }));
 }
 
-const SELECT_REVIEW = '*, next_roles(*), successors(*), dev_plan:dev_plan_items(*)';
+export const SELECT_REVIEW = '*, next_roles(*), successors(*), dev_plan:dev_plan_items(*)';
 
 export async function listReviewsByReviewer(cycleId: string, reviewerId: number): Promise<Review[]> {
   if (isDemoMode) return demo.reviews(reviewerId);
@@ -182,7 +182,8 @@ export async function setDiscussionDate(cycleId: string, date: string): Promise<
 }
 
 export async function listComments(reviewIds: string[]): Promise<ReviewComment[]> {
-  if (isDemoMode || reviewIds.length === 0) return [];
+  if (isDemoMode) return demo.comments(reviewIds);
+  if (reviewIds.length === 0) return [];
   const { data, error } = await supabase()
     .from('review_comments')
     .select('id, review_id, body, created_at')
