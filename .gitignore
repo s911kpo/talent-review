@@ -1,0 +1,19 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Dependencies and builds
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+supabase/.temp/
+
+# Real employee data must never enter this repo (SPEC 0.6)
+*Namelist*.xlsx
+Talent_Review_Emit*.xlsx
+*PIN*.xlsx
+
+.claude/

@@ -1,0 +1,11 @@
+project_id = "talent-review"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/fake_seed.sql"]
+
+[functions.auth-pin]
+verify_jwt = false
+
+[functions.admin-users]
+verify_jwt = true

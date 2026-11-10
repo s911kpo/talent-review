@@ -1,0 +1,75 @@
+{
+  "managers": [
+    {
+      "employeeId": 900001,
+      "name": "Lin, Maple1",
+      "pin": "WWE8MTZU",
+      "note": "GM: sees all five sub-manager lines read-only"
+    },
+    {
+      "employeeId": 900002,
+      "name": "Huang, Grove2",
+      "pin": "YEZQ7E22",
+      "note": "Reports to the GM: also reviewed by the GM"
+    },
+    {
+      "employeeId": 900003,
+      "name": "Chang, Alder3",
+      "pin": "4H4G4HDU",
+      "note": "Reports to the GM: also reviewed by the GM"
+    },
+    {
+      "employeeId": 900004,
+      "name": "Lee, Hazel4",
+      "pin": "W7M6BTX7",
+      "note": "Reports to the GM: also reviewed by the GM"
+    },
+    {
+      "employeeId": 900005,
+      "name": "Wang, Birch5",
+      "pin": "R77GGUUD",
+      "note": "Reports to the GM: also reviewed by the GM"
+    },
+    {
+      "employeeId": 900006,
+      "name": "Wu, Iris6",
+      "pin": "WHW3PF9V",
+      "note": "Reports to the GM: also reviewed by the GM"
+    },
+    {
+      "employeeId": 900017,
+      "name": "Liu, Hazel17",
+      "pin": "AZ7ZPNEP",
+      "note": "Supervisor is external"
+    },
+    {
+      "employeeId": 900018,
+      "name": "Tsai, Birch18",
+      "pin": "SU63BBZK",
+      "note": "Supervisor is external"
+    },
+    {
+      "employeeId": 900019,
+      "name": "Yang, Iris19",
+      "pin": "TQ78K5QP",
+      "note": "Supervisor is external"
+    },
+    {
+      "employeeId": 900020,
+      "name": "Chen, Cedar20",
+      "pin": "EEJRN5HY",
+      "note": "Supervisor is external"
+    },
+    {
+      "employeeId": 900021,
+      "name": "Lin, Juniper21",
+      "pin": "KRRHTPNJ",
+      "note": "Supervisor is external"
+    }
+  ],
+  "hr": {
+    "email": "demo-hr@talentreview.local",
+    "password": "Demo-HR-Staging-2026",
+    "displayName": "Demo HR"
+  }
+}
