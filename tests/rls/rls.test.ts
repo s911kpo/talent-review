@@ -117,10 +117,35 @@ describe('scope', () => {
       );
       await db.query(`select set_config('request.jwt.claim.sub', $1, true)`, [uid(MGR_A)]);
       await db.exec('set local role authenticated');
-      const rows = await db.query(`select * from public.my_scope()`);
+      const rows = await db.query<{ employee_id: number }>(`select employee_id::int from public.my_scope()`);
       expect(rows.rows.length).toBeGreaterThan(0);
+      expect(rows.rows.map((r) => r.employee_id)).not.toContain(MGR_A);
     } finally {
       await db.exec('rollback');
+    }
+  });
+
+  it('leaves out reports who are out of scope, including their reviews', async () => {
+    const outOfScope = A_REPORT + 5;
+    const reviewId = await seedReview(db, outOfScope, MGR_A, 'draft');
+    await db.query(
+      `update public.cycle_population set in_scope = false where cycle_id = $1 and employee_id = $2`,
+      [CYCLE, outOfScope],
+    );
+    try {
+      await asManager(db, MGR_A, async (q) => {
+        expect(await count(q, `select public.direct_scope($1)`, [CYCLE])).toBe(9);
+        expect(await count(q, `select * from public.reviews where id = $1`, [reviewId])).toBe(0);
+      });
+      await asManager(db, GM, async (q) => {
+        expect(await count(q, `select public.line_scope($1)`, [CYCLE])).toBe(47);
+      });
+    } finally {
+      await db.query(
+        `update public.cycle_population set in_scope = true where cycle_id = $1 and employee_id = $2`,
+        [CYCLE, outOfScope],
+      );
+      await db.query(`delete from public.reviews where id = $1`, [reviewId]);
     }
   });
 

@@ -16,4 +16,10 @@
 - 匯出相關的改動，都要跑匯出驗收測試（SPEC §9）。
 
 ## 常用指令
-（由 P0 建立後填入：dev、test、e2e、db push、deploy）
+- 開發：`npm run dev`
+- 全部測試：`npm test`；只跑 RLS：`npm run test:rls`
+- 型別與建置：`npm run build`
+- 重新產生假資料：`npm run seed:gen`
+- 套用 migrations 到遠端：`npm run db:push`（需先 `npx supabase link`）
+- 示範帳號：`npm run demo:provision`，上線前必須 `npm run demo:remove`
+- 這台電腦的 Node 由 winget 安裝；新開的終端機若找不到 node，重開 app 即可
