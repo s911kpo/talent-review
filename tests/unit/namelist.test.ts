@@ -87,6 +87,18 @@ describe('analysis', () => {
     expect(analyzeNamelist([boss('1'), raw('2', '1', 'N')]).rows[1].in_scope).toBe(false);
   });
 
+  it.each([
+    ['2020/3/1', '2020-03-01'], ['2020-03-01', '2020-03-01'], ['2020.03.01', '2020-03-01'], ['43891', '2020-03-01'],
+  ])('reads start date %s', (startDate, expected) => {
+    const a = analyzeNamelist([raw('2', '0', 'N', { startDate })]);
+    expect(a.hasErrors).toBe(false);
+    expect(a.rows[0].start_date).toBe(expected);
+  });
+
+  it.each(['2020/13/1', '2020/2/30', 'soon'])('blocks unreadable start date %s', (startDate) => {
+    expect(codes(analyzeNamelist([raw('2', '0', 'N', { startDate })]))).toContain('invalid_start_date');
+  });
+
   it('never carries a birth field', () => {
     const a = analyzeNamelist([boss('1')]);
     expect(Object.keys(a.rows[0]).filter((k) => /birth/i.test(k))).toEqual([]);

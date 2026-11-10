@@ -63,6 +63,21 @@ export interface NamelistAnalysis {
   hasErrors: boolean;
 }
 
+/** Accepts the forms Excel exports commonly hold: 2020-03-01, 2020/3/1, 2020.3.1 and date serials. */
+export function normalizeDate(raw: string): string | null {
+  const iso = (y: number, m: number, d: number) => {
+    const date = new Date(Date.UTC(y, m - 1, d));
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null;
+    return date.toISOString().slice(0, 10);
+  };
+  const parts = raw.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (parts) return iso(Number(parts[1]), Number(parts[2]), Number(parts[3]));
+  if (/^\d{5}$/.test(raw)) {
+    return new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000).toISOString().slice(0, 10);
+  }
+  return null;
+}
+
 function editDistance(a: string, b: string): number {
   const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
@@ -147,7 +162,7 @@ export function analyzeNamelist(raw: Array<RawRow & { rowNumber: number }>): Nam
     const supervisorId = supervisorRaw === '' ? 0 : Number(supervisorRaw);
 
     const startRaw = r.startDate.trim();
-    const startDate = /^\d{4}-\d{2}-\d{2}$/.test(startRaw) ? startRaw : null;
+    const startDate = normalizeDate(startRaw);
     if (startRaw !== '' && startDate === null) {
       issues.push({ level: 'error', code: 'invalid_start_date', rowNumber: r.rowNumber, employeeId, detail: startRaw });
     }
