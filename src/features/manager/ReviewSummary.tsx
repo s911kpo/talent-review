@@ -46,9 +46,11 @@ export function ReviewSummary({ review, onEdit }: { review: Review; onEdit?: (st
             {isEmpty(content[key]) ? <span className="text-muted">{t('wizard.notAnswered')}</span> : content[key]}
           </dd>
           {onEdit && (
-            <button type="button" className="btn-secondary justify-self-start px-2 py-1" onClick={() => onEdit(key)}>
-              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />{t('wizard.edit')}
-            </button>
+            <dd>
+              <button type="button" className="btn-secondary px-2 py-1" onClick={() => onEdit(key)}>
+                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />{t('wizard.edit')}
+              </button>
+            </dd>
           )}
         </div>
       ))}

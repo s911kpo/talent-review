@@ -10,11 +10,11 @@ export function TopControls() {
   return (
     <div className="flex items-center gap-1">
       <button
-        type="button" className="btn-secondary px-2.5 py-1" aria-label={t('top.fontSmaller')}
+        type="button" className="btn-secondary px-2.5 py-1" aria-label={`A− ${t('top.fontSmaller')}`}
         disabled={index <= 0} onClick={() => setFontScale(FONT_STEPS[index - 1])}
       >A−</button>
       <button
-        type="button" className="btn-secondary px-2.5 py-1" aria-label={t('top.fontLarger')}
+        type="button" className="btn-secondary px-2.5 py-1" aria-label={`A+ ${t('top.fontLarger')}`}
         disabled={index >= FONT_STEPS.length - 1} onClick={() => setFontScale(FONT_STEPS[index + 1])}
       >A+</button>
       <div role="group" aria-label={t('top.language')} className="ml-1 flex">

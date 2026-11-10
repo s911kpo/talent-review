@@ -179,6 +179,20 @@ export const demo = {
     persist();
   },
 
+  dashboard: async () => {
+    const list = store.user === HR_DEMO ? people : people.filter((p) => p.supervisor === me());
+    return {
+      people: list.filter((p) => p.supervisor !== GM || me() === GM || store.user === HR_DEMO).map((p) => ({
+        employee_id: p.employeeId, name: p.fullName, dept: p.dept, reviewer_id: p.supervisor,
+        start_date: p.startDate, gender: p.employeeId % 2 ? 'M' : 'F',
+      })),
+      reviews: store.reviews.filter((r) => r.is_key_talent && (store.user === HR_DEMO || r.reviewer_id === me())).map((r) => structuredClone(r)),
+      reviewerNames: new Map(people.map((p) => [p.employeeId, p.fullName])),
+    };
+  },
+
+  plantAverages: async () => ({ key_pct: 22, med_high_pct: 31, coverage_pct: 44, plan_complete_pct: 58, not_discussed_pct: 17 }),
+
   population: () => people.map((p) => ({ employee_id: p.employeeId, in_scope: true, supervisor_id: p.supervisor })),
 
   signInHr(email: string): boolean {

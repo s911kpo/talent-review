@@ -13,12 +13,15 @@
     "test:unit": "vitest run tests/unit",
     "test:rls": "vitest run tests/rls",
     "seed:gen": "node scripts/gen-fake-seed.mjs",
+    "prompts:gen": "node scripts/gen-prompts.mjs",
     "db:push": "supabase db push --linked",
     "demo:provision": "node scripts/provision-demo-users.mjs",
     "demo:remove": "node scripts/provision-demo-users.mjs --remove"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.6",
     "exceljs": "^4.4.0",
     "i18next": "^23.16.0",
     "lucide-react": "^0.460.0",
@@ -28,6 +31,7 @@
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@electric-sql/pglite": "^0.2.17",
     "@playwright/test": "^1.65.0",
     "@types/node": "^22.9.0",

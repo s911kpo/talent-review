@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CircleHelp, Download, Users, X } from 'lucide-react';
@@ -13,6 +13,9 @@ import { isUnderSixMonths, tenure } from '../../lib/tenure';
 import type { TeamMember } from '../../data/team';
 import { useRef_ } from './referenceData';
 import { Tour } from './Tour';
+
+const Dashboard = lazy(() => import('../dashboard/Dashboard'));
+const AiPanel = lazy(() => import('../ai/AiPanel'));
 
 const STATUS_TONE: Record<TeamSubmission['status'], string> = {
   draft: 'bg-info-bg text-info-fg',
@@ -31,7 +34,7 @@ export function MyTeamPage() {
   const [teamState, setTeamState] = useState<TeamSubmission | null>(null);
   const [lineTeams, setLineTeams] = useState<LineTeam[]>([]);
   const [failed, setFailed] = useState(false);
-  const [tab, setTab] = useState<'team' | 'line'>('team');
+  const [tab, setTab] = useState<'team' | 'line' | 'dash' | 'ai'>('team');
   const [exporting, setExporting] = useState(false);
   const [tourOpen, setTourOpen] = useState(() => readLocal(`tourSeen.${profile?.userId}`) !== '1');
   const [bannerOpen, setBannerOpen] = useState(() => readLocal('mobileBannerSeen') !== '1');
@@ -120,17 +123,15 @@ export function MyTeamPage() {
         <ProgressRing pct={pct} label={t('home.progress')} value={t('home.progressValue', { done: complete.length, total: keyTalent.length })} />
       </section>
 
-      {lineTeams.length > 0 && (
-        <div role="tablist" className="mt-4 flex gap-1 border-b border-line">
-          {(['team', 'line'] as const).map((key) => (
-            <button
-              key={key} type="button" role="tab" aria-selected={tab === key}
-              className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}
-              onClick={() => setTab(key)}
-            >{t(key === 'team' ? 'home.tabTeam' : 'home.tabLine')}</button>
-          ))}
-        </div>
-      )}
+      <div role="tablist" className="mt-4 flex flex-wrap gap-1 border-b border-line">
+        {(lineTeams.length > 0 ? ['team', 'line', 'dash', 'ai'] as const : ['team', 'dash', 'ai'] as const).map((key) => (
+          <button
+            key={key} type="button" role="tab" aria-selected={tab === key}
+            className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}
+            onClick={() => setTab(key)}
+          >{t({ team: 'home.tabTeam', line: 'home.tabLine', dash: 'ai.tabDash', ai: 'ai.tabManager' }[key])}</button>
+        ))}
+      </div>
 
       <div className="mt-5">
         {tab === 'team' && team.length === 0 && (
@@ -152,6 +153,10 @@ export function MyTeamPage() {
           </ul>
         )}
         {tab === 'line' && <LineTab teams={lineTeams} />}
+        <Suspense fallback={<p role="status" className="text-muted">{t('app.loading')}</p>}>
+          {tab === 'dash' && <Dashboard mode="manager" />}
+          {tab === 'ai' && <AiPanel mode="manager" />}
+        </Suspense>
         {anyReturned && <span className="sr-only">{t('home.badgeReturned')}</span>}
       </div>
 

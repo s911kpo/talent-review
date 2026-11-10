@@ -164,6 +164,38 @@ test('full cycle: submit, HR returns, manager fixes, HR confirms, locks and expo
   expect(download.suggestedFilename()).toMatch(/^TalentReview_Q4-2026_All_\d{8}-\d{4}\.xlsx$/);
 });
 
+test('dashboards show data, drill down, and manager AI stays read-only', async ({ page }) => {
+  await login(page);
+  await selectFirstKeyTalent(page);
+  await answerAll(page);
+  await expect(page.getByText(/^已儲存 ·/)).toBeVisible({ timeout: 10_000 });
+  await page.goto('/team');
+  await page.getByRole('tab', { name: '儀表板' }).click();
+  await expect(page.getByText('參考，非目標', { exact: false })).toBeVisible();
+  await expect(page.getByText(/全廠平均/).first()).toBeVisible();
+  const text = await page.locator('body').innerText();
+  expect(text).not.toMatch(/九宮格|配額|排名|強制/);
+
+  await page.getByRole('tab', { name: '留任風險' }).click();
+  await page.getByRole('button', { name: /中 × 關鍵職位/ }).click();
+  const drawer = page.getByRole('dialog');
+  await expect(drawer.getByText('Lin, Cedar')).toBeVisible();
+  await drawer.getByText('Lin, Cedar').click();
+  await expect(drawer.getByText(/三週內/)).toBeVisible();
+  await page.getByRole('button', { name: '關閉', exact: true }).click();
+
+  for (const name of ['接班梯隊', '流動與職涯', '發展地圖', '組織畫像']) {
+    await page.getByRole('tab', { name }).click();
+    await expect(page.getByRole('tab', { name, selected: true })).toBeVisible();
+  }
+
+  await page.getByRole('tab', { name: '團隊發展建議' }).click();
+  await expect(page.getByText('AI 分析會將盤點內容傳送至 Anthropic API 處理')).toBeVisible();
+  await expect(page.getByLabel('分析類型')).toHaveCount(0);
+  await page.getByRole('button', { name: '生成' }).click();
+  await expect(page.getByText('示範模式不會呼叫 AI')).toBeVisible();
+});
+
 test('guidance opens from the lightbulb and leaves inputs empty', async ({ page }) => {
   await login(page);
   await selectFirstKeyTalent(page);

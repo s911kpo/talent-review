@@ -174,6 +174,18 @@ describe('access', () => {
     await expect(asHr(db, (q) => q(`select public.record_audit('a', 'b', 'c', '{}')`))).rejects.toThrow(/permission denied/);
   });
 
+  it('gives managers site averages as numbers only, from submitted work', async () => {
+    await db.query(`update public.reviews set retention_risk = 'High' where id = $1`, [r1]);
+    await seedReview(db, A_REPORT + 2, MGR_A, 'draft');
+    await asManager(db, GM, async (q) => {
+      const rows = await q<Record<string, unknown>>(`select * from public.plant_averages($1)`, [CYCLE]);
+      expect(rows).toHaveLength(1);
+      expect(Object.keys(rows[0]).sort()).toEqual(['coverage_pct', 'key_pct', 'med_high_pct', 'not_discussed_pct', 'plan_complete_pct']);
+      expect(Number(rows[0].med_high_pct)).toBe(50); // the draft is not counted: 1 of 2 submitted
+      expect(Number(rows[0].key_pct)).toBeCloseTo((2 / 108) * 100);
+    });
+  });
+
   it('reports team progress to HR', async () => {
     await asHr(db, async (q: Q) => {
       const rows = await q<{ reviewer_id: number; direct_count: number; status: string }>(

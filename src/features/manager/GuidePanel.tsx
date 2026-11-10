@@ -40,7 +40,10 @@ export function Markdown({ text }: { text: string }) {
       continue;
     }
     flush();
-    blocks.push(<p key={blocks.length}>{inline(line)}</p>);
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    blocks.push(heading
+      ? <p key={blocks.length} className="mt-3 font-semibold">{inline(heading[1])}</p>
+      : <p key={blocks.length}>{inline(line)}</p>);
   }
   flush();
   return <div className="space-y-2 text-sm leading-relaxed">{blocks}</div>;

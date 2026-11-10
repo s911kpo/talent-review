@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CalendarRange, ClipboardCheck, Eye, FileDown, FileUp, KeyRound, LayoutGrid, ListTree, ScrollText, SlidersHorizontal } from 'lucide-react';
+import { CalendarRange, ChartColumn, ClipboardCheck, Eye, FileDown, FileUp, KeyRound, LayoutGrid, ListTree, ScrollText, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AppShell } from '../../components/AppShell';
 import { AccountsPanel } from './AccountsPanel';
 import { CyclesPanel } from './CyclesPanel';
@@ -11,10 +11,17 @@ import { OverviewPanel } from './OverviewPanel';
 import { PreviewPanel } from './PreviewPanel';
 import { QueuePanel } from './QueuePanel';
 
+const Dashboard = lazy(() => import('../dashboard/Dashboard'));
+const AiPanel = lazy(() => import('../ai/AiPanel'));
+const DashboardTab = () => <Dashboard mode="hr" />;
+const AiTab = () => <AiPanel mode="hr" />;
+
 const TABS = [
   { key: 'overview', label: 'hrq.tabOverview', Icon: LayoutGrid, Panel: OverviewPanel },
   { key: 'queue', label: 'hrq.tabQueue', Icon: ClipboardCheck, Panel: QueuePanel },
+  { key: 'dashboard', label: 'ai.tabHrDash', Icon: ChartColumn, Panel: DashboardTab },
   { key: 'export', label: 'hrq.tabExport', Icon: FileDown, Panel: ExportPanel },
+  { key: 'ai', label: 'ai.tabHr', Icon: Sparkles, Panel: AiTab },
   { key: 'preview', label: 'hrq.tabPreview', Icon: Eye, Panel: PreviewPanel },
   { key: 'cycles', label: 'hr.tabCycles', Icon: CalendarRange, Panel: CyclesPanel },
   { key: 'namelist', label: 'hr.tabNamelist', Icon: FileUp, Panel: NamelistPanel },
@@ -43,7 +50,9 @@ export function HrConsolePage() {
           </button>
         ))}
       </div>
-      <div className="mt-6"><Active /></div>
+      <div className="mt-6">
+        <Suspense fallback={<p role="status" className="text-muted">{t('app.loading')}</p>}><Active /></Suspense>
+      </div>
     </AppShell>
   );
 }
