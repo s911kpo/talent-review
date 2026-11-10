@@ -1,4 +1,5 @@
-import { supabase } from './client';
+import { isDemoMode, supabase } from './client';
+import { demo } from './demo';
 
 export interface Cycle {
   id: string;
@@ -18,6 +19,7 @@ export interface TeamMember {
 }
 
 export async function getOpenCycle(): Promise<Cycle | null> {
+  if (isDemoMode) return demo.cycle;
   const { data, error } = await supabase()
     .from('cycles')
     .select('id, code, quarter_label, status, due_at')
@@ -29,8 +31,9 @@ export async function getOpenCycle(): Promise<Cycle | null> {
   return data;
 }
 
-/** Row access is enforced by RLS; the supervisor filter only separates direct reports from the line view. */
-export async function listDirectTeam(cycleId: string, managerId: number): Promise<TeamMember[]> {
+/** Row access is enforced by RLS; the supervisor filter only separates a team from the wider line view. */
+export async function listTeam(cycleId: string, managerId: number): Promise<TeamMember[]> {
+  if (isDemoMode) return demo.team(managerId);
   const { data, error } = await supabase()
     .from('cycle_population')
     .select('employee_id, position, dept, employees(local_name, full_name, start_date)')

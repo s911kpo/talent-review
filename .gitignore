@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.demo
 
 # Dependencies and builds
 node_modules/
@@ -17,3 +18,5 @@ Talent_Review_Emit*.xlsx
 *PIN*.xlsx
 
 .claude/
+test-results/
+playwright/.cache/

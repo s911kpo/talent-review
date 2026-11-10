@@ -2,8 +2,13 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import zh from '../../src/i18n/zh-TW.json';
-import en from '../../src/i18n/en.json';
+import zhBase from '../../src/i18n/zh-TW.json';
+import enBase from '../../src/i18n/en.json';
+import zhManager from '../../src/i18n/manager.zh-TW.json';
+import enManager from '../../src/i18n/manager.en.json';
+
+const zh = { ...zhBase, ...zhManager };
+const en = { ...enBase, ...enManager };
 
 const root = join(__dirname, '..', '..');
 const srcDir = join(root, 'src');
@@ -35,7 +40,7 @@ describe('i18n', () => {
 
   it('defines every key used in code', () => {
     const missing: string[] = [];
-    const patterns = [/\bt\('([a-zA-Z0-9_.]+)'/g, /'((?:login|hrLogin|hr|app|top|team|cycles|namelist|accounts|badge)\.[a-zA-Z0-9_.]+)'/g];
+    const patterns = [/\bt\('([a-zA-Z0-9_.]+)'/g, /'((?:login|hrLogin|hr|app|top|team|cycles|namelist|accounts|badge|home|kt|wizard|autosave|q|plan|check|sub|tour)\.[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)'/g];
     for (const file of sources) {
       for (const pattern of patterns) {
         for (const match of read(file).matchAll(pattern)) {

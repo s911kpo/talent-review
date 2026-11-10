@@ -4,7 +4,10 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-export const isBackendConfigured = Boolean(url && anonKey);
+/** Local walkthrough with fictional data in the browser. Set only through `npm run demo`. */
+export const isDemoMode = import.meta.env.VITE_DATA_MODE === 'demo';
+
+export const isBackendConfigured = isDemoMode || Boolean(url && anonKey);
 
 let client: SupabaseClient | null = null;
 

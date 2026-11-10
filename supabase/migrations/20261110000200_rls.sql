@@ -144,8 +144,21 @@ create policy population_select on public.cycle_population for select to authent
 create policy population_hr_write on public.cycle_population for all to authenticated
   using ((select public.is_hr())) with check ((select public.is_hr()));
 
+-- Written against row values, not my_readable_reviews(), because Postgres also applies this
+-- policy to rows being inserted by INSERT ... ON CONFLICT, which have no id on disk yet.
+-- Keep in step with my_readable_reviews().
 create policy reviews_select on public.reviews for select to authenticated
-  using (id in (select r.review_id from public.my_readable_reviews() r));
+  using (
+    employee_id is distinct from (select public.my_employee_id())
+    and (
+      (select public.is_hr())
+      or (cycle_id, employee_id) in (select s.cycle_id, s.employee_id from public.my_scope() s where s.scope = 'direct')
+      or (
+        status in ('submitted', 'confirmed', 'locked')
+        and (cycle_id, employee_id) in (select s.cycle_id, s.employee_id from public.my_scope() s where s.scope = 'line')
+      )
+    )
+  );
 
 create policy reviews_insert on public.reviews for insert to authenticated
   with check (

@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n';
-import { isBackendConfigured, supabase } from './client';
+import { isBackendConfigured, isDemoMode, supabase } from './client';
+import { demo } from './demo';
 
 export type LoginResult = 'ok' | 'invalid' | 'locked' | 'unavailable';
 
@@ -13,6 +14,7 @@ export interface Profile {
 }
 
 export async function signInWithPin(employeeId: string, pin: string): Promise<LoginResult> {
+  if (isDemoMode) return demo.signIn(employeeId) ? 'ok' : 'invalid';
   const { data, error } = await supabase().functions.invoke('auth-pin', { body: { employeeId, pin } });
   if (error) {
     const status = (error as { context?: { status?: number } }).context?.status;
@@ -28,16 +30,22 @@ export async function signInWithPin(employeeId: string, pin: string): Promise<Lo
 }
 
 export async function signInHr(email: string, password: string): Promise<LoginResult> {
+  if (isDemoMode) return 'unavailable';
   const { error } = await supabase().auth.signInWithPassword({ email, password });
   if (!error) return 'ok';
   return error.status === 400 ? 'invalid' : 'unavailable';
 }
 
 export async function signOut(): Promise<void> {
+  if (isDemoMode) {
+    demo.signOut();
+    return;
+  }
   await supabase().auth.signOut();
 }
 
 export async function loadProfile(): Promise<Profile | null> {
+  if (isDemoMode) return demo.profile();
   if (!isBackendConfigured) return null;
   const { data: session } = await supabase().auth.getSession();
   const userId = session.session?.user.id;
@@ -60,11 +68,12 @@ export async function loadProfile(): Promise<Profile | null> {
 }
 
 export async function savePreferences(userId: string, prefs: { locale?: Locale; font_scale?: number }): Promise<void> {
+  if (isDemoMode) return;
   await supabase().from('app_users').update(prefs).eq('user_id', userId);
 }
 
 export function onAuthChange(callback: () => void): () => void {
-  if (!isBackendConfigured) return () => undefined;
+  if (isDemoMode || !isBackendConfigured) return () => undefined;
   const { data } = supabase().auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') setTimeout(callback, 0);
   });

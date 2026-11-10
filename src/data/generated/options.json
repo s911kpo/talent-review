@@ -1,0 +1,338 @@
+[
+  {
+    "list_key": "quarter",
+    "value": "Q4 2026",
+    "label_zh": "2026 Q4",
+    "label_en": "Q4 2026",
+    "sort": 1
+  },
+  {
+    "list_key": "retention_risk",
+    "value": "Low",
+    "label_zh": "低",
+    "label_en": "Low",
+    "sort": 1
+  },
+  {
+    "list_key": "retention_risk",
+    "value": "Medium",
+    "label_zh": "中",
+    "label_en": "Medium",
+    "sort": 2
+  },
+  {
+    "list_key": "retention_risk",
+    "value": "High",
+    "label_zh": "高",
+    "label_en": "High",
+    "sort": 3
+  },
+  {
+    "list_key": "mobility",
+    "value": "Not Now",
+    "label_zh": "目前不考慮",
+    "label_en": "Not Now",
+    "sort": 1
+  },
+  {
+    "list_key": "mobility",
+    "value": "Now",
+    "label_zh": "現在可以",
+    "label_en": "Now",
+    "sort": 2
+  },
+  {
+    "list_key": "mobility",
+    "value": "1-2 years",
+    "label_zh": "1–2 年內",
+    "label_en": "1-2 years",
+    "sort": 3
+  },
+  {
+    "list_key": "mobility",
+    "value": "3+ years",
+    "label_zh": "3 年以上",
+    "label_en": "3+ years",
+    "sort": 4
+  },
+  {
+    "list_key": "readiness",
+    "value": "Too New to Rate (TNTR)",
+    "label_zh": "太新無法評估",
+    "label_en": "Too New to Rate (TNTR)",
+    "sort": 1
+  },
+  {
+    "list_key": "readiness",
+    "value": "Emergency Cover",
+    "label_zh": "緊急代理",
+    "label_en": "Emergency Cover",
+    "sort": 2
+  },
+  {
+    "list_key": "readiness",
+    "value": "Ready Now",
+    "label_zh": "已就緒",
+    "label_en": "Ready Now",
+    "sort": 3
+  },
+  {
+    "list_key": "readiness",
+    "value": "1-2 years",
+    "label_zh": "1–2 年內就緒",
+    "label_en": "1-2 years",
+    "sort": 4
+  },
+  {
+    "list_key": "readiness",
+    "value": "3+ years",
+    "label_zh": "3 年以上就緒",
+    "label_en": "3+ years",
+    "sort": 5
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Career Move",
+    "label_zh": "職涯發展",
+    "label_en": "Career Move",
+    "sort": 1
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Competitive Market",
+    "label_zh": "市場競爭",
+    "label_en": "Competitive Market",
+    "sort": 2
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Family Reasons",
+    "label_zh": "家庭因素",
+    "label_en": "Family Reasons",
+    "sort": 3
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Compensation Reasons",
+    "label_zh": "薪酬因素",
+    "label_en": "Compensation Reasons",
+    "sort": 4
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Retirement",
+    "label_zh": "退休",
+    "label_en": "Retirement",
+    "sort": 5
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Hybrid Work",
+    "label_zh": "混合辦公",
+    "label_en": "Hybrid Work",
+    "sort": 6
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Work Environment",
+    "label_zh": "工作環境",
+    "label_en": "Work Environment",
+    "sort": 7
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Risk of burnout",
+    "label_zh": "過勞風險",
+    "label_en": "Risk of burnout",
+    "sort": 8
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Role Development/Role Fit",
+    "label_zh": "職務發展與適配",
+    "label_en": "Role Development/Role Fit",
+    "sort": 9
+  },
+  {
+    "list_key": "retention_reason",
+    "value": "Culture Fit",
+    "label_zh": "文化適配",
+    "label_en": "Culture Fit",
+    "sort": 10
+  },
+  {
+    "list_key": "critical_role",
+    "value": "Yes--Check Box",
+    "label_zh": "是",
+    "label_en": "Yes",
+    "sort": 1
+  },
+  {
+    "list_key": "critical_role",
+    "value": "No--Leave box empty",
+    "label_zh": "否",
+    "label_en": "No",
+    "sort": 2
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "Critical Role Holder",
+    "label_zh": "關鍵職位任職者",
+    "label_en": "Critical Role Holder",
+    "sort": 1
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "Strong Performance Impact",
+    "label_zh": "績效貢獻突出",
+    "label_en": "Strong Performance Impact",
+    "sort": 2
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "Scarce or Hard-to-Replace Skill",
+    "label_zh": "稀缺或難以取代的技能",
+    "label_en": "Scarce or Hard-to-Replace Skill",
+    "sort": 3
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "Successor Candidate",
+    "label_zh": "關鍵職位接班候選人",
+    "label_en": "Successor Candidate",
+    "sort": 4
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "High Growth Potential",
+    "label_zh": "成長潛力高",
+    "label_en": "High Growth Potential",
+    "sort": 5
+  },
+  {
+    "list_key": "key_talent_reason",
+    "value": "High-Impact Retention Concern",
+    "label_zh": "流失衝擊大",
+    "label_en": "High-Impact Retention Concern",
+    "sort": 6
+  },
+  {
+    "list_key": "dev_type",
+    "value": "Experience (70%)",
+    "label_zh": "工作歷練",
+    "label_en": "Experience (70%)",
+    "sort": 1
+  },
+  {
+    "list_key": "dev_type",
+    "value": "Exposure (20%)",
+    "label_zh": "人際學習（輔導、導師、標竿）",
+    "label_en": "Exposure (20%)",
+    "sort": 2
+  },
+  {
+    "list_key": "dev_type",
+    "value": "Education (10%)",
+    "label_zh": "正式學習（課程、證照）",
+    "label_en": "Education (10%)",
+    "sort": 3
+  },
+  {
+    "list_key": "plan_status",
+    "value": "Not Started",
+    "label_zh": "未開始",
+    "label_en": "Not Started",
+    "sort": 1
+  },
+  {
+    "list_key": "plan_status",
+    "value": "On Track",
+    "label_zh": "進行中",
+    "label_en": "On Track",
+    "sort": 2
+  },
+  {
+    "list_key": "plan_status",
+    "value": "At Risk",
+    "label_zh": "有風險",
+    "label_en": "At Risk",
+    "sort": 3
+  },
+  {
+    "list_key": "plan_status",
+    "value": "Completed",
+    "label_zh": "已完成",
+    "label_en": "Completed",
+    "sort": 4
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Integrity",
+    "label_zh": "誠信",
+    "label_en": "Integrity",
+    "sort": 1
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Compliance",
+    "label_zh": "合規",
+    "label_en": "Compliance",
+    "sort": 2
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Value Creation",
+    "label_zh": "價值創造",
+    "label_en": "Value Creation",
+    "sort": 3
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Principled Entrepreneurship",
+    "label_zh": "原則性企業家精神",
+    "label_en": "Principled Entrepreneurship",
+    "sort": 4
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Customer Focus",
+    "label_zh": "客戶導向",
+    "label_en": "Customer Focus",
+    "sort": 5
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Knowledge",
+    "label_zh": "知識",
+    "label_en": "Knowledge",
+    "sort": 6
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Transformation",
+    "label_zh": "轉型",
+    "label_en": "Transformation",
+    "sort": 7
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Humility",
+    "label_zh": "謙遜",
+    "label_en": "Humility",
+    "sort": 8
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Respect",
+    "label_zh": "尊重",
+    "label_en": "Respect",
+    "sort": 9
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Fulfillment",
+    "label_zh": "成就感",
+    "label_en": "Fulfillment",
+    "sort": 10
+  }
+]

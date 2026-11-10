@@ -1,81 +1,213 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users } from 'lucide-react';
+import { CircleHelp, Users, X } from 'lucide-react';
 import { useSession } from '../../app/session';
 import { AppShell, ErrorNotice } from '../../components/AppShell';
-import { getOpenCycle, listDirectTeam, type Cycle, type TeamMember } from '../../data/team';
+import { getTeamSubmission, listLineTeams, listReviewsByReviewer } from '../../data/review';
+import { readLocal, writeLocal } from '../../lib/localPrefs';
+import { answeredCount, isEditable, missingSteps } from '../../lib/review/steps';
+import type { LineTeam, Review, TeamSubmission } from '../../lib/review/types';
 import { isUnderSixMonths, tenure } from '../../lib/tenure';
+import type { TeamMember } from '../../data/team';
+import { useRef_ } from './referenceData';
+import { Tour } from './Tour';
+
+const STATUS_TONE: Record<TeamSubmission['status'], string> = {
+  draft: 'bg-info-bg text-info-fg',
+  submitted: 'bg-ok-bg text-ok-fg',
+  returned: 'bg-risk-bg text-risk-fg',
+  confirmed: 'bg-ok-bg text-ok-fg',
+  locked: 'bg-ok-bg text-ok-fg',
+};
 
 export function MyTeamPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { profile } = useSession();
-  const [cycle, setCycle] = useState<Cycle | null>(null);
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const { cycle, managerId, team, memberName } = useRef_();
+  const [reviews, setReviews] = useState<Review[] | null>(null);
+  const [teamState, setTeamState] = useState<TeamSubmission | null>(null);
+  const [lineTeams, setLineTeams] = useState<LineTeam[]>([]);
+  const [failed, setFailed] = useState(false);
+  const [tab, setTab] = useState<'team' | 'line'>('team');
+  const [tourOpen, setTourOpen] = useState(() => readLocal(`tourSeen.${profile?.userId}`) !== '1');
+  const [bannerOpen, setBannerOpen] = useState(() => readLocal('mobileBannerSeen') !== '1');
 
   const load = useCallback(async () => {
-    setState('loading');
+    setFailed(false);
     try {
-      const open = await getOpenCycle();
-      setCycle(open);
-      setTeam(open && profile?.employeeId ? await listDirectTeam(open.id, profile.employeeId) : []);
-      setState('ready');
+      const [r, ts, lines] = await Promise.all([
+        listReviewsByReviewer(cycle.id, managerId), getTeamSubmission(cycle.id, managerId), listLineTeams(cycle.id),
+      ]);
+      setReviews(r);
+      setTeamState(ts);
+      setLineTeams(lines);
     } catch {
-      setState('error');
+      setFailed(true);
     }
-  }, [profile?.employeeId]);
+  }, [cycle.id, managerId]);
 
   useEffect(() => void load(), [load]);
 
+  const closeTour = () => {
+    writeLocal(`tourSeen.${profile?.userId}`, '1');
+    setTourOpen(false);
+  };
+
+  if (failed) return <AppShell><ErrorNotice onRetry={() => void load()} /></AppShell>;
+  if (!reviews || !teamState) return <AppShell><p role="status" className="text-muted">{t('app.loading')}</p></AppShell>;
+
+  const keyTalent = reviews.filter((r) => r.is_key_talent);
+  const complete = keyTalent.filter((r) => !isEditable(r.status) || missingSteps(r).length === 0);
+  const pct = keyTalent.length ? Math.round((complete.length / keyTalent.length) * 100) : 0;
+  const firstOpen = keyTalent.find((r) => isEditable(r.status) && missingSteps(r).length > 0);
+  const anyReturned = keyTalent.some((r) => r.status === 'returned');
+  const days = cycle.due_at ? Math.ceil((new Date(cycle.due_at).getTime() - Date.now()) / 86400000) : null;
+  const editing = teamState.status === 'draft' || teamState.status === 'returned';
+
+  let action: { label: string; to: string };
+  if (!editing) action = { label: t('home.viewSubmitted'), to: '/team/submitted' };
+  else if (keyTalent.length === 0) action = { label: t('home.startSelect'), to: '/team/select' };
+  else if (firstOpen) action = { label: t('home.continue', { name: memberName(firstOpen.employee_id) }), to: `/team/review/${firstOpen.employee_id}` };
+  else action = { label: t('home.check'), to: '/team/check' };
+
   return (
     <AppShell>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-2xl font-semibold">{t('team.title')}</h1>
-        {cycle && (
-          <p className="text-sm text-muted">
-            {cycle.quarter_label}
-            {cycle.due_at && ` · ${t('team.dueIn', { date: new Date(cycle.due_at).toLocaleDateString(i18n.language) })}`}
-            {` · ${t('team.members', { count: team.length })}`}
-          </p>
-        )}
-      </div>
+      {bannerOpen && (
+        <div className="mb-4 flex items-center justify-between gap-2 rounded-card bg-info-bg px-3 py-2 text-sm text-info-fg md:hidden">
+          <span>{t('home.mobileBanner')}</span>
+          <button
+            type="button" aria-label={t('home.dismiss')}
+            onClick={() => { writeLocal('mobileBannerSeen', '1'); setBannerOpen(false); }}
+          ><X className="h-4 w-4" aria-hidden="true" /></button>
+        </div>
+      )}
 
-      <div className="mt-6">
-        {state === 'loading' && <p role="status" className="text-muted">{t('app.loading')}</p>}
-        {state === 'error' && <ErrorNotice onRetry={() => void load()} />}
-        {state === 'ready' && !cycle && <EmptyState text={t('team.noCycle')} />}
-        {state === 'ready' && cycle && team.length === 0 && <EmptyState text={t('team.empty')} />}
-        {state === 'ready' && team.length > 0 && (
+      <section className="card flex flex-wrap items-center justify-between gap-4 p-5">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-semibold">{cycle.quarter_label}</h1>
+            <span className={`tag ${STATUS_TONE[teamState.status]}`}>{t(`status.${teamState.status}`)}</span>
+          </div>
+          {cycle.due_at && (
+            <p className="mt-1 text-sm text-muted">
+              {t('team.dueIn', { date: new Date(cycle.due_at).toLocaleDateString(i18n.language) })}
+              {days !== null && ` · ${days >= 0 ? t('home.daysLeft', { days }) : t('home.overdue')}`}
+            </p>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link to={action.to} className="btn-primary">{action.label}</Link>
+            {editing && keyTalent.length > 0 && <Link to="/team/select" className="btn-secondary">{t('home.editSelect')}</Link>}
+            <button type="button" className="btn-secondary" onClick={() => setTourOpen(true)}>
+              <CircleHelp className="h-4 w-4" aria-hidden="true" />{t('home.help')}
+            </button>
+          </div>
+        </div>
+        <ProgressRing pct={pct} label={t('home.progress')} value={t('home.progressValue', { done: complete.length, total: keyTalent.length })} />
+      </section>
+
+      {lineTeams.length > 0 && (
+        <div role="tablist" className="mt-4 flex gap-1 border-b border-line">
+          {(['team', 'line'] as const).map((key) => (
+            <button
+              key={key} type="button" role="tab" aria-selected={tab === key}
+              className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}
+              onClick={() => setTab(key)}
+            >{t(key === 'team' ? 'home.tabTeam' : 'home.tabLine')}</button>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-5">
+        {tab === 'team' && team.length === 0 && (
+          <div className="card flex items-center gap-3 p-6 text-muted">
+            <Users className="h-5 w-5" aria-hidden="true" /><p>{t('team.empty')}</p>
+          </div>
+        )}
+        {tab === 'team' && team.length > 0 && (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {team.map((m) => <MemberCard key={m.employeeId} member={m} />)}
+            {team.map((m) => {
+              const review = reviews.find((r) => r.employee_id === m.employeeId && r.is_key_talent);
+              return (
+                <MemberCard
+                  key={m.employeeId} member={m} review={review}
+                  onOpen={review ? () => navigate(`/team/review/${m.employeeId}`) : undefined}
+                />
+              );
+            })}
           </ul>
         )}
+        {tab === 'line' && <LineTab teams={lineTeams} />}
+        {anyReturned && <span className="sr-only">{t('home.badgeReturned')}</span>}
       </div>
+
+      {tourOpen && <Tour onClose={closeTour} />}
     </AppShell>
   );
 }
 
-function EmptyState({ text }: { text: string }) {
+function ProgressRing({ pct, label, value }: { pct: number; label: string; value: string }) {
+  const r = 26;
+  const c = 2 * Math.PI * r;
   return (
-    <div className="card flex items-center gap-3 p-6 text-muted">
-      <Users className="h-5 w-5" aria-hidden="true" />
-      <p>{text}</p>
+    <div className="flex items-center gap-3">
+      <svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label={`${label} ${pct}%`}>
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#E6E1DA" strokeWidth="6" />
+        <circle
+          cx="32" cy="32" r={r} fill="none" stroke="#C8102E" strokeWidth="6" strokeLinecap="round"
+          strokeDasharray={`${(pct / 100) * c} ${c}`} transform="rotate(-90 32 32)"
+        />
+        <text x="32" y="36" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1F2328">{pct}%</text>
+      </svg>
+      <div><p className="text-sm font-medium">{label}</p><p className="text-sm text-muted">{value}</p></div>
     </div>
   );
 }
 
-function MemberCard({ member }: { member: TeamMember }) {
+function MemberCard({ member, review, onOpen }: { member: TeamMember; review?: Review; onOpen?: () => void }) {
   const { t } = useTranslation();
   const span = tenure(member.startDate);
-  return (
-    <li className="card p-4">
+  const body = (
+    <>
       <p className="font-medium">{member.fullName} <span className="text-muted">{member.localName}</span></p>
       <p className="mt-1 text-sm text-muted">{member.position}</p>
       <p className="text-sm text-muted">{member.dept}</p>
       <p className="mt-2 text-sm text-muted">
         {span ? t('team.tenure', { years: span.years, months: span.months }) : t('team.tenureUnknown')}
       </p>
-      {isUnderSixMonths(member.startDate) && <span className="tag mt-2 bg-info-bg text-info-fg">{t('badge.tntr')}</span>}
+      <div className="mt-2 flex flex-wrap gap-1">
+        {isUnderSixMonths(member.startDate) && <span className="tag bg-info-bg text-info-fg">{t('badge.tntr')}</span>}
+        {review && <span className="tag bg-ok-bg text-ok-fg">{t('home.badgeKey')}</span>}
+        {review && <span className="tag bg-canvas text-muted">{t('home.badgeProgress', { n: answeredCount(review) })}</span>}
+        {review?.status === 'returned' && <span className="tag bg-risk-bg text-risk-fg">{t('home.badgeReturned')}</span>}
+      </div>
+    </>
+  );
+  return (
+    <li className="card">
+      {onOpen
+        ? <button type="button" className="h-full w-full rounded-card p-4 text-left hover:bg-canvas" onClick={onOpen}>{body}</button>
+        : <div className="p-4">{body}</div>}
     </li>
+  );
+}
+
+function LineTab({ teams }: { teams: LineTeam[] }) {
+  const { t } = useTranslation();
+  if (teams.length === 0) return <div className="card p-6 text-muted">{t('home.lineEmpty')}</div>;
+  return (
+    <div>
+      <p className="mb-3 text-sm text-muted">{t('home.lineNote')}</p>
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {teams.map((m) => (
+          <li key={m.reviewer_id} className="card p-4">
+            <p className="font-medium">{m.full_name} <span className="text-muted">{m.local_name}</span></p>
+            <p className="mt-1 text-sm text-muted">{t('home.lineMembers', { count: Number(m.member_count) })}</p>
+            <span className={`tag mt-2 ${STATUS_TONE[m.status]}`}>{t(`status.${m.status}`)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
