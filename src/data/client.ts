@@ -9,6 +9,9 @@ export const isDemoMode = import.meta.env.VITE_DATA_MODE === 'demo';
 
 export const isBackendConfigured = isDemoMode || Boolean(url && anonKey);
 
+/** AI menus stay hidden until an Anthropic key is funded and VITE_AI_ENABLED=true is set (SPEC 16 fallback). */
+export const isAiEnabled = isDemoMode || import.meta.env.VITE_AI_ENABLED === 'true';
+
 let client: SupabaseClient | null = null;
 
 export function supabase(): SupabaseClient {

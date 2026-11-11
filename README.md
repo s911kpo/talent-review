@@ -20,7 +20,7 @@ npx playwright test   # E2E（375 與 1440 兩種寬度）
 3. `npm run db:push`。Staging 才加 `--include-seed` 放假資料，正式環境不要。
 4. 部署函式：`npx supabase functions deploy auth-pin admin-users ai-generate`
 5. 設定函式的 secrets：`npx supabase secrets set ANTHROPIC_API_KEY=... ANTHROPIC_MODEL=...`
-6. Netlify 連 GitHub repo，環境變數設定 `VITE_SUPABASE_URL` 與 `VITE_SUPABASE_ANON_KEY`。**不要設定 `VITE_DATA_MODE`。**
+6. Netlify 連 GitHub repo，環境變數設定 `VITE_SUPABASE_URL` 與 `VITE_SUPABASE_ANON_KEY`。**不要設定 `VITE_DATA_MODE`。** 要開放 AI 時再加 `VITE_AI_ENABLED=true`，未設定時 AI 選單隱藏。
 7. 上線前 `npm run demo:remove` 移除示範帳號。
 
 修改題庫來源或提示詞後：`node scripts/gen-question-bank.mjs`、`npm run prompts:gen`。範本更新後：`node scripts/sanitize-template.mjs`。

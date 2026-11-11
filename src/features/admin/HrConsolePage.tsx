@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CalendarRange, ChartColumn, ClipboardCheck, Eye, FileDown, FileUp, KeyRound, LayoutGrid, ListTree, ScrollText, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AppShell } from '../../components/AppShell';
+import { isAiEnabled } from '../../data/client';
 import { AccountsPanel } from './AccountsPanel';
 import { CyclesPanel } from './CyclesPanel';
 import { AuditPanel, OptionsPanel, QuestionsPanel } from './EditorsPanels';
@@ -39,7 +40,7 @@ export function HrConsolePage() {
     <AppShell>
       <h1 className="text-2xl font-semibold">{t('hr.title')}</h1>
       <div role="tablist" className="mt-4 flex flex-wrap gap-1 border-b border-line">
-        {TABS.map(({ key, label, Icon }) => (
+        {TABS.filter((x) => x.key !== 'ai' || isAiEnabled).map(({ key, label, Icon }) => (
           <button
             key={key} type="button" role="tab" aria-selected={tab === key}
             className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}

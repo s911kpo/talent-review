@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CircleHelp, Download, Users, X } from 'lucide-react';
 import { runExport } from '../admin/ExportPanel';
+import { isAiEnabled } from '../../data/client';
 import { useSession } from '../../app/session';
 import { AppShell, ErrorNotice } from '../../components/AppShell';
 import { getTeamSubmission, listLineTeams, listReviewsByReviewer } from '../../data/review';
@@ -124,7 +125,9 @@ export function MyTeamPage() {
       </section>
 
       <div role="tablist" className="mt-4 flex flex-wrap gap-1 border-b border-line">
-        {(lineTeams.length > 0 ? ['team', 'line', 'dash', 'ai'] as const : ['team', 'dash', 'ai'] as const).map((key) => (
+        {(['team', 'line', 'dash', 'ai'] as const)
+          .filter((key) => (key !== 'line' || lineTeams.length > 0) && (key !== 'ai' || isAiEnabled))
+          .map((key) => (
           <button
             key={key} type="button" role="tab" aria-selected={tab === key}
             className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}
