@@ -223,10 +223,9 @@ const addMonths = (d: Date, m: number) => {
 };
 
 function nextTitle(position: string, dept: string): string {
-  if (position.startsWith('Sr. ')) return `Section Manager, ${dept}`;
+  if (position.startsWith('Sr. ')) return `Supervisor, ${dept}`;
   if (position.includes('Technician') || position.includes('Inspector') || position.includes('Leader')) return position.replace(/Technician|Inspector|Line Leader/, 'Engineer');
-  if (position.startsWith('Section Manager') || position.startsWith('Supervisor')) return `Department Manager, ${dept}`;
-  if (position.startsWith('Department Manager')) return 'Plant Operations Director';
+  if (position.startsWith('Supervisor') || position.startsWith('Production Supervisor')) return 'Plant Operations Director';
   return `Sr. ${position}`;
 }
 
@@ -253,13 +252,13 @@ export function generateOrg({ size, seed = 20261111, today = new Date(), cycleId
   const deptPeople = new Map<string, MockPerson[]>();
   for (const d of DEPTS) {
     const count = Math.max(4, Math.round(staffBudget * d.share));
-    const head = add(gm.employeeId, `Department Manager, ${d.name}`, d.name, [Math.max(3, d.tenureYears[0]), d.tenureYears[1] + 4]);
+    const head = add(gm.employeeId, `Supervisor, ${d.name}`, d.name, [Math.max(3, d.tenureYears[0]), d.tenureYears[1] + 4]);
     const sectionCount = Math.max(1, Math.round((count - 1) / 14));
-    const sections = Array.from({ length: sectionCount }, () => add(head.employeeId, `Section Manager, ${d.name}`, d.name, [Math.max(2, d.tenureYears[0]), d.tenureYears[1] + 2]));
+    const sections = Array.from({ length: sectionCount }, () => add(head.employeeId, `Supervisor, ${d.name}`, d.name, [Math.max(2, d.tenureYears[0]), d.tenureYears[1] + 2]));
     const members = [head, ...sections];
     const staff = count - 1 - sectionCount;
     for (let i = 0; i < staff; i++) {
-      // A couple of specialists report straight to the department head.
+      // A couple of specialists report straight to the lead Supervisor.
       const boss = i < 2 ? head : sections[i % sections.length];
       members.push(add(boss.employeeId, rng.pick(d.titles), d.name, d.tenureYears));
     }
@@ -299,7 +298,7 @@ export function generateOrg({ size, seed = 20261111, today = new Date(), cycleId
     const teamReviews: Review[] = [];
     directs.forEach((p, i) => {
       const prof = profileOf(p.dept);
-      const isLeader = p.position.startsWith('Section') || p.position.startsWith('Department');
+      const isLeader = p.position.startsWith('Supervisor');
       const keyed = rng.chance(isLeader ? 0.65 : prof.keyRate) || (i === directs.length - 1 && keyCount === 0 && directs.length > 3);
       if (!keyed) return;
       keyCount++;

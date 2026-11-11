@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { goNav } from './nav';
 
 async function scan(page: Page, name: string) {
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -61,9 +62,9 @@ test('HR console has no WCAG A or AA violations', async ({ page }) => {
   await page.goto('/login');
   await page.evaluate(seed, -1);
   await page.goto('/hr');
-  await expect(page.getByRole('tab', { name: '總覽' })).toBeVisible();
-  for (const name of ['總覽', '審核佇列', '戰略儀表板', '匯出', 'AI 工作室', '以主管身分預覽', '週期管理', '名單上傳', '帳號與 PIN', '下拉選項', '題庫', '稽核紀錄']) {
-    await page.getByRole('tab', { name }).click();
+  await expect(page.getByRole('heading', { name: '盤點進度總覽' })).toBeVisible();
+  for (const name of ['首頁', '審核佇列', '戰略儀表板', '匯出', 'AI 工作室', '以 Supervisor 身分預覽', '週期管理', '名單上傳', '帳號與 PIN', '下拉選項', '題庫', '稽核紀錄']) {
+    await goNav(page, name);
     await page.waitForTimeout(800);
     await scan(page, name);
   }

@@ -1,13 +1,20 @@
 {
   "dash": {
-    "tabA": "Organization",
-    "tabB": "Retention risk",
-    "tabC": "Bench strength",
-    "tabD": "Mobility and careers",
-    "tabE": "Development map",
-    "tabF": "Review progress",
+    "title": "Talent strategy dashboard",
+    "subtitleHr": "{{cycle}} · Retention, succession and development of key talent across the plant",
+    "subtitleManager": "{{cycle}} · Your team and your line",
+    "scopeNoteManager": "Covers your team and your line; Supervisors below you count only once they have submitted.",
+    "sec": {
+      "overview": "Overview",
+      "org": "Organization",
+      "risk": "Retention risk",
+      "bench": "Succession",
+      "growth": "Careers and development",
+      "actions": "Action list"
+    },
+    "filters": "Filters",
     "filterDept": "Department",
-    "filterReviewer": "Reviewer",
+    "filterReviewer": "Supervisor",
     "filterCritical": "Critical role",
     "filterTenure": "Tenure",
     "dataState": "Data",
@@ -16,30 +23,20 @@
     "all": "All",
     "yes": "Yes",
     "no": "No",
-    "kCompletion": "Review completion",
-    "kKey": "Key talent",
-    "kKeyNote": "{{pct}} of scope (for reference, not a target)",
-    "kCritical": "Critical roles",
-    "kCriticalHigh": "Critical role × high risk",
-    "kCoverage": "Succession coverage",
-    "kTbh": "TBH roles",
-    "kPlan": "Plan completeness",
-    "plantAvg": "Site average {{value}}",
-    "noData": "Not enough data yet.",
-    "treemap": "Headcount and key talent share by department",
-    "treemapNote": "Area is people in scope; color is key talent share",
-    "heat": "Department measures",
-    "cDept": "Department",
-    "cScope": "In scope",
-    "cKey": "Key talent",
-    "cTenure": "Avg tenure",
-    "cMedHigh": "Med/High risk",
-    "cBench": "Bench score",
-    "cPlan": "Plan complete",
-    "cTntr": "Under 6 months",
-    "tenure": "Tenure profile",
-    "sScope": "People in scope",
-    "sKey": "Key talent",
+    "clearFilters": "Clear filters",
+    "people": "{{count}} people",
+    "roles": "{{count}} roles",
+    "viewList": "View list",
+    "viewAll": "View all {{count}}",
+    "noData": "No data in the current scope.",
+    "plantAvg": "Plant {{value}}",
+    "vsOverall": "Overall {{value}}",
+    "close": "Close",
+    "about": "About this measure: {{name}}",
+    "aboutDef": "Definition",
+    "aboutFormula": "How it is calculated",
+    "aboutUse": "How to use it",
+    "notTarget": "Reference, not a target",
     "band": {
       "lt6m": "Under 6 months",
       "6to12m": "6–12 months",
@@ -48,80 +45,311 @@
       "5to10y": "5–10 years",
       "10yplus": "10+ years"
     },
-    "gender": "Gender mix (department level)",
-    "genderNote": "Departments with fewer than 5 people are not shown.",
-    "female": "Female",
-    "male": "Male",
-    "hidden": "Hidden",
-    "riskMatrix": "Retention risk × critical role",
-    "isCritical": "Critical role",
-    "notCritical": "Other roles",
-    "priority": "Priority action",
-    "pareto": "Retention reasons (Medium and High)",
-    "flight": "High risk and Ready Now",
-    "flightNote": "Most likely to be recruited away",
-    "people": "{{count}} people",
-    "viewList": "View list",
-    "bench": "Bench strength by department (critical roles)",
-    "strong": "Strong",
-    "developing": "Developing",
-    "thin": "Thin",
-    "gap": "Gap",
-    "singlePoint": "Single points of failure",
-    "concentration": "Successor concentration (named for 2 or more roles)",
-    "noConcentration": "No one is named for multiple roles.",
-    "network": "Succession network",
-    "external": "External dependency",
-    "externalNote": "External or TBH share of all successor rows",
-    "funnel": "Next-role readiness",
-    "mobility": "Mobility",
-    "locations": "Desired locations",
-    "noLocations": "No desired locations yet.",
-    "gapTalks": "Career conversation not yet held",
-    "mix": "Actual 70/20/10 mix",
-    "mixActual": "Actual",
-    "mixRef": "Reference",
-    "timeline": "Development plan target months",
-    "owners": "Owner load (actions)",
-    "themes": "Development themes × department",
-    "themesEmpty": "Not generated yet. HR can run theme tagging in the AI studio.",
-    "pbm": "PBM Values distribution",
-    "strengths": "Strengths",
-    "improvements": "Improvements",
-    "progress": "Completion by reviewer",
-    "drillTitle": "People",
-    "close": "Close",
-    "scopeNoteManager": "Covers your team and organization line. Managers below you count once submitted.",
-    "viewAll": "View all {{count}}",
-    "networkByDept": "Shown one department at a time at this size. Choose a department.",
-    "networkDept": "Network: department",
-    "tabG": "Insights",
-    "ins": {
-      "intro": "Cross-checks of what managers entered. These are leads for who to talk to first, not scores or rankings. Only HR sees cross-team results.",
-      "convTitle": "Talk to these people first: career conversations",
-      "convNote": "Medium or High retention risk, and nobody has discussed their career aspirations yet. A 15-minute conversation is the cheapest, fastest retention action.",
-      "unlistedTitle": "Talent other managers can see",
-      "unlistedNote": "Other managers name them as Ready Now or 1-2 years successors, but their own manager has not listed them as key talent. Worth confirming in calibration.",
-      "namedFor": "Roles they are named for",
-      "namedCount": "Named successor for {{count}} roles",
-      "more": "{{count}} more; use export or filters to see them",
-      "fragileTitle": "Covered on paper, fragile in practice",
-      "fragileNote": "A critical role whose near-ready successor is at Medium or High retention risk. Both people could leave together; keeping the successor protects two roles.",
-      "matchTitle": "Look inside before hiring outside",
-      "matchNote": "Critical roles with a thin bench or a TBH successor, matched to people whose own next role is that job and who are ready soon. Talk to them before opening the requisition.",
-      "calTitle": "Calibration prompts",
-      "calNote": "These describe how the form was filled in, not anyone’s quality. When they appear, the HRBP may want to ask one more question. Teams with 4 or more key talents only.",
-      "sig": {
-        "allLowRisk": "everyone is Low retention risk",
-        "sameReadiness": "everyone has the same next-role readiness",
-        "vaguePlans": "most plans have a very thin evaluation method",
-        "noTbhAllReady": "every successor is Ready Now and there is no TBH"
+    "m": {
+      "completion": {
+        "t": "Review completion",
+        "def": "Key talent reviews already submitted to HR (including confirmed and locked).",
+        "formula": "Key talent submitted or later ÷ all key talent",
+        "use": "If it lags, open Review progress to see which teams have not submitted. Other measures are only representative once completion is high."
       },
-      "supplyTitle": "Internal mobility supply vs. external hiring need",
-      "supplyNote": "Per department: key talents open to moving soon, against critical roles that need an outside hire. Where supply is enough, consider internal moves first.",
-      "mobile": "Open to moving soon",
-      "tbhRoles": "Critical roles needing outside hire"
-    }
+      "key": {
+        "t": "Key talent",
+        "def": "People a Supervisor marked as key talent this cycle.",
+        "formula": "Number of key talent; share = key talent ÷ people in scope",
+        "use": "The share is a reference, never a target. Use it to check that departments nominate consistently and raise outliers in calibration."
+      },
+      "alert": {
+        "t": "Retention alert",
+        "def": "People in a critical role who are rated high retention risk.",
+        "formula": "Critical role = yes and retention risk = High",
+        "use": "Losing them hits the business immediately. Agree an individual retention action with the Supervisor and HRBP within two weeks."
+      },
+      "ready": {
+        "t": "Ready-now coverage",
+        "def": "Share of critical roles with at least one successor who could step in now.",
+        "formula": "Critical roles with a Ready Now successor ÷ all critical roles",
+        "use": "Low coverage means an opening is likely filled from outside or stays vacant. Start with the Succession gaps list."
+      },
+      "talk": {
+        "t": "Career conversation gap",
+        "def": "Key talent whose Supervisor ticked 'career goals not yet discussed'.",
+        "formula": "People ticked ÷ all key talent",
+        "use": "A 15-minute career conversation is the cheapest retention action. Start with medium and high risk."
+      },
+      "health": {
+        "t": "Department talent health",
+        "q": "Which department needs attention first?",
+        "def": "Four core measures per department, compared with the overall value of the current filter.",
+        "formula": "Flagged when 10 or more points worse than overall.",
+        "use": "Start with the department with the most flags, then open the other sections for the reasons. This compares departments, not Supervisors."
+      },
+      "headcount": {
+        "t": "Headcount and key talent by department",
+        "q": "Where is our key talent?",
+        "def": "People in review scope per department and how many of them are key talent.",
+        "formula": "Dark = key talent; light = others in scope; percentage = key talent ÷ people in scope",
+        "use": "Check whether key talent sits in a few departments. Clear differences in share are worth a consistency check."
+      },
+      "gender": {
+        "t": "Gender representation",
+        "q": "Do women reach the key talent list at the same rate?",
+        "def": "Share of women among key talent, compared with their share of everyone in scope.",
+        "formula": "Female key talent ÷ key talent vs. women ÷ people in scope. Hidden under five people so nobody can be identified.",
+        "use": "A gap of five points or more is worth checking nomination criteria."
+      },
+      "tenure": {
+        "t": "Tenure profile",
+        "q": "At what career stage is our key talent?",
+        "def": "Distribution of key talent and of everyone in scope across tenure bands.",
+        "formula": "People in each band ÷ people in that group",
+        "use": "Concentrated in senior bands: knowledge-transfer and retirement risk. In junior bands: longer development, more coaching needed."
+      },
+      "riskMap": {
+        "t": "Retention risk map",
+        "q": "Whose departure would hurt most?",
+        "def": "Key talent split by retention risk (high, medium, low) and by whether they hold a critical role.",
+        "formula": "Each cell = number of people; click for the list",
+        "use": "Handle high risk × critical role first, then medium risk × critical role."
+      },
+      "reasons": {
+        "t": "Main reasons people may leave",
+        "q": "Why might people leave?",
+        "def": "Reasons Supervisors ticked for medium and high risk people (several allowed).",
+        "formula": "People with the reason ÷ medium and high risk people",
+        "use": "When reasons cluster, a policy fix (pay, career paths, workload) beats one-by-one retention."
+      },
+      "poach": {
+        "t": "Most likely to be poached",
+        "q": "Who does the market want?",
+        "def": "High retention risk and already ready for their next role.",
+        "formula": "Retention risk = High and next-role readiness = Ready Now",
+        "use": "Ready but without an opportunity. Discuss promotion, rotation or a bigger scope first."
+      },
+      "talkRisk": {
+        "t": "At risk, career not discussed",
+        "q": "Who should we talk to this week?",
+        "def": "Medium or high retention risk, and the Supervisor has not discussed career goals with them.",
+        "formula": "Retention risk = Medium or High, and 'not yet discussed' ticked",
+        "use": "Hold a 15-minute career conversation within two weeks."
+      },
+      "benchDept": {
+        "t": "Bench strength by department",
+        "q": "If a critical role opened tomorrow, who would step in?",
+        "def": "Each critical role, grouped by the readiness of its best successor.",
+        "formula": "Ready now; 1–2 years; long-range = 3+ years or emergency cover only; none = no successor or to be hired (TBH)",
+        "use": "Red roles have nobody today. Amber plus red is the two-year succession gap."
+      },
+      "uncovered": {
+        "t": "Succession gaps",
+        "q": "Which critical roles have nobody within two years?",
+        "def": "Critical roles where no successor could take over within two years (long-range, emergency cover, TBH or none).",
+        "formula": "Critical role and best successor is 3+ years, emergency cover or none",
+        "use": "Name a successor first; where nobody exists internally, plan hiring early."
+      },
+      "coverage": {
+        "t": "Critical role succession map",
+        "q": "Every critical role at a glance",
+        "def": "One tile per critical role, colored by best successor readiness, grouped by department.",
+        "formula": "Colors as in Bench strength by department",
+        "use": "See where gaps cluster. Select a tile for the holder and successors."
+      },
+      "concentration": {
+        "t": "Successors relied on several times",
+        "q": "Is someone the backup for several roles?",
+        "def": "The same person named as successor for two or more critical roles.",
+        "formula": "Roles per named successor, two or more only",
+        "use": "One person can fill only one role, so real coverage is lower than it looks. Find a second candidate. HR only."
+      },
+      "external": {
+        "t": "External dependence",
+        "def": "Share of successor slots that are external candidates or to be hired (TBH).",
+        "formula": "External and TBH ÷ all successor slots",
+        "use": "Higher means more reliance on hiring and more room to grow internal talent."
+      },
+      "fragile": {
+        "t": "Paper-only succession",
+        "def": "The near-term successor (ready now or 1–2 years) of a critical role is themselves at medium or high risk.",
+        "formula": "Near-term successor with retention risk Medium or High",
+        "use": "Both could leave together. Retaining the successor protects two roles."
+      },
+      "pipeline": {
+        "t": "Next-step readiness",
+        "q": "How many are ready to step up?",
+        "def": "Readiness of key talent for their next role. With several next roles, the nearest counts.",
+        "formula": "People at each readiness ÷ key talent with a next role",
+        "use": "Ready people without an opportunity become a retention risk."
+      },
+      "mobility": {
+        "t": "Willingness to move",
+        "q": "Who is open to moving?",
+        "def": "Key talent's openness to moving to another department, site or location.",
+        "formula": "People per option ÷ key talent who answered",
+        "use": "People open to moving soon are the first internal source for openings."
+      },
+      "mix": {
+        "t": "70/20/10 development mix",
+        "q": "Do plans build skills on the job, or only in class?",
+        "def": "Actual share of development actions by type, against the 70/20/10 reference.",
+        "formula": "Actions of each type ÷ actions with a type",
+        "use": "A high share of courses (10%) means plans lack real assignments. The reference is not a target."
+      },
+      "checkpoints": {
+        "t": "Checkpoint calendar",
+        "q": "When should we follow up?",
+        "def": "Development goals falling due in each month.",
+        "formula": "Count by target month",
+        "use": "A month before a peak, HR reminds Supervisors to prepare follow-ups."
+      },
+      "pbm": {
+        "t": "PBM Our Values",
+        "q": "What are our common strengths and gaps?",
+        "def": "How often each Our Values item was named as a strength and as an improvement area.",
+        "formula": "Mentions per value (left: improvement, right: strength)",
+        "use": "Improvement areas many people share are good topics for a group workshop."
+      },
+      "planComplete": {
+        "t": "Development plan completeness",
+        "def": "Share of key talent whose development plan has every required field.",
+        "formula": "Key talent with a complete plan ÷ all key talent",
+        "use": "Incomplete plans cannot be tracked. Ask Supervisors to add actions, dates and how progress is checked."
+      }
+    },
+    "k": {
+      "ofScope": "{{pct}} of review scope",
+      "alertSub": "Critical role × high risk",
+      "readySub": "{{n}} / {{total}} critical roles",
+      "talkSub": "{{n}} not yet discussed",
+      "completionSub": "{{n}} / {{total}} submitted"
+    },
+    "story": {
+      "title": "What stands out",
+      "subtitle": "Built automatically from the current filter. Every number opens the list.",
+      "none": "Nothing stands out in the current scope.",
+      "riskHotspot": "{{pct}} of key talent in {{dept}} is at medium or high risk, well above overall ({{overall}}).",
+      "riskHotspotAct": "Next: review the reasons with that department's Supervisors",
+      "uncovered": "{{count}} of {{critical}} critical roles have nobody who could take over within two years.",
+      "uncoveredAct": "Next: name successors or plan hiring early",
+      "concentration": "{{name}} is named successor for {{roles}} roles, so real coverage is lower than it looks.",
+      "concentrationAct": "Next: find a second candidate for those roles",
+      "talkGap": "{{count}} people at medium or high risk have not had a career conversation.",
+      "talkGapAct": "Next: hold a 15-minute career conversation within two weeks"
+    },
+    "health": {
+      "flag": "Attention",
+      "flagNote": "10+ points worse than overall",
+      "overall": "Overall",
+      "colKey": "Key talent",
+      "colRisk": "Medium/high risk",
+      "colReady": "Ready-now coverage",
+      "colTalk": "Conversation gap"
+    },
+    "org": {
+      "keyLegend": "Key talent",
+      "otherLegend": "Others in scope",
+      "everyone": "Review scope",
+      "keyTalent": "Key talent",
+      "female": "Women",
+      "male": "Men",
+      "perTen": "{{n}} in 20 are women",
+      "same": "Similar representation",
+      "fewer": "Fewer women among key talent",
+      "more": "More women among key talent",
+      "hidden": "Fewer than 5 people, hidden",
+      "byDept": "By department",
+      "tenureKey": "Key talent",
+      "tenureAll": "Everyone"
+    },
+    "risk": {
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low",
+      "critical": "Critical role",
+      "other": "Other role",
+      "priority": "Act first",
+      "ofMedHigh": "{{pct}} of medium/high risk"
+    },
+    "bench": {
+      "strong": "Ready now",
+      "developing": "1–2 years",
+      "thin": "Long-range",
+      "gap": "None",
+      "byDept": "By department",
+      "holder": "Holder",
+      "successor": "Best successor",
+      "none": "No successor",
+      "namedFor": "Successor for {{count}} roles",
+      "noConcentration": "Nobody is named for more than one role."
+    },
+    "growth": {
+      "Ready Now": "Ready now",
+      "1-2 years": "1–2 years",
+      "3+ years": "3+ years",
+      "Too New to Rate (TNTR)": "Under 6 months",
+      "actual": "Actual",
+      "reference": "Reference",
+      "strengths": "Strength",
+      "improvements": "Improvement",
+      "mostStrength": "Most common strength: {{value}}",
+      "mostImprove": "Most common improvement: {{value}}",
+      "dueThisMonth": "{{count}} due in {{month}}"
+    },
+    "act": {
+      "title": "Action list",
+      "subtitle": "Turns the review into this month's to-dos. Each item is a conversation to have, not a judgement of anyone. Cross-team results are HR only.",
+      "why": "Why it matters",
+      "next": "Suggested action",
+      "owner": "Owner",
+      "talk": {
+        "t": "Have these career conversations first",
+        "why": "Medium or high risk, and nobody has discussed their career with them.",
+        "next": "Supervisor holds a 15-minute conversation within two weeks",
+        "owner": "Supervisor"
+      },
+      "fragile": {
+        "t": "Firm up paper-only succession",
+        "why": "The successor may leave too, opening two roles at once.",
+        "next": "Add the successor to retention actions, or name a second candidate",
+        "owner": "Supervisor + HRBP"
+      },
+      "hidden": {
+        "t": "Check potential that may be missed",
+        "why": "Other Supervisors see them as a near-term successor, but their own Supervisor did not list them as key talent.",
+        "next": "Confirm in calibration whether to add them",
+        "owner": "HRBP"
+      },
+      "internal": {
+        "t": "Look inside before hiring",
+        "why": "These roles lack successors, and someone's stated next step is exactly this job.",
+        "next": "Talk to these colleagues before opening the role",
+        "owner": "HRBP + recruiting"
+      },
+      "calibrate": {
+        "t": "Ask one more question in calibration",
+        "why": "These teams' entries follow a pattern (all low risk, identical readiness) worth confirming.",
+        "next": "HRBP checks the basis for the entries in the discussion",
+        "owner": "HRBP"
+      },
+      "none": "Nothing to act on right now.",
+      "teams": "{{count}} teams",
+      "sig": {
+        "allLowRisk": "All low risk",
+        "sameReadiness": "Identical readiness",
+        "vaguePlans": "Vague checkpoints",
+        "noTbhAllReady": "All ready now, no TBH"
+      }
+    },
+    "drill": {
+      "position": "Position",
+      "risk": "Retention risk",
+      "critical": "Critical role",
+      "expand": "Show full review",
+      "count": "{{count}} people"
+    },
+    "unitPeople": "people",
+    "unitRoles": "roles",
+    "unitTeams": "teams",
+    "ofKey": "{{pct}} of key talent",
+    "viewAllRoles": "View all {{count}} roles"
   },
   "ai": {
     "tabHr": "AI studio",

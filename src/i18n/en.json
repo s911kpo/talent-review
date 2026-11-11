@@ -3,13 +3,19 @@
     "name": "Talent Review",
     "errorGeneric": "Something went wrong. Please try again.",
     "retry": "Retry",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "site": "Molex Xindian"
   },
   "top": {
     "fontSmaller": "Decrease text size",
     "fontLarger": "Increase text size",
     "language": "Language",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "navigation": "Main menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "roleHr": "HR",
+    "roleSupervisor": "Supervisor"
   },
   "login": {
     "title": "Sign in to Talent Review",
@@ -23,7 +29,15 @@
     "unavailable": "Sign-in is unavailable right now. Please try again later.",
     "notConfigured": "The backend is not set up yet, so sign-in is unavailable.",
     "hrLink": "HR sign-in",
-    "managerLink": "Manager sign-in"
+    "managerLink": "Supervisor sign-in",
+    "heroTitle": "A next step for every key talent.",
+    "heroBody": "One guided question at a time turns the talent review from a form into a good conversation.",
+    "p1Title": "One question at a time",
+    "p1Body": "Every question has guidance and examples, even on your first review.",
+    "p2Title": "Succession and retention at a glance",
+    "p2Body": "Risks, succession gaps and who to talk to first, organized for you.",
+    "p3Title": "See only what you should",
+    "p3Body": "Each Supervisor sees only their own team, enforced by the database."
   },
   "hrLogin": {
     "title": "HR sign-in",
@@ -48,7 +62,24 @@
     "title": "HR console",
     "tabCycles": "Cycles",
     "tabNamelist": "Namelist upload",
-    "tabAccounts": "Accounts and PINs"
+    "tabAccounts": "Accounts and PINs",
+    "nav": {
+      "work": "Talent review",
+      "admin": "Settings"
+    },
+    "desc": {
+      "queue": "Review submitted teams one by one: confirm, return, or handle change requests.",
+      "export": "Export a file whose columns match the original Excel template exactly.",
+      "ai": "AI-generated summaries and suggestions, for reference only.",
+      "preview": "See the screens as a Supervisor sees them (read-only).",
+      "cycles": "Create review cycles and set the quarter and due date.",
+      "namelist": "Upload the namelist and preview the changes before saving.",
+      "accounts": "Create or reset Supervisor PINs and manage HR accounts.",
+      "options": "Edit drop-down labels in both languages and their order.",
+      "questions": "Edit questions, guidance and examples.",
+      "audit": "Search every recorded change."
+    },
+    "navHome": "Home"
   },
   "cycles": {
     "empty": "No cycles yet. Create one first.",
@@ -78,7 +109,7 @@
     "missingColumns": "Missing columns: {{columns}}",
     "readError": "This file could not be read. Check that it is an xlsx file.",
     "summaryTitle": "Check results",
-    "summary": "{{total}} people, {{inScope}} in scope, {{reviewers}} reviewers.",
+    "summary": "{{total}} people, {{inScope}} in scope, {{reviewers}} Supervisors.",
     "errorsTitle": "Must fix ({{count}})",
     "warningsTitle": "Warnings, can continue ({{count}})",
     "noIssues": "No issues found.",
@@ -107,16 +138,16 @@
     }
   },
   "accounts": {
-    "reviewersTitle": "Reviewers this cycle",
+    "reviewersTitle": "Supervisors this cycle",
     "cycle": "Cycle",
-    "empty": "No reviewers in this cycle yet. Upload a namelist first.",
+    "empty": "No Supervisors in this cycle yet. Upload a namelist first.",
     "colSelect": "Select",
     "colId": "ID",
     "colName": "Name",
     "colTeam": "Direct reports",
     "colAccount": "Account",
     "colAction": "Action",
-    "selectAll": "Select all reviewers",
+    "selectAll": "Select all Supervisors",
     "selectOne": "Select {{name}}",
     "none": "Not created",
     "active": "Active",
@@ -125,7 +156,7 @@
     "disable": "Disable",
     "enable": "Enable",
     "pinReadyTitle": "PIN list ready. It can be downloaded only once",
-    "pinReadyBody": "{{count}} PINs. After downloading, send each manager only their own ID and PIN, one to one.",
+    "pinReadyBody": "{{count}} PINs. After downloading, send each Supervisor only their own ID and PIN, one to one.",
     "pinDownload": "Download PIN list",
     "pinFailed": "{{count}} failed. Please retry.",
     "hrTitle": "HR accounts",
@@ -140,12 +171,37 @@
   },
   "demo": {
     "title": "Demo environment",
-    "body": "All names, IDs and content are fictional. Changes stay in this browser only. Choose a role:",
-    "asHr": "Enter as HR (plant dashboards and console)",
-    "asGm": "Enter as plant GM (whole line)",
-    "asDeptHead": "Enter as a department manager",
-    "asSection": "Enter as a section manager",
+    "body": "All names, IDs and content are fictional. Feel free to try anything; changes stay in this browser.",
+    "asHr": "HR",
+    "asHrNote": "Plant dashboard, progress and admin",
+    "asGm": "Plant manager",
+    "asGmNote": "Read-only view of the whole line",
+    "asLeadSupervisor": "Supervisor (leads Supervisors)",
+    "asLeadSupervisorNote": "Own team plus read-only teams below",
+    "asSupervisor": "Supervisor",
+    "asSupervisorNote": "Complete your own team review",
     "banner": "Demo environment: all names and data are fictional.",
     "reset": "Reset demo data"
+  },
+  "hrHome": {
+    "hrTitle": "Review progress",
+    "hrSubtitle": "Track every team, clear your to-dos, then open the strategy dashboard for the plant-wide picture.",
+    "progressTitle": "This cycle",
+    "teamsSubmitted": "teams submitted",
+    "teams": "Teams submitted",
+    "keyDone": "Key talent completed",
+    "deadline": "Time left",
+    "days": "{{days}} days",
+    "overdue": "Overdue",
+    "todoTitle": "Needs your attention",
+    "todo": {
+      "confirm": "Submitted teams to confirm",
+      "reopen": "Change requests to handle",
+      "returned": "Returned, awaiting resubmission",
+      "notStarted": "Teams with no key talent selected yet"
+    },
+    "teamsTitle": "Teams",
+    "showAll": "Show all {{count}} teams",
+    "showLess": "Show fewer"
   }
 }

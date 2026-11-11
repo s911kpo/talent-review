@@ -48,7 +48,7 @@ add(gm, 0, false, 'General Manager', 0);
 // Five managers who report to the GM and are themselves reviewed.
 const subManagers = Array.from({ length: 5 }, (_, i) => {
   const m = next();
-  add(m, gm, true, 'Department Manager', i);
+  add(m, gm, true, 'Supervisor', i);
   return m;
 });
 
@@ -58,7 +58,7 @@ for (let i = 0; i < 10; i++) add(next(), gm, true, 'Program Manager', i);
 // Five more reviewers whose supervisors are outside the site (with the GM, six in total).
 const otherManagers = Array.from({ length: 5 }, (_, i) => {
   const m = next();
-  add(m, 0, false, 'Department Manager', i + 1);
+  add(m, 0, false, 'Supervisor', i + 1);
   return m;
 });
 

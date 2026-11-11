@@ -1,11 +1,12 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CircleHelp, Download, Users, X } from 'lucide-react';
+import { ChartColumn, CircleHelp, Download, Network, Sparkles, Users, X } from 'lucide-react';
 import { runExport } from '../admin/ExportPanel';
 import { isAiEnabled } from '../../data/client';
 import { useSession } from '../../app/session';
-import { AppShell, ErrorNotice } from '../../components/AppShell';
+import { AppShell, ErrorNotice, type NavGroup } from '../../components/AppShell';
+import { Avatar } from '../dashboard/sections';
 import { getTeamSubmission, listLineTeams, listReviewsByReviewer } from '../../data/review';
 import { readLocal, writeLocal } from '../../lib/localPrefs';
 import { answeredCount, isEditable, missingSteps } from '../../lib/review/steps';
@@ -19,8 +20,8 @@ const Dashboard = lazy(() => import('../dashboard/Dashboard'));
 const AiPanel = lazy(() => import('../ai/AiPanel'));
 
 const STATUS_TONE: Record<TeamSubmission['status'], string> = {
-  draft: 'bg-info-bg text-info-fg',
-  submitted: 'bg-ok-bg text-ok-fg',
+  draft: 'bg-subtle text-muted ring-1 ring-line',
+  submitted: 'bg-info-bg text-info-fg',
   returned: 'bg-risk-bg text-risk-fg',
   confirmed: 'bg-ok-bg text-ok-fg',
   locked: 'bg-ok-bg text-ok-fg',
@@ -78,8 +79,14 @@ export function MyTeamPage() {
   else if (firstOpen) action = { label: t('home.continue', { name: memberName(firstOpen.employee_id) }), to: `/team/review/${firstOpen.employee_id}` };
   else action = { label: t('home.check'), to: '/team/check' };
 
+  const tabs = (['team', 'line', 'dash', 'ai'] as const)
+    .filter((key) => (key !== 'line' || lineTeams.length > 0) && (key !== 'ai' || isAiEnabled));
+  const ICONS = { team: Users, line: Network, dash: ChartColumn, ai: Sparkles };
+  const LABELS = { team: 'home.tabTeam', line: 'home.tabLine', dash: 'ai.tabDash', ai: 'ai.tabManager' };
+  const nav: NavGroup[] = [{ label: cycle.quarter_label, items: tabs.map((key) => ({ key, label: t(LABELS[key]), Icon: ICONS[key] })) }];
+
   return (
-    <AppShell>
+    <AppShell nav={nav} active={tab} onNavigate={(k) => setTab(k as typeof tab)}>
       {bannerOpen && (
         <div className="mb-4 flex items-center justify-between gap-2 rounded-card bg-info-bg px-3 py-2 text-sm text-info-fg md:hidden">
           <span>{t('home.mobileBanner')}</span>
@@ -90,10 +97,11 @@ export function MyTeamPage() {
         </div>
       )}
 
-      <section className="card flex flex-wrap items-center justify-between gap-4 p-5">
-        <div>
+      {tab === 'team' && <section className="card relative flex flex-wrap items-center justify-between gap-6 overflow-hidden p-6">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary-soft" aria-hidden="true" />
+        <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold">{cycle.quarter_label}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{t('home.tabTeam')} · {cycle.quarter_label}</h1>
             <span className={`tag ${STATUS_TONE[teamState.status]}`}>{t(`status.${teamState.status}`)}</span>
           </div>
           {cycle.due_at && (
@@ -122,22 +130,11 @@ export function MyTeamPage() {
             )}
           </div>
         </div>
-        <ProgressRing pct={pct} label={t('home.progress')} value={t('home.progressValue', { done: complete.length, total: keyTalent.length })} />
-      </section>
+        <div className="relative"><ProgressRing pct={pct} label={t('home.progress')} value={t('home.progressValue', { done: complete.length, total: keyTalent.length })} /></div>
+      </section>}
 
-      <div role="tablist" className="mt-4 flex flex-wrap gap-1 border-b border-line">
-        {(['team', 'line', 'dash', 'ai'] as const)
-          .filter((key) => (key !== 'line' || lineTeams.length > 0) && (key !== 'ai' || isAiEnabled))
-          .map((key) => (
-          <button
-            key={key} type="button" role="tab" aria-selected={tab === key}
-            className={`btn rounded-b-none border-b-2 ${tab === key ? 'border-brand text-brand' : 'border-transparent text-muted'}`}
-            onClick={() => setTab(key)}
-          >{t({ team: 'home.tabTeam', line: 'home.tabLine', dash: 'ai.tabDash', ai: 'ai.tabManager' }[key])}</button>
-        ))}
-      </div>
-
-      <div className="mt-5">
+      <div className={tab === 'team' ? 'mt-6' : ''}>
+        {tab === 'line' && <h1 className="mb-4 text-2xl font-semibold tracking-tight">{t('home.tabLine')}</h1>}
         {tab === 'team' && team.length === 0 && (
           <div className="card flex items-center gap-3 p-6 text-muted">
             <Users className="h-5 w-5" aria-hidden="true" /><p>{t('team.empty')}</p>
@@ -175,12 +172,12 @@ function ProgressRing({ pct, label, value }: { pct: number; label: string; value
   return (
     <div className="flex items-center gap-3">
       <svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label={`${label} ${pct}%`}>
-        <circle cx="32" cy="32" r={r} fill="none" stroke="#E6E1DA" strokeWidth="6" />
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#E4E8F0" strokeWidth="6" />
         <circle
-          cx="32" cy="32" r={r} fill="none" stroke="#C8102E" strokeWidth="6" strokeLinecap="round"
+          cx="32" cy="32" r={r} fill="none" stroke="#2A5BD7" strokeWidth="6" strokeLinecap="round"
           strokeDasharray={`${(pct / 100) * c} ${c}`} transform="rotate(-90 32 32)"
         />
-        <text x="32" y="36" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1F2328">{pct}%</text>
+        <text x="32" y="36" textAnchor="middle" fontSize="13" fontWeight="600" fill="#101828">{pct}%</text>
       </svg>
       <div><p className="text-sm font-medium">{label}</p><p className="text-sm text-muted">{value}</p></div>
     </div>
@@ -192,24 +189,29 @@ function MemberCard({ member, review, onOpen }: { member: TeamMember; review?: R
   const span = tenure(member.startDate);
   const body = (
     <>
-      <p className="font-medium">{member.fullName} <span className="text-muted">{member.localName}</span></p>
-      <p className="mt-1 text-sm text-muted">{member.position}</p>
-      <p className="text-sm text-muted">{member.dept}</p>
+      <div className="flex items-center gap-3">
+        <Avatar name={member.fullName} />
+        <div className="min-w-0">
+          <p className="truncate font-medium">{member.fullName} <span className="text-muted">{member.localName}</span></p>
+          <p className="truncate text-sm text-muted">{member.position}</p>
+        </div>
+      </div>
+      <p className="mt-3 text-sm text-muted">{member.dept}</p>
       <p className="mt-2 text-sm text-muted">
         {span ? t('team.tenure', { years: span.years, months: span.months }) : t('team.tenureUnknown')}
       </p>
       <div className="mt-2 flex flex-wrap gap-1">
         {isUnderSixMonths(member.startDate) && <span className="tag bg-info-bg text-info-fg">{t('badge.tntr')}</span>}
         {review && <span className="tag bg-ok-bg text-ok-fg">{t('home.badgeKey')}</span>}
-        {review && <span className="tag bg-canvas text-muted">{t('home.badgeProgress', { n: answeredCount(review) })}</span>}
+        {review && <span className="tag bg-subtle text-muted">{t('home.badgeProgress', { n: answeredCount(review) })}</span>}
         {review?.status === 'returned' && <span className="tag bg-risk-bg text-risk-fg">{t('home.badgeReturned')}</span>}
       </div>
     </>
   );
   return (
-    <li className="card">
+    <li className="card transition hover:shadow-lift">
       {onOpen
-        ? <button type="button" className="h-full w-full rounded-card p-4 text-left hover:bg-canvas" onClick={onOpen}>{body}</button>
+        ? <button type="button" className="h-full w-full rounded-card p-4 text-left transition hover:bg-subtle" onClick={onOpen}>{body}</button>
         : <div className="p-4">{body}</div>}
     </li>
   );
@@ -224,7 +226,7 @@ function LineTab({ teams }: { teams: LineTeam[] }) {
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {teams.map((m) => (
           <li key={m.reviewer_id} className="card p-4">
-            <p className="font-medium">{m.full_name} <span className="text-muted">{m.local_name}</span></p>
+            <p className="flex items-center gap-3 font-medium"><Avatar name={m.full_name} /><span>{m.full_name} <span className="text-muted">{m.local_name}</span></span></p>
             <p className="mt-1 text-sm text-muted">{t('home.lineMembers', { count: Number(m.member_count) })}</p>
             <span className={`tag mt-2 ${STATUS_TONE[m.status]}`}>{t(`status.${m.status}`)}</span>
           </li>

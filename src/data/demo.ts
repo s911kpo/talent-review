@@ -55,8 +55,8 @@ if (showcase) {
     genders.set(p.employeeId, p.gender);
   }
 } else {
-  person(MANAGER, GM, 0, 'Department Manager', 96);
-  for (let i = 0; i < 4; i++) person(900003 + i, GM, i + 1, 'Department Manager', 80 + i);
+  person(MANAGER, GM, 0, 'Supervisor', 96);
+  for (let i = 0; i < 4; i++) person(900003 + i, GM, i + 1, 'Supervisor', 80 + i);
   for (let i = 0; i < 10; i++) person(900030 + i, MANAGER, i + 2, titles[i % titles.length], i === 3 ? 2 : 14 + i * 9);
   for (let i = 0; i < 6; i++) person(900040 + i, 900003, i + 5, titles[i % titles.length], 30 + i);
 }
@@ -75,10 +75,11 @@ function lineOf(id: number): Person[] {
   return out;
 }
 
-/** Quick-entry accounts shown on the demo login screens. */
+/** Quick-entry accounts shown on the demo login screens: a Supervisor with Supervisors below, and one without. */
 export function demoEntryPoints() {
-  const section = people.find((p) => p.position.startsWith('Section Manager'));
-  return { gm: GM, deptHead: MANAGER, section: section?.employeeId ?? null };
+  const leadsOthers = (id: number) => people.some((p) => p.supervisor === id && isReviewer(p.employeeId));
+  const supervisor = people.find((p) => p.employeeId !== GM && p.employeeId !== MANAGER && isReviewer(p.employeeId) && !leadsOthers(p.employeeId));
+  return { gm: GM, leadSupervisor: MANAGER, supervisor: supervisor?.employeeId ?? null };
 }
 
 interface Store {

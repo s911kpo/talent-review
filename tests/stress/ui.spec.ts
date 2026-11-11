@@ -14,7 +14,11 @@ async function enterAsHr(page: Page) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   await page.goto('/login');
   await time('login_to_overview', async () => {
-    await page.getByRole('button', { name: /以 HR 身分進入/ }).click();
+    await page.getByRole('button', { name: /^HR/ }).first().click();
+    await expect(page.locator('tbody tr').nth(11)).toBeVisible();
+  });
+  await time('show_all_teams', async () => {
+    await page.getByRole('button', { name: /顯示全部/ }).click();
     await expect(page.locator('tbody tr').nth(100)).toBeVisible();
   });
 }
@@ -25,18 +29,18 @@ test('HR console and dashboards stay responsive with 5,000 employees', async ({ 
 
   await time('open_dashboard', async () => {
     await page.getByRole('tab', { name: '戰略儀表板' }).click();
-    await expect(page.locator('canvas').first()).toBeVisible();
+    await expect(page.getByText('本期重點')).toBeVisible();
   });
-  for (const tab of ['留任風險', '接班梯隊', '流動與職涯', '發展地圖', '盤點進度', '管理洞察', '組織畫像']) {
+  for (const tab of ['組織畫像', '留任風險', '接班梯隊', '職涯與發展', '行動清單', '總覽']) {
     await time(`tab_${tab}`, async () => {
       await page.getByRole('tab', { name: tab, exact: true }).click();
-      if (tab === '管理洞察') await expect(page.getByText('先聊這些人', { exact: false })).toBeVisible();
-      else await expect(page.locator('canvas').first()).toBeVisible();
+      await expect(page.getByRole('tab', { name: tab, exact: true, selected: true })).toBeVisible();
+      await expect(page.getByRole('tabpanel').locator('section, article').first()).toBeVisible();
     });
   }
   await time('filter_department', async () => {
     await page.locator('select').first().selectOption('Manufacturing');
-    await expect(page.locator('canvas').first()).toBeVisible();
+    await expect(page.getByText('本期重點')).toBeVisible();
   });
   await time('drill_down', async () => {
     await page.getByRole('tab', { name: '接班梯隊', exact: true }).click();

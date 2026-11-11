@@ -2,7 +2,7 @@
 
 Molex 新店廠區的線上人才盤點系統：主管以一次一題的方式完成關鍵人才盤點與發展計畫，HR 追蹤進度、審核、匯出，並有戰略儀表板。
 
-規格見 `docs/SPEC.md`，進度見 `docs/CHANGELOG.md`，未定義細節的決定見 `docs/DECISIONS.md`。
+規格見 `docs/SPEC.md`，進度見 `docs/CHANGELOG.md`，未定義細節的決定見 `docs/DECISIONS.md`，儀表板指標定義見 `docs/METRICS.md`。
 
 ## 快速開始
 
@@ -16,7 +16,7 @@ npx playwright test   # E2E（375 與 1440 兩種寬度）
 ## 示範站（給主管與 Diana 看）
 
 - 網址：`https://papaya-madeleine-31cdad.netlify.app/demo/`
-- 600 位虛構員工，所有評核已填好。登入頁有一鍵進入 HR、廠長、部門主管、課級主管。
+- 600 位虛構員工，所有評核已填好。登入頁有一鍵進入 HR、廠長、Supervisor（帶領其他 Supervisor）、Supervisor。
 - 資料只存在瀏覽器裡，頁面頂端的「重設示範資料」可以回到初始狀態。
 - 本機：`npm run demo:showcase`（600 人）或 `npx vite --mode stress`（5,000 人）
 

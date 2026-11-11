@@ -1,28 +1,39 @@
-/** Design tokens from SPEC section 12. All sizes are rem-based so font scaling applies everywhere. */
+/**
+ * Design tokens. v2 (2026-11-12): cool neutral canvas, deep navy navigation, one blue for actions,
+ * Molex red kept for the brand mark and the active-navigation accent only. See docs/DECISIONS.md.
+ * All sizes are rem-based so font scaling applies everywhere.
+ */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        canvas: '#FAF8F5',
+        canvas: '#F4F6FA',
         card: '#FFFFFF',
-        ink: '#1F2328',
-        muted: '#5B616B',
-        line: '#E6E1DA',
+        subtle: '#F8FAFC',
+        ink: '#101828',
+        muted: '#5D6B82',
+        faint: '#8A94A6',
+        line: '#E4E8F0',
         brand: '#C8102E',
-        'info-bg': '#E8F1FB',
-        'info-fg': '#1D4E89',
-        'ok-bg': '#E7F4EC',
-        'ok-fg': '#1E6B3A',
-        'warn-bg': '#FDF3E1',
-        'warn-fg': '#8A5A00',
-        'risk-bg': '#FBE9E9',
-        'risk-fg': '#9B1C1C',
+        primary: { DEFAULT: '#2A5BD7', hover: '#2149B3', soft: '#EEF3FF', ink: '#1F4CB8' },
+        navy: { DEFAULT: '#0E1B33', 2: '#16264A', line: '#22335A', text: '#B9C3D9' },
+        'info-bg': '#EAF1FE',
+        'info-fg': '#1F4CB8',
+        'ok-bg': '#E6F6EE',
+        'ok-fg': '#11693F',
+        'warn-bg': '#FEF5E3',
+        'warn-fg': '#8A5300',
+        'risk-bg': '#FDECEC',
+        'risk-fg': '#A61B1B',
       },
-      borderRadius: { card: '0.625rem' },
-      boxShadow: { card: '0 1px 3px rgba(31, 35, 40, 0.06)' },
+      borderRadius: { card: '0.875rem' },
+      boxShadow: {
+        card: '0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.04)',
+        lift: '0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 32px rgba(16, 24, 40, 0.10)',
+      },
       fontFamily: {
-        sans: ['"Noto Sans TC"', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '"Segoe UI"', '"Noto Sans TC"', '"Microsoft JhengHei"', 'system-ui', 'sans-serif'],
       },
     },
   },

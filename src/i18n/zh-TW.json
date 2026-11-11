@@ -3,13 +3,19 @@
     "name": "人才盤點",
     "errorGeneric": "發生錯誤，請稍後再試。",
     "retry": "重試",
-    "loading": "載入中…"
+    "loading": "載入中…",
+    "site": "Molex 新店廠"
   },
   "top": {
     "fontSmaller": "縮小字級",
     "fontLarger": "放大字級",
     "language": "語言",
-    "logout": "登出"
+    "logout": "登出",
+    "navigation": "主選單",
+    "openMenu": "開啟選單",
+    "closeMenu": "關閉選單",
+    "roleHr": "HR",
+    "roleSupervisor": "Supervisor"
   },
   "login": {
     "title": "登入人才盤點",
@@ -23,7 +29,15 @@
     "unavailable": "目前無法登入，請稍後再試。",
     "notConfigured": "系統尚未完成後端設定，暫時無法登入。",
     "hrLink": "HR 登入",
-    "managerLink": "主管登入"
+    "managerLink": "Supervisor 登入",
+    "heroTitle": "讓每一位關鍵人才，都有下一步。",
+    "heroBody": "一次一題的引導，把人才盤點從填表變成一場有品質的對話。",
+    "p1Title": "一次一題，邊填邊學",
+    "p1Body": "每一題都有說明與範例，第一次做也知道怎麼寫。",
+    "p2Title": "接班與留才一眼看清",
+    "p2Body": "自動整理風險、接班缺口與該先談的人。",
+    "p3Title": "只看得到該看的",
+    "p3Body": "每位 Supervisor 只看到自己的團隊，權限由資料庫把關。"
   },
   "hrLogin": {
     "title": "HR 登入",
@@ -48,7 +62,24 @@
     "title": "HR 後台",
     "tabCycles": "週期管理",
     "tabNamelist": "名單上傳",
-    "tabAccounts": "帳號與 PIN"
+    "tabAccounts": "帳號與 PIN",
+    "nav": {
+      "work": "人才盤點",
+      "admin": "系統設定"
+    },
+    "desc": {
+      "queue": "逐團隊檢視已提交的內容，確認、退回或處理修改申請。",
+      "export": "匯出與原始 Excel 範本欄位完全一致的盤點檔。",
+      "ai": "以 AI 產生摘要與建議，僅供參考。",
+      "preview": "以某位 Supervisor 的身分檢視畫面（唯讀），確認他看到的內容。",
+      "cycles": "建立盤點週期，設定季度與截止日。",
+      "namelist": "上傳名單，預覽差異後寫入本週期。",
+      "accounts": "建立或重設 Supervisor 的 PIN，管理 HR 帳號。",
+      "options": "編輯下拉選項的中英文標籤與順序。",
+      "questions": "編輯題目、提示與範例。",
+      "audit": "查詢所有變更紀錄。"
+    },
+    "navHome": "首頁"
   },
   "cycles": {
     "empty": "還沒有任何週期，請先建立一個。",
@@ -78,7 +109,7 @@
     "missingColumns": "檔案缺少欄位：{{columns}}",
     "readError": "無法讀取這個檔案，請確認是 xlsx 格式。",
     "summaryTitle": "檢查結果",
-    "summary": "共 {{total}} 人，盤點範圍 {{inScope}} 人，評核人 {{reviewers}} 位。",
+    "summary": "共 {{total}} 人，盤點範圍 {{inScope}} 人，Supervisor {{reviewers}} 位。",
     "errorsTitle": "必須修正（{{count}}）",
     "warningsTitle": "提醒，可以繼續（{{count}}）",
     "noIssues": "沒有發現問題。",
@@ -107,16 +138,16 @@
     }
   },
   "accounts": {
-    "reviewersTitle": "本週期評核人",
+    "reviewersTitle": "本週期 Supervisor",
     "cycle": "週期",
-    "empty": "這個週期還沒有評核人，請先上傳名單。",
+    "empty": "這個週期還沒有 Supervisor，請先上傳名單。",
     "colSelect": "選取",
     "colId": "工號",
     "colName": "姓名",
     "colTeam": "直屬人數",
     "colAccount": "帳號狀態",
     "colAction": "操作",
-    "selectAll": "全選評核人",
+    "selectAll": "全選 Supervisor",
     "selectOne": "選取 {{name}}",
     "none": "尚未建立",
     "active": "已啟用",
@@ -125,7 +156,7 @@
     "disable": "停用",
     "enable": "啟用",
     "pinReadyTitle": "PIN 清單已產生，只能下載一次",
-    "pinReadyBody": "共 {{count}} 組。下載後請一對一發送，每封只放該主管自己的工號和 PIN。",
+    "pinReadyBody": "共 {{count}} 組。下載後請一對一發送，每封只放該 Supervisor 自己的工號和 PIN。",
     "pinDownload": "下載 PIN 清單",
     "pinFailed": "{{count}} 位處理失敗，請重試。",
     "hrTitle": "HR 帳號",
@@ -140,12 +171,37 @@
   },
   "demo": {
     "title": "示範環境",
-    "body": "所有人名、工號與內容皆為虛構，可以自由操作。變更只存在這個瀏覽器。選一個角色進入：",
-    "asHr": "以 HR 身分進入（全廠儀表板與後台）",
-    "asGm": "以廠長身分進入（看整條組織線）",
-    "asDeptHead": "以部門主管身分進入",
-    "asSection": "以課級主管身分進入",
+    "body": "所有人名、工號與內容皆為虛構，可以自由操作，變更只存在這個瀏覽器。",
+    "asHr": "HR",
+    "asHrNote": "全廠儀表板、進度與後台",
+    "asGm": "廠長",
+    "asGmNote": "整條組織線的唯讀檢視",
+    "asLeadSupervisor": "Supervisor（帶領其他 Supervisor）",
+    "asLeadSupervisorNote": "自己的團隊＋下屬團隊唯讀",
+    "asSupervisor": "Supervisor",
+    "asSupervisorNote": "填寫自己團隊的盤點",
     "banner": "示範環境：所有人名與資料皆為虛構。",
     "reset": "重設示範資料"
+  },
+  "hrHome": {
+    "hrTitle": "盤點進度總覽",
+    "hrSubtitle": "追蹤各團隊進度，處理待辦，再到戰略儀表板看全廠人才全貌。",
+    "progressTitle": "本週期進度",
+    "teamsSubmitted": "團隊已提交",
+    "teams": "已提交團隊",
+    "keyDone": "已完成關鍵人才",
+    "deadline": "距離截止",
+    "days": "{{days}} 天",
+    "overdue": "已逾期",
+    "todoTitle": "需要你處理",
+    "todo": {
+      "confirm": "已提交，待 HR 確認的團隊",
+      "reopen": "待處理的修改申請",
+      "returned": "已退回、等待重新提交",
+      "notStarted": "還沒選出關鍵人才的團隊"
+    },
+    "teamsTitle": "各團隊進度",
+    "showAll": "顯示全部 {{count}} 個團隊",
+    "showLess": "收合"
   }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Building2, UserRound, Users, ShieldCheck } from 'lucide-react';
+import { Building2, ChevronRight, ShieldCheck, UserRound, Users } from 'lucide-react';
 import { useSession } from '../../app/session';
 import { demoAccounts, demoHrEmail, resetDemo, signInHr, signInWithPin } from '../../data/auth';
 
@@ -22,21 +22,34 @@ export function DemoEntry() {
     }
   }
 
+  // Molex has no section or department manager titles: everyone who leads a team is a Supervisor.
   const options = [
-    { key: 'hr', icon: ShieldCheck, label: t('demo.asHr'), run: () => signInHr(demoHrEmail, 'demo') },
-    { key: 'gm', icon: Building2, label: t('demo.asGm'), run: () => signInWithPin(String(accounts.gm), 'DEMO') },
-    { key: 'dept', icon: Users, label: t('demo.asDeptHead'), run: () => signInWithPin(String(accounts.deptHead), 'DEMO') },
-    ...(accounts.section ? [{ key: 'section', icon: UserRound, label: t('demo.asSection'), run: () => signInWithPin(String(accounts.section), 'DEMO') }] : []),
+    { key: 'hr', Icon: ShieldCheck, label: t('demo.asHr'), note: t('demo.asHrNote'), run: () => signInHr(demoHrEmail, 'demo') },
+    { key: 'gm', Icon: Building2, label: t('demo.asGm'), note: t('demo.asGmNote'), run: () => signInWithPin(String(accounts.gm), 'DEMO') },
+    { key: 'lead', Icon: Users, label: t('demo.asLeadSupervisor'), note: t('demo.asLeadSupervisorNote'), run: () => signInWithPin(String(accounts.leadSupervisor), 'DEMO') },
+    ...(accounts.supervisor ? [{ key: 'sup', Icon: UserRound, label: t('demo.asSupervisor'), note: t('demo.asSupervisorNote'), run: () => signInWithPin(String(accounts.supervisor), 'DEMO') }] : []),
   ];
 
   return (
-    <section aria-labelledby="demo-entry" className="mt-6 rounded-card bg-info-bg p-4 text-info-fg">
-      <h2 id="demo-entry" className="font-semibold">{t('demo.title')}</h2>
-      <p className="mt-1 text-sm">{t('demo.body')}</p>
-      <div className="mt-3 grid gap-2">
-        {options.map(({ key, icon: Icon, label, run }) => (
-          <button key={key} type="button" className="btn-secondary justify-start" disabled={busy} onClick={() => void enter(run)}>
-            <Icon className="h-4 w-4" aria-hidden="true" />{label}
+    <section aria-labelledby="demo-entry" className="mt-8">
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-line" aria-hidden="true" />
+        <h2 id="demo-entry" className="eyebrow">{t('demo.title')}</h2>
+        <span className="h-px flex-1 bg-line" aria-hidden="true" />
+      </div>
+      <p className="mt-3 text-center text-sm text-muted">{t('demo.body')}</p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {options.map(({ key, Icon, label, note, run }) => (
+          <button
+            key={key} type="button" disabled={busy} onClick={() => void enter(run)}
+            className="group flex items-center gap-3 rounded-card border border-line bg-card p-3 text-left shadow-card transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lift disabled:opacity-50"
+          >
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-ink"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">{label}</span>
+              <span className="block text-xs text-muted">{note}</span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted transition group-hover:translate-x-0.5" aria-hidden="true" />
           </button>
         ))}
       </div>
@@ -49,9 +62,9 @@ export function DemoBanner() {
   const { t } = useTranslation();
   if (!demoAccounts()) return null;
   return (
-    <div role="note" className="bg-warn-bg px-4 py-2 text-center text-sm text-warn-fg">
+    <div role="note" className="bg-warn-bg px-4 py-1.5 text-center text-xs text-warn-fg">
       {t('demo.banner')}{' '}
-      <button type="button" className="underline" onClick={() => { resetDemo(); window.location.reload(); }}>{t('demo.reset')}</button>
+      <button type="button" className="font-medium underline" onClick={() => { resetDemo(); window.location.reload(); }}>{t('demo.reset')}</button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { goNav } from './nav';
 
 async function login(page: Page) {
   await page.goto('/login');
@@ -128,7 +129,7 @@ test('full cycle: submit, HR returns, manager fixes, HR confirms, locks and expo
     await expect(page).toHaveURL(/\/hr$/);
   };
   const openQueue = async () => {
-    await page.getByRole('tab', { name: '審核佇列' }).click();
+    await goNav(page, '審核佇列');
     await page.getByLabel('選擇團隊').selectOption('900002');
   };
 
@@ -156,7 +157,7 @@ test('full cycle: submit, HR returns, manager fixes, HR confirms, locks and expo
   await page.getByRole('button', { name: '鎖定' }).click();
   await expect(page.getByRole('button', { name: '解鎖回草稿' })).toBeVisible();
 
-  await page.getByRole('tab', { name: '匯出' }).click();
+  await goNav(page, '匯出');
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: '匯出', exact: true }).click(),
@@ -170,9 +171,9 @@ test('dashboards show data, drill down, and manager AI stays read-only', async (
   await answerAll(page);
   await expect(page.getByText(/^已儲存 ·/)).toBeVisible({ timeout: 10_000 });
   await page.goto('/team');
-  await page.getByRole('tab', { name: '儀表板' }).click();
+  await goNav(page, '儀表板');
   await expect(page.getByText('參考，非目標', { exact: false })).toBeVisible();
-  await expect(page.getByText(/全廠平均/).first()).toBeVisible();
+  await expect(page.getByText(/^全廠 /).first()).toBeVisible();
   const text = await page.locator('body').innerText();
   expect(text).not.toMatch(/九宮格|配額|排名|強制/);
 
@@ -184,12 +185,12 @@ test('dashboards show data, drill down, and manager AI stays read-only', async (
   await expect(drawer.getByText(/三週內/)).toBeVisible();
   await page.getByRole('button', { name: '關閉', exact: true }).click();
 
-  for (const name of ['接班梯隊', '流動與職涯', '發展地圖', '組織畫像']) {
+  for (const name of ['接班梯隊', '職涯與發展', '組織畫像']) {
     await page.getByRole('tab', { name }).click();
     await expect(page.getByRole('tab', { name, selected: true })).toBeVisible();
   }
 
-  await page.getByRole('tab', { name: '團隊發展建議' }).click();
+  await goNav(page, '團隊發展建議');
   await expect(page.getByText('AI 分析會將盤點內容傳送至 Anthropic API 處理')).toBeVisible();
   await expect(page.getByLabel('分析類型')).toHaveCount(0);
   await page.getByRole('button', { name: '生成' }).click();
