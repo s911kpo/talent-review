@@ -33,4 +33,6 @@ SPEC 未定義細節的決定。格式：日期｜決定｜理由｜替代方案
 | 2026-11-11 | 採 Supabase 免費方案、AI 預設隱藏（`VITE_AI_ENABLED`） | Tim 在看到成效前不能支付 Supabase Pro 與 Anthropic 費用；SPEC §16 的降級方案允許 AI 延後 | 付費方案 |
 | 2026-11-11 | 透過 Supabase 管理 API（HTTPS）套用 migrations，並寫入 CLI 的版本表 | 公司網路擋下 Postgres 直連；仍是同一批 migration 檔，沒有手動改結構 | `supabase db push`（換網路時可改回） |
 | 2026-11-11 | 金鑰由 `setup-keys.cmd` 對話框收集，`fill-supabase-keys.mjs` 補齊，全程不顯示值 | Tim 不熟悉編輯設定檔；金鑰不應出現在對話 | 手動編輯 `.env.local` |
+| 2026-11-11 | Supabase URL 與 anon key 寫在 `netlify.toml` | 兩者本來就會打包進前端、屬公開值；省去 Tim 在 Netlify 手動設定。寫入前驗證該 key 的角色確實是 anon | Netlify 後台環境變數 |
 | 2026-11-11 | 鎖定時若人有 HR 本人的評核，批次動作仍會改狀態但 HR 看不到內容 | 狀態變更不洩漏內容，否則整隊會卡住 | 擋下整隊 |
+| 2026-11-11 | 非示範模式建置時，`src/data/demo.ts` 以 alias 換成 `demo.stub.ts` | 實際檢查 staging 打包檔，發現假資料模組被打包進去；與「正式打包不含示範資料」的承諾不符 | 每個呼叫處改動態 import |
