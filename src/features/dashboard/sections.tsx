@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  AlertTriangle, ArrowRight, ClipboardCheck, GitFork, MessagesSquare, PersonStanding, Search, ShieldAlert, Sparkles, Star, UserRoundSearch, Users,
+  AlertTriangle, ArrowRight, CheckCircle2, ClipboardCheck, GitFork, MessagesSquare, Search, ShieldAlert, Sparkles, Sprout, Star, TrendingDown, UserRoundSearch, Users,
 } from 'lucide-react';
 import type { DashboardData, PlantAverages } from '../../data/dashboard';
 import * as m from '../../lib/metrics';
@@ -20,6 +20,8 @@ export interface Ctx {
   averages: PlantAverages | null;
   open: (title: string, ids: number[]) => void;
   setDept: (dept: string) => void;
+  goSection: (section: string) => void;
+  openPerson: (id: number) => void;
 }
 
 const useNames = (ctx: Ctx) => {
@@ -59,14 +61,14 @@ export function OverviewSection({ ctx }: { ctx: Ctx }) {
           sub={t('dash.k.completionSub', { n: prog.submitted, total: prog.total })} />
         <KpiCard id="key" Icon={Star} tone="primary" value={String(k.keyCount)}
           sub={`${t('dash.k.ofScope', { pct: fmtPct(k.keyPct) })} · ${t('dash.notTarget')}`} compare={avg(averages?.key_pct)}
-          onOpen={() => open(t('dash.m.key.t'), ds.reviews.map((r) => r.employee_id))} />
+          onOpen={() => open(t('dash.m.key.t'), ds.reviews.map((r) => r.employee_id))} onAnalyze={() => ctx.goSection('org')} />
         <KpiCard id="alert" Icon={ShieldAlert} tone={alert.length ? 'risk' : 'ok'} value={String(alert.length)}
-          sub={t('dash.k.alertSub')} onOpen={alert.length ? () => open(t('dash.m.alert.t'), alert) : undefined} />
+          sub={t('dash.k.alertSub')} onOpen={alert.length ? () => open(t('dash.m.alert.t'), alert) : undefined} onAnalyze={() => ctx.goSection('risk')} />
         <KpiCard id="ready" Icon={GitFork} tone="ok" value={fmtPct(k.coveragePct)} ring={k.coveragePct}
-          sub={t('dash.k.readySub', { n: ready, total: critical.length })} compare={avg(averages?.coverage_pct)} />
+          sub={t('dash.k.readySub', { n: ready, total: critical.length })} compare={avg(averages?.coverage_pct)} onAnalyze={() => ctx.goSection('bench')} />
         <KpiCard id="talk" Icon={MessagesSquare} tone="warn" value={fmtPct(k.notDiscussedPct)}
           sub={t('dash.k.talkSub', { n: notTalked.length })} compare={avg(averages?.not_discussed_pct)}
-          onOpen={notTalked.length ? () => open(t('dash.m.talk.t'), notTalked) : undefined} />
+          onOpen={notTalked.length ? () => open(t('dash.m.talk.t'), notTalked) : undefined} onAnalyze={() => ctx.goSection('risk')} />
       </div>
       <Headlines ctx={ctx} />
       <DeptHealth ctx={ctx} />
@@ -186,13 +188,12 @@ function DeptHealth({ ctx }: { ctx: Ctx }) {
 /* ------------------------------------------------------------------ Organization */
 
 const WOMEN = '#6250D6';
-const MEN = '#B9C3D9';
+const NEUTRAL = '#B9C3D9';
 
 export function OrgSection({ ctx }: { ctx: Ctx }) {
   const { t } = useTranslation();
   const heads = s.headcountByDept(ctx.ds);
   const max = Math.max(1, ...heads.map((h) => h.scope));
-  const tenure = s.tenureShares(m.tenureDistribution(ctx.ds));
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <Panel id="headcount" className="lg:col-span-2"
@@ -212,79 +213,137 @@ export function OrgSection({ ctx }: { ctx: Ctx }) {
           </ul>
         )}
       </Panel>
-      <GenderPanel ctx={ctx} />
-      <Panel id="tenure" aside={<Legend items={[{ label: t('dash.org.tenureKey'), color: PALETTE[0] }, { label: t('dash.org.tenureAll'), color: MEN }]} />}>
-        <ul className="space-y-3">
-          {tenure.map((b) => (
-            <li key={b.band} className="grid grid-cols-[6.5rem_1fr] items-center gap-3 text-sm">
-              <span className="text-muted">{t(`dash.band.${b.band}`)}</span>
-              <span className="space-y-1">
-                <span className="flex items-center gap-2"><span className="h-2.5 rounded-sm" style={{ width: `${b.keyPct ?? 0}%`, background: PALETTE[0], minWidth: 2 }} aria-hidden="true" /><span className="num text-xs font-semibold">{fmtPct(b.keyPct)}</span></span>
-                <span className="flex items-center gap-2"><span className="h-2.5 rounded-sm" style={{ width: `${b.allPct ?? 0}%`, background: MEN, minWidth: 2 }} aria-hidden="true" /><span className="num text-xs text-muted">{fmtPct(b.allPct)}</span></span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
+      <GenderPipeline ctx={ctx} />
+      <TenurePanel ctx={ctx} />
+      <KeyReasons ctx={ctx} />
     </div>
   );
 }
 
-function Isotype({ pct, label }: { pct: number | null; label: string }) {
+function TenurePanel({ ctx }: { ctx: Ctx }) {
   const { t } = useTranslation();
-  const women = pct === null ? 0 : Math.round(pct / 5);
+  const bands = s.tenureShares(m.tenureDistribution(ctx.ds));
+  const senior = (k: 'keyPct' | 'allPct') => bands.filter((b) => ['5to10y', '10yplus'].includes(b.band)).reduce((n, b) => n + (b[k] ?? 0), 0);
+  const junior = (k: 'keyPct' | 'allPct') => bands.filter((b) => ['lt6m', '6to12m'].includes(b.band)).reduce((n, b) => n + (b[k] ?? 0), 0);
   return (
-    <div>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-sm font-medium">{label}</span>
-        <span className="num text-sm text-muted">{pct === null ? t('dash.org.hidden') : t('dash.org.perTen', { n: women })}</span>
+    <Panel id="tenure" aside={<Legend items={[{ label: t('dash.org.tenureKey'), color: PALETTE[0] }, { label: t('dash.org.tenureAll'), color: NEUTRAL }]} />}>
+      <div className="mb-2 flex flex-wrap gap-2">
+        <span className="tag bg-primary-soft text-primary-ink">{t('dash.seniorShare')} {fmtPct(senior('keyPct'))} <span className="font-normal text-muted">/ {fmtPct(senior('allPct'))}</span></span>
+        <span className="tag bg-subtle text-ink">{t('dash.juniorShare')} {fmtPct(junior('keyPct'))} <span className="font-normal text-muted">/ {fmtPct(junior('allPct'))}</span></span>
       </div>
-      <div className="mt-2 flex flex-wrap gap-px" role="img" aria-label={`${label}: ${t('dash.org.female')} ${fmtPct(pct)}`}>
-        {Array.from({ length: 20 }, (_, i) => (
-          <PersonStanding key={i} className="h-6 w-6" strokeWidth={2.25} style={{ color: pct === null ? INK.grid : i < women ? WOMEN : MEN }} aria-hidden="true" />
-        ))}
-      </div>
-    </div>
+      <Chart label={t('dash.m.tenure.t')} height={250}
+        option={{
+          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: number) => `${v}%` },
+          grid: { left: 36, right: 8, top: 24, bottom: 28 },
+          xAxis: { type: 'category', data: bands.map((b) => t(`dash.band.${b.band}`)), axisTick: { show: false }, axisLine: { lineStyle: { color: INK.axis } }, axisLabel: { fontSize: 11, interval: 0 } },
+          yAxis: { type: 'value', axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: INK.grid } } },
+          series: [
+            { name: t('dash.org.tenureKey'), type: 'bar', barGap: '8%', barMaxWidth: 22, itemStyle: { color: PALETTE[0], borderRadius: [4, 4, 0, 0] },
+              label: { show: true, position: 'top', fontSize: 10, color: INK.primary, formatter: '{c}%' }, data: bands.map((b) => Math.round(b.keyPct ?? 0)) },
+            { name: t('dash.org.tenureAll'), type: 'bar', barMaxWidth: 22, itemStyle: { color: NEUTRAL, borderRadius: [4, 4, 0, 0] }, data: bands.map((b) => Math.round(b.allPct ?? 0)) },
+          ],
+        }} />
+    </Panel>
   );
 }
 
-function GenderPanel({ ctx }: { ctx: Ctx }) {
+/** Women's share at each step from scope to ready-now, so the step where representation drops stands out. */
+function GenderPipeline({ ctx }: { ctx: Ctx }) {
   const { t } = useTranslation();
-  const g = s.genderView(ctx.ds);
-  const gap = g.keyFemalePct !== null && g.scopeFemalePct !== null ? g.keyFemalePct - g.scopeFemalePct : null;
-  const verdict = gap === null ? null : gap <= -5 ? 'fewer' : gap >= 5 ? 'more' : 'same';
-  const depts = m.genderByDept(ctx.ds);
+  const stages = s.genderPipeline(ctx.ds);
+  const shown = stages.filter((x) => x.femalePct !== null);
+  let drop: { from: string; to: string; delta: number } | null = null;
+  for (let i = 1; i < shown.length; i++) {
+    const d = (shown[i - 1].femalePct ?? 0) - (shown[i].femalePct ?? 0);
+    if (d >= 5 && (!drop || d > drop.delta)) drop = { from: t(`dash.pipeline.${shown[i - 1].stage}`), to: t(`dash.pipeline.${shown[i].stage}`), delta: Math.round(d) };
+  }
+  const gaps = s.genderDeptGap(ctx.ds).filter((d) => d.scopePct !== null && d.keyPct !== null);
+  const last = shown[shown.length - 1];
   return (
-    <Panel id="gender" aside={verdict && (
-      <span className={`tag ${verdict === 'same' ? 'bg-ok-bg text-ok-fg' : 'bg-warn-bg text-warn-fg'}`}>{t(`dash.org.${verdict}`)}</span>
-    )}>
-      <div className="grid gap-5">
-        <div className="flex items-end gap-6">
-          <BigStat value={fmtPct(g.keyFemalePct)} label={`${t('dash.org.keyTalent')} · ${t('dash.org.female')}`} tone="primary" />
-          <BigStat value={fmtPct(g.scopeFemalePct)} label={`${t('dash.org.everyone')} · ${t('dash.org.female')}`} />
-        </div>
-        <Isotype pct={g.keyFemalePct} label={t('dash.org.keyTalent')} />
-        <Isotype pct={g.scopeFemalePct} label={t('dash.org.everyone')} />
-        <Legend items={[{ label: t('dash.org.female'), color: WOMEN }, { label: t('dash.org.male'), color: MEN }]} />
-        <details className="group rounded-lg border border-line px-3 py-2">
-          <summary className="cursor-pointer text-sm font-medium">{t('dash.org.byDept')}</summary>
-          <ul className="mt-3 space-y-2">
-            {depts.map((d) => (
-              <li key={d.dept} className="grid grid-cols-[minmax(6rem,10rem)_1fr_3rem] items-center gap-3 text-xs">
-                <span className="truncate" title={d.dept}>{d.dept}</span>
-                {d.suppressed ? <span className="col-span-2 text-muted">{t('dash.org.hidden')}</span> : (
-                  <>
-                    <span className="flex h-2 overflow-hidden rounded-full" aria-hidden="true">
-                      <span style={{ width: `${d.femalePct}%`, background: WOMEN }} /><span className="flex-1" style={{ background: MEN }} />
+    <Panel id="gender" className="lg:col-span-2" aside={<Legend items={[{ label: t('dash.org.female'), color: WOMEN }]} />}>
+      {shown.length === 0 ? <Empty /> : (
+        <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
+          <div>
+            <p className="text-base font-medium">
+              {t('dash.pipeHeadline', { scope: fmtPct(shown[0].femalePct), last: t(`dash.pipeline.${last.stage}`), end: fmtPct(last.femalePct) })}
+            </p>
+            <p className={`mt-1 inline-flex items-center gap-1.5 text-sm ${drop ? 'text-risk-fg' : 'text-ok-fg'}`}>
+              {drop ? <TrendingDown className="h-4 w-4" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
+              {drop ? t('dash.pipeDrop', drop) : t('dash.pipeFlat')}
+            </p>
+            <ol className="mt-5 grid grid-cols-4 items-end gap-2 sm:gap-4" aria-label={t('dash.m.gender.t')}>
+              {stages.map((st, i) => {
+                const prev = i > 0 ? stages[i - 1].femalePct : null;
+                const delta = prev !== null && st.femalePct !== null ? st.femalePct - prev : null;
+                return (
+                  <li key={st.stage} className="flex flex-col items-center text-center">
+                    <span className={`num text-xs font-semibold ${delta !== null && delta <= -5 ? 'text-risk-fg' : 'text-muted'}`}>
+                      {delta === null ? ' ' : `${delta > 0 ? '+' : ''}${Math.round(delta)}`}
                     </span>
-                    <span className="num text-right">{fmtPct(d.femalePct)}</span>
-                  </>
-                )}
+                    <span className="num mt-1 text-2xl font-semibold">{fmtPct(st.femalePct)}</span>
+                    <span className="mt-2 flex h-32 w-full max-w-[4.5rem] items-end rounded-md bg-subtle" aria-hidden="true">
+                      <span className="w-full rounded-md" style={{ height: `${st.femalePct ?? 0}%`, background: WOMEN }} />
+                    </span>
+                    <span className="mt-2 text-xs font-medium">{t(`dash.pipeline.${st.stage}`)}</span>
+                    <span className="num text-xs text-muted">{t('dash.people', { count: st.n })}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+          <div>
+            <p className="text-sm font-medium">{t('dash.deptGap')}</p>
+            <p className="mt-0.5 text-xs text-muted">{t('dash.deptGapNote')}</p>
+            <ul className="mt-4 space-y-3">
+              {gaps.map((d) => {
+                const lo = Math.min(d.scopePct!, d.keyPct!);
+                const hi = Math.max(d.scopePct!, d.keyPct!);
+                const fewer = d.scopePct! - d.keyPct! >= 5;
+                return (
+                  <li key={d.dept} className="grid grid-cols-[minmax(5rem,8.5rem)_1fr_3rem] items-center gap-3 text-xs">
+                    <span className="truncate" title={d.dept}>{d.dept}</span>
+                    <span className="relative h-3" aria-label={`${d.dept}: ${fmtPct(d.scopePct)} → ${fmtPct(d.keyPct)}`} role="img">
+                      <span className="absolute inset-x-0 top-1/2 h-px bg-line" />
+                      <span className="absolute top-1/2 h-0.5 -translate-y-1/2 rounded" style={{ left: `${lo}%`, width: `${hi - lo}%`, background: fewer ? STATUS.critical : INK.axis }} />
+                      <span className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card" style={{ left: `${d.scopePct}%`, background: NEUTRAL }} />
+                      <span className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card" style={{ left: `${d.keyPct}%`, background: WOMEN }} />
+                    </span>
+                    <span className={`num text-right font-semibold ${fewer ? 'text-risk-fg' : ''}`}>{fmtPct(d.keyPct)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+function KeyReasons({ ctx }: { ctx: Ctx }) {
+  const { labelOf } = useRef_();
+  const reasons = s.keyTalentReasons(ctx.ds);
+  const total = ctx.ds.reviews.length;
+  return (
+    <Panel id="keyReasons">
+      {reasons.length === 0 ? <Empty /> : (
+        <ul className="space-y-3.5">
+          {reasons.map((r) => {
+            const p = m.pct(r.ids.length, total) ?? 0;
+            return (
+              <li key={r.reason}>
+                <button type="button" className="group w-full text-left" onClick={() => ctx.open(labelOf('key_talent_reason', r.reason), r.ids)}>
+                  <span className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="group-hover:text-primary">{labelOf('key_talent_reason', r.reason)}</span>
+                    <span className="num text-muted"><span className="font-semibold text-ink">{r.ids.length}</span> · {fmtPct(p)}</span>
+                  </span>
+                  <span className="mt-1 block"><Meter pct={p} color={PALETTE[0]} /></span>
+                </button>
               </li>
-            ))}
-          </ul>
-        </details>
-      </div>
+            );
+          })}
+        </ul>
+      )}
     </Panel>
   );
 }
@@ -427,12 +486,23 @@ export function BenchSection({ ctx }: { ctx: Ctx }) {
         </ul>
         {uncoveredAll.length > 0 && <div className="mt-4"><LinkButton onClick={() => ctx.open(t('dash.m.uncovered.t'), uncoveredAll)}>{t('dash.viewAllRoles', { count: uncoveredAll.length })}</LinkButton></div>}
       </Panel>
-      <CoverageMap ctx={ctx} />
+      <RoleMatrix ctx={ctx} />
+      <div className="grid gap-6 md:grid-cols-3 lg:col-span-3">
+        <DepthPanel ctx={ctx} />
+        <Panel id="external"><BigStat value={fmtPct(external)} label={t('dash.m.external.formula')} /></Panel>
+        <Panel id="fragile">
+          <div className="flex items-end justify-between gap-4">
+            <BigStat value={String(fragile.length)} label={t('dash.roles', { count: fragile.length })} tone={fragile.length ? 'risk' : 'ink'} />
+            {fragile.length > 0 && <LinkButton onClick={() => ctx.open(t('dash.m.fragile.t'), [...new Set(fragile.map((f) => f.holderId))])}>{t('dash.viewList')}</LinkButton>}
+          </div>
+          {fragile.length > 0 && <p className="mt-3 truncate text-xs text-muted">{fragile.slice(0, 2).map((f) => `${name(f.holderId)} → ${name(f.successorId)}`).join('；')}</p>}
+        </Panel>
+      </div>
       {ctx.mode === 'hr' && (
-        <Panel id="concentration" className="lg:col-span-2">
+        <Panel id="concentration" className="lg:col-span-3">
           {concentration.length === 0 ? <p className="text-sm text-muted">{t('dash.bench.noConcentration')}</p> : (
-            <ul className="divide-y divide-line">
-              {concentration.slice(0, 6).map((c) => (
+            <ul className="grid gap-x-10 md:grid-cols-2 [&>li]:border-b [&>li]:border-line">
+              {concentration.slice(0, 8).map((c) => (
                 <li key={c.id}>
                   <button type="button" className="flex w-full items-center gap-3 py-2.5 text-left hover:bg-subtle/60" onClick={() => ctx.open(`${c.name} · ${t('dash.bench.namedFor', { count: c.holders.length })}`, c.holders)}>
                     <Avatar name={c.name} />
@@ -449,56 +519,121 @@ export function BenchSection({ ctx }: { ctx: Ctx }) {
           )}
         </Panel>
       )}
-      <div className={`grid gap-6 ${ctx.mode === 'hr' ? '' : 'lg:col-span-3 sm:grid-cols-2'}`}>
-        <Panel id="external"><BigStat value={fmtPct(external)} label={t('dash.m.external.formula')} /></Panel>
-        <Panel id="fragile">
-          <div className="flex items-end justify-between gap-4">
-            <BigStat value={String(fragile.length)} label={t('dash.roles', { count: fragile.length })} tone={fragile.length ? 'risk' : 'ink'} />
-            {fragile.length > 0 && <LinkButton onClick={() => ctx.open(t('dash.m.fragile.t'), [...new Set(fragile.map((f) => f.holderId))])}>{t('dash.viewList')}</LinkButton>}
-          </div>
-          {fragile.length > 0 && <p className="mt-3 truncate text-xs text-muted">{fragile.slice(0, 2).map((f) => `${name(f.holderId)} → ${name(f.successorId)}`).join('；')}</p>}
-        </Panel>
-      </div>
     </div>
   );
 }
 
-function CoverageMap({ ctx }: { ctx: Ctx }) {
+const DANGER: Record<string, Record<string, 'critical' | 'serious' | null>> = {
+  gap: { High: 'critical', Medium: 'serious', Low: null },
+  thin: { High: 'serious', Medium: null, Low: null },
+  developing: { High: null, Medium: null, Low: null },
+  strong: { High: null, Medium: null, Low: null },
+};
+
+/**
+ * Critical roles by holder retention risk and successor readiness. Only the danger cells carry color;
+ * everything else stays neutral so the eye lands on the few roles that need action.
+ */
+function RoleMatrix({ ctx }: { ctx: Ctx }) {
   const { t } = useTranslation();
-  const { name } = useNames(ctx);
-  const deptOf = new Map(ctx.ds.people.map((p) => [p.employee_id, p.dept]));
-  const critical = ctx.ds.reviews.filter((r) => r.is_critical_role);
-  const groups = [...new Set(critical.map((r) => deptOf.get(r.employee_id) ?? ''))].sort((a, b) => a.localeCompare(b, 'en'));
-  const best = (r: (typeof critical)[number]) => {
+  const { labelOf } = useRef_();
+  const { name, dept } = useNames(ctx);
+  const rows = s.roleRiskMatrix(ctx.ds);
+  const max = Math.max(1, ...rows.flatMap((r) => r.cells.map((c) => c.ids.length)));
+  const danger = rows.flatMap((r) => r.cells.filter((c) => DANGER[r.bench][c.risk]).map((c) => ({ ...c, bench: r.bench, level: DANGER[r.bench][c.risk] })))
+    .sort((a, b) => (a.level === b.level ? 0 : a.level === 'critical' ? -1 : 1));
+  const first = danger.flatMap((d) => d.ids.map((id) => ({ id, bench: d.bench, risk: d.risk, level: d.level })));
+  const review = new Map(ctx.ds.reviews.map((r) => [r.employee_id, r]));
+  const bestSuccessor = (id: number) => {
+    const r = review.get(id);
     const order = ['Ready Now', '1-2 years', '3+ years', 'Emergency Cover'];
-    const cands = r.successors.filter((x) => x.successor_type !== 'tbh').sort((a, b) => order.indexOf(a.readiness ?? '') - order.indexOf(b.readiness ?? ''));
-    return cands[0]?.display_name ?? cands[0]?.external_name ?? t('dash.bench.none');
+    const c = r?.successors.filter((x) => x.successor_type !== 'tbh').sort((a, b) => order.indexOf(a.readiness ?? '') - order.indexOf(b.readiness ?? ''))[0];
+    return c ? `${c.display_name ?? c.external_name ?? ''} · ${labelOf('readiness', c.readiness)}` : t('dash.bench.none');
   };
   return (
-    <Panel id="coverage" className="lg:col-span-3">
-      {critical.length === 0 ? <Empty /> : (
-        <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
-          {groups.map((g) => {
-            const roles = critical.filter((r) => deptOf.get(r.employee_id) === g);
-            return (
-              <div key={g}>
-                <p className="mb-1.5 flex justify-between text-xs"><span className="font-medium">{g}</span><span className="num text-muted">{roles.length}</span></p>
-                <div className="flex flex-wrap gap-1">
-                  {roles.map((r) => {
-                    const cls = m.benchClass(m.benchScore(r));
-                    const label = `${name(r.employee_id)} · ${t(`dash.bench.${cls}`)} · ${t('dash.bench.successor')}: ${best(r)}`;
-                    return (
-                      <button key={r.employee_id} type="button" title={label} aria-label={label}
-                        onClick={() => ctx.open(name(r.employee_id), [r.employee_id])}
-                        className="h-5 w-5 rounded-[4px] transition hover:scale-125 hover:ring-2 hover:ring-ink/20"
-                        style={{ background: BENCH_COLORS[cls] }} />
-                    );
-                  })}
-                </div>
+    <Panel id="roleMatrix" className="lg:col-span-3">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
+        <div>
+          <div className="grid grid-cols-[6.5rem_repeat(3,minmax(0,1fr))] gap-1.5 text-sm">
+            <span className="self-end text-[0.6875rem] text-muted">{t('dash.matrixBench')} ↓</span>
+            {s.MATRIX_RISK.map((risk) => (
+              <span key={risk} className="flex items-center justify-center gap-1.5 pb-1 text-xs font-semibold text-muted">
+                <span className="h-2 w-2 rounded-full" style={{ background: RISK_COLORS[risk] }} aria-hidden="true" />{labelOf('retention_risk', risk)}
+              </span>
+            ))}
+            {rows.map((row) => (
+              <div key={row.bench} className="contents">
+                <span className="flex items-center gap-1.5 text-xs font-medium">
+                  <span className="h-2 w-2 rounded-sm" style={{ background: BENCH_COLORS[row.bench] }} aria-hidden="true" />{t(`dash.bench.${row.bench}`)}
+                </span>
+                {row.cells.map((c) => {
+                  const level = DANGER[row.bench][c.risk];
+                  const n = c.ids.length;
+                  const label = `${t(`dash.bench.${row.bench}`)} × ${labelOf('retention_risk', c.risk)}`;
+                  const style = level === 'critical' ? 'bg-risk-fg text-white' : level === 'serious' ? 'bg-risk-bg text-risk-fg ring-1 ring-risk-fg/20' : 'text-ink';
+                  return (
+                    <button key={c.risk} type="button" disabled={n === 0} onClick={() => ctx.open(label, c.ids)}
+                      aria-label={`${label}: ${t('dash.roles', { count: n })}`}
+                      className={`relative grid h-16 place-items-center rounded-lg transition enabled:hover:-translate-y-0.5 enabled:hover:shadow-card ${style}`}
+                      style={level ? undefined : { background: n ? `rgba(16, 24, 40, ${0.03 + (n / max) * 0.12})` : '#F8FAFC' }}>
+                      <span className={`num text-xl font-semibold ${n === 0 ? 'text-muted/60' : ''}`}>{n}</span>
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
+            ))}
+            <span />
+            <span className="col-span-3 pt-1 text-center text-[0.6875rem] text-muted">{t('dash.matrixRisk')} →</span>
+          </div>
+          <p className="mt-3 flex items-center gap-2 text-xs text-muted"><span className="h-3 w-3 rounded bg-risk-fg" aria-hidden="true" />{t('dash.matrixDanger')}</p>
         </div>
+        <div>
+          <p className="text-sm font-semibold">{t('dash.matrixFirst')}</p>
+          {first.length === 0 ? <p className="mt-3 text-sm text-muted">{t('dash.matrixNone')}</p> : (
+            <ul className="mt-2 divide-y divide-line">
+              {first.slice(0, 6).map((f) => (
+                <li key={f.id}>
+                  <button type="button" className="flex w-full items-center gap-3 py-2.5 text-left hover:bg-subtle/60" onClick={() => ctx.openPerson(f.id)}>
+                    <span className={`h-8 w-1 shrink-0 rounded-full ${f.level === 'critical' ? 'bg-risk-fg' : 'bg-[#EC835A]'}`} aria-hidden="true" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{name(f.id)} <span className="font-normal text-muted">· {dept(f.id)}</span></span>
+                      <span className="block truncate text-xs text-muted">{t('dash.bench.successor')}：{bestSuccessor(f.id)}</span>
+                    </span>
+                    <span className="tag shrink-0 bg-subtle text-ink">{labelOf('retention_risk', f.risk)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {first.length > 6 && <div className="mt-3"><LinkButton onClick={() => ctx.open(t('dash.matrixFirst'), first.map((f) => f.id))}>{t('dash.viewAllRoles', { count: first.length })}</LinkButton></div>}
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function DepthPanel({ ctx }: { ctx: Ctx }) {
+  const { t } = useTranslation();
+  const depth = s.benchDepth(ctx.ds);
+  const total = depth.reduce((n, d) => n + d.ids.length, 0);
+  const thin = depth[0].ids.length + depth[1].ids.length;
+  const colors = [STATUS.critical, STATUS.warning, STATUS.good];
+  return (
+    <Panel id="depth">
+      {total === 0 ? <Empty /> : (
+        <>
+          <p className="text-sm font-medium">{t('dash.depthTake', { pct: fmtPct(m.pct(thin, total)) })}</p>
+          <div className="mt-3"><SegmentBar parts={depth.map((d, i) => ({ label: t(`dash.depthLabel.${d.depth}`), value: d.ids.length, color: colors[i], dark: i === 1 }))}
+            onPick={(i) => ctx.open(t(`dash.depthLabel.${depth[i].depth}`), depth[i].ids)} /></div>
+          <ul className="mt-3 grid grid-cols-3 gap-2 text-center">
+            {depth.map((d, i) => (
+              <li key={d.depth} className="rounded-lg bg-subtle p-2">
+                <span className="flex items-center justify-center gap-1 text-xs text-muted"><span className="h-2 w-2 rounded-full" style={{ background: colors[i] }} aria-hidden="true" />{t(`dash.depthLabel.${d.depth}`)}</span>
+                <span className="num block text-xl font-semibold">{d.ids.length}</span>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </Panel>
   );
@@ -564,10 +699,21 @@ export function GrowthSection({ ctx }: { ctx: Ctx }) {
           <>
             <SegmentBar parts={mobility.map((x, i) => ({ label: labelOf('mobility', x.status), value: x.count, color: PALETTE[i % PALETTE.length], dark: i === 3 }))}
               onPick={(i) => ctx.open(labelOf('mobility', mobility[i].status), mobility[i].ids)} />
-            <div className="mt-4"><Legend items={mobility.map((x, i) => ({ label: `${labelOf('mobility', x.status)} ${x.count}`, color: PALETTE[i % PALETTE.length] }))} /></div>
+            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {mobility.map((x, i) => (
+                <li key={x.status}>
+                  <button type="button" className="w-full rounded-lg border border-line p-2.5 text-left hover:border-primary/40" onClick={() => ctx.open(labelOf('mobility', x.status), x.ids)}>
+                    <span className="flex items-center gap-1.5 text-xs text-muted"><span className="h-2 w-2 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} aria-hidden="true" />{labelOf('mobility', x.status)}</span>
+                    <span className="num mt-1 block text-xl font-semibold">{x.count}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </>
         )}
       </Panel>
+      <PoolPanel ctx={ctx} />
+      <PlanExecPanel ctx={ctx} />
       <Panel id="mix" aside={<span className="text-right text-xs text-muted">{t('dash.m.planComplete.t')}<span className="num ml-1.5 text-base font-semibold text-ink">{fmtPct(k.planCompletePct)}</span><InfoTip id="planComplete" /></span>}>
         <div className="space-y-3">
           <div>
@@ -622,6 +768,56 @@ export function GrowthSection({ ctx }: { ctx: Ctx }) {
   );
 }
 
+function PoolPanel({ ctx }: { ctx: Ctx }) {
+  const { t } = useTranslation();
+  const { name, dept } = useNames(ctx);
+  const pool = s.mobilityPool(ctx.ds);
+  const byDept = [...new Set(pool.map(dept))].map((d) => ({ d, n: pool.filter((id) => dept(id) === d).length })).sort((a, b) => b.n - a.n);
+  return (
+    <Panel id="pool">
+      <div className="flex items-end justify-between gap-4">
+        <BigStat value={String(pool.length)} label={t('dash.poolTake', { count: pool.length })} tone="primary" />
+        {pool.length > 0 && <LinkButton onClick={() => ctx.open(t('dash.m.pool.t'), pool)}>{t('dash.viewList')}</LinkButton>}
+      </div>
+      {byDept.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-1.5">
+          {byDept.map(({ d, n }) => <li key={d} className="tag bg-subtle text-ink">{d}<span className="num font-semibold">{n}</span></li>)}
+        </ul>
+      )}
+      {pool.length > 0 && <p className="mt-3 truncate text-xs text-muted">{pool.slice(0, 4).map(name).join('、')}{pool.length > 4 ? '…' : ''}</p>}
+    </Panel>
+  );
+}
+
+function PlanExecPanel({ ctx }: { ctx: Ctx }) {
+  const { t } = useTranslation();
+  const rows = s.planExecution(ctx.ds);
+  const colors = ['#C3C9D5', PALETTE[0], STATUS.critical, STATUS.good];
+  const total = rows.reduce((n, r) => n + r.goals, 0);
+  return (
+    <Panel id="planExec">
+      {total === 0 ? <Empty /> : (
+        <>
+          <SegmentBar parts={rows.map((r, i) => ({ label: t(`dash.planStatus.${r.status}`), value: r.goals, color: colors[i], dark: i === 0 }))}
+            onPick={(i) => ctx.open(t(`dash.planStatus.${rows[i].status}`), rows[i].ids)} />
+          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {rows.map((r, i) => (
+              <li key={r.status}>
+                <button type="button" disabled={!r.ids.length} onClick={() => ctx.open(t(`dash.planStatus.${r.status}`), r.ids)}
+                  className="w-full rounded-lg border border-line p-2.5 text-left enabled:hover:border-primary/40">
+                  <span className="flex items-center gap-1.5 text-xs text-muted"><span className="h-2 w-2 rounded-full" style={{ background: colors[i] }} aria-hidden="true" />{t(`dash.planStatus.${r.status}`)}</span>
+                  <span className="num mt-1 block text-xl font-semibold">{r.goals}</span>
+                  <span className="text-xs text-muted">{t('dash.people', { count: r.ids.length })}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </Panel>
+  );
+}
+
 /* ------------------------------------------------------------------ Action list (HR only) */
 
 function ActionCard({ id, Icon, tone, count, unit, preview, onOpen, children }: {
@@ -669,6 +865,7 @@ export function ActionsSection({ ctx }: { ctx: Ctx }) {
   const hidden = ins.unlistedSuccessors(ctx.ds);
   const matches = ins.internalMatches(ctx.ds);
   const cal = ins.calibrationSignals(ctx.ds);
+  const noPlan = s.riskWithoutPlan(ctx.ds);
   return (
     <div className="space-y-6">
       <p className="max-w-3xl text-sm text-muted">{t('dash.act.subtitle')}</p>
@@ -677,16 +874,17 @@ export function ActionsSection({ ctx }: { ctx: Ctx }) {
           preview={talk.map(name)} onOpen={() => ctx.open(t('dash.act.talk.t'), talk)} />
         <ActionCard id="fragile" Icon={ShieldAlert} tone="bg-warn-bg text-warn-fg" count={fragileHolders.length} unit={t('dash.unitRoles')}
           preview={fragile.map((f) => name(f.successorId))} onOpen={() => ctx.open(t('dash.act.fragile.t'), [...new Set(fragile.flatMap((f) => [f.holderId, f.successorId]))])} />
+        <ActionCard id="riskNoPlan" Icon={Sprout} tone="bg-risk-bg text-risk-fg" count={noPlan.length} unit={t('dash.unitPeople')}
+          preview={noPlan.map(name)} onOpen={() => ctx.open(t('dash.act.riskNoPlan.t'), noPlan)} />
         <ActionCard id="hidden" Icon={UserRoundSearch} tone="bg-info-bg text-info-fg" count={hidden.length} unit={t('dash.unitPeople')}
           preview={hidden.map((h) => name(h.id))} onOpen={() => ctx.open(t('dash.act.hidden.t'), hidden.map((h) => h.id))} />
         <ActionCard id="internal" Icon={Search} tone="bg-ok-bg text-ok-fg" count={matches.length} unit={t('dash.unitRoles')}
           preview={[...new Set(matches.flatMap((x) => x.candidates.map((c) => name(c.id))))]}
           onOpen={() => ctx.open(t('dash.act.internal.t'), [...new Set(matches.flatMap((x) => [x.holderId, ...x.candidates.map((c) => c.id)]))])} />
-        <div className="lg:col-span-2">
           <ActionCard id="calibrate" Icon={ClipboardCheck} tone="bg-subtle text-muted" count={cal.length} unit={t('dash.unitTeams')} preview={[]}>
             {cal.length > 0 && (
-              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {cal.map((c) => (
+              <ul className="mt-4 grid gap-2">
+                {cal.slice(0, 3).map((c) => (
                   <li key={c.reviewerId}>
                     <button type="button" className="flex w-full items-center gap-3 rounded-lg border border-line p-2.5 text-left hover:border-primary/40"
                       onClick={() => ctx.open(name(c.reviewerId), ctx.ds.reviews.filter((r) => r.reviewer_id === c.reviewerId).map((r) => r.employee_id))}>
@@ -701,7 +899,6 @@ export function ActionsSection({ ctx }: { ctx: Ctx }) {
               </ul>
             )}
           </ActionCard>
-        </div>
       </div>
       {talk.length + fragile.length + hidden.length + matches.length + cal.length === 0 && <p className="text-sm text-muted">{t('dash.act.none')}</p>}
     </div>

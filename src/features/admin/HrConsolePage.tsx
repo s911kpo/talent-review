@@ -1,5 +1,6 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { CalendarRange, ChartColumn, ClipboardCheck, Eye, FileDown, FileUp, Home, KeyRound, ListTree, ScrollText, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AppShell, PageHeader, type NavGroup } from '../../components/AppShell';
 import { isAiEnabled } from '../../data/client';
@@ -36,7 +37,10 @@ type PageKey = (typeof PAGES)[number]['key'];
 
 export function HrConsolePage() {
   const { t } = useTranslation();
-  const [page, setPage] = useState<PageKey>('overview');
+  // The page is in the URL so the browser Back button moves between pages.
+  const [params, setParams] = useSearchParams();
+  const page = (params.get('p') ?? 'overview') as PageKey;
+  const setPage = (p: PageKey) => setParams(p === 'overview' ? {} : { p });
   const pages = PAGES.filter((x) => x.key !== 'ai' || isAiEnabled);
   const current = pages.find((x) => x.key === page) ?? pages[0];
   const nav: NavGroup[] = (['work', 'admin'] as const).map((group) => ({

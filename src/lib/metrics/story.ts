@@ -1,7 +1,7 @@
 // Dashboard v2: a few clearly defined measures and the plain-language takeaways built from them.
 // SPEC section 0 still holds: departments and roles may be compared, people are never scored or ranked.
 // Every measure here is documented (definition, formula, how to use it) in docs/METRICS.md.
-import { AFTER_SUBMIT, benchScore, pct, type Dataset } from './index';
+import { AFTER_SUBMIT, benchScore, hasCompletePlan, pct, type Dataset } from './index';
 import type { Review } from '../review/types';
 
 const isMedHigh = (r: Review) => r.retention_risk === 'Medium' || r.retention_risk === 'High';
@@ -152,4 +152,116 @@ export function tenureShares(bands: { band: string; scope: number; key: number }
   const all = bands.reduce((n, b) => n + b.scope, 0);
   const key = bands.reduce((n, b) => n + b.key, 0);
   return bands.map((b) => ({ band: b.band, allPct: pct(b.scope, all), keyPct: pct(b.key, key), key: b.key }));
+}
+
+/* ---------------------------------------------------------------- v2.1 measures (2026-11-12) */
+
+const femaleShare = (genders: (string | null)[]) =>
+  (genders.length < GENDER_MIN ? null : pct(genders.filter((g) => g === 'F').length, genders.length));
+
+export interface PipelineStage { stage: 'scope' | 'key' | 'critical' | 'ready'; n: number; femalePct: number | null }
+
+/**
+ * Share of women at each step from review scope to ready-now talent: where does representation drop?
+ * Each step hides below five people so nobody can be identified.
+ */
+export function genderPipeline({ people, reviews }: Dataset): PipelineStage[] {
+  const gender = new Map(people.map((p) => [p.employee_id, p.gender]));
+  const of = (ids: number[]) => ids.map((id) => gender.get(id) ?? null);
+  const key = reviews.map((r) => r.employee_id);
+  const critical = reviews.filter((r) => r.is_critical_role).map((r) => r.employee_id);
+  const ready = nextStepReadiness({ people, reviews })[0].ids;
+  return ([['scope', people.map((p) => p.employee_id)], ['key', key], ['critical', critical], ['ready', ready]] as const)
+    .map(([stage, ids]) => ({ stage, n: ids.length, femalePct: femaleShare(of([...ids])) }));
+}
+
+/** Per department: women's share of everyone in scope versus of key talent (each hidden below five). */
+export function genderDeptGap({ people, reviews }: Dataset) {
+  const key = new Set(reviews.map((r) => r.employee_id));
+  return [...new Set(people.map((p) => p.dept))].sort((a, b) => a.localeCompare(b, 'en')).map((dept) => {
+    const members = people.filter((p) => p.dept === dept);
+    return {
+      dept,
+      scopePct: femaleShare(members.map((p) => p.gender)),
+      keyPct: femaleShare(members.filter((p) => key.has(p.employee_id)).map((p) => p.gender)),
+    };
+  });
+}
+
+export const MATRIX_BENCH = ['gap', 'thin', 'developing', 'strong'] as const;
+export const MATRIX_RISK = ['High', 'Medium', 'Low'] as const;
+
+/**
+ * Critical roles placed by the holder's retention risk and the best successor's readiness.
+ * Roles, not people, are being compared: "this seat may empty soon and nobody is ready".
+ */
+export function roleRiskMatrix({ reviews }: Dataset) {
+  const critical = reviews.filter((r) => r.is_critical_role && r.retention_risk);
+  return MATRIX_BENCH.map((bench) => ({
+    bench,
+    cells: MATRIX_RISK.map((risk) => ({
+      risk,
+      ids: critical.filter((r) => r.retention_risk === risk && benchClassOf(r) === bench).map((r) => r.employee_id),
+    })),
+  }));
+}
+const benchClassOf = (r: Review) => { const s = benchScore(r); return s >= 3 ? 'strong' : s === 2 ? 'developing' : s === 1 ? 'thin' : 'gap'; };
+
+/** Critical roles by how many named internal or external candidates they have (TBH does not count). */
+export function benchDepth({ reviews }: Dataset) {
+  const critical = reviews.filter((r) => r.is_critical_role);
+  const n = (r: Review) => r.successors.filter((s) => s.successor_type !== 'tbh').length;
+  return [
+    { depth: '0', ids: critical.filter((r) => n(r) === 0).map((r) => r.employee_id) },
+    { depth: '1', ids: critical.filter((r) => n(r) === 1).map((r) => r.employee_id) },
+    { depth: '2+', ids: critical.filter((r) => n(r) >= 2).map((r) => r.employee_id) },
+  ];
+}
+
+/** Why people were named key talent (several reasons allowed). */
+export function keyTalentReasons({ reviews }: Dataset) {
+  const out = new Map<string, number[]>();
+  for (const r of reviews) for (const reason of r.key_talent_reasons) out.set(reason, [...(out.get(reason) ?? []), r.employee_id]);
+  return [...out].map(([reason, ids]) => ({ reason, ids })).sort((a, b) => b.ids.length - a.ids.length);
+}
+
+export const PLAN_STATUSES = ['Not Started', 'On Track', 'At Risk', 'Completed'];
+/** Development goals by execution status; the people behind each status. */
+export function planExecution({ reviews }: Dataset) {
+  return PLAN_STATUSES.map((status) => {
+    const owners = reviews.filter((r) => r.dev_plan.some((p) => p.goal.trim() && (p.status || 'Not Started') === status));
+    const goals = reviews.flatMap((r) => r.dev_plan).filter((p) => p.goal.trim() && (p.status || 'Not Started') === status).length;
+    return { status, goals, ids: owners.map((r) => r.employee_id) };
+  });
+}
+
+/** Ready within two years for a next role and open to moving within two years: the internal bench for openings. */
+export const mobilityPool = ({ reviews }: Dataset): number[] =>
+  reviews.filter((r) => ['Now', '1-2 years'].includes(r.mobility_status ?? '')
+    && r.next_roles.some((n) => ['Ready Now', '1-2 years'].includes(n.readiness))).map((r) => r.employee_id);
+
+/** Medium or high retention risk, but no complete development plan: retention without a development answer. */
+export const riskWithoutPlan = ({ reviews }: Dataset): number[] =>
+  reviews.filter((r) => (r.retention_risk === 'High' || r.retention_risk === 'Medium') && !hasCompletePlan(r)).map((r) => r.employee_id);
+
+export type Probe = { key: string; params?: Record<string, string> };
+
+/**
+ * Conversation prompts for one person, chosen from what their Supervisor entered.
+ * They are questions to ask, never conclusions about the person. At most four, most urgent first.
+ */
+export function personProbes(r: Review): Probe[] {
+  const out: Probe[] = [];
+  if (r.aspirations_not_discussed) out.push({ key: 'aspirations' });
+  if (r.retention_risk === 'High' || r.retention_risk === 'Medium') {
+    for (const reason of r.retention_reasons.slice(0, 2)) out.push({ key: `reason.${reason}` });
+    if (!r.retention_reasons.length) out.push({ key: 'riskNoReason' });
+  }
+  const ready = r.next_roles.find((n) => n.readiness === 'Ready Now');
+  if (ready) out.push({ key: 'readyNow', params: { role: ready.role_title } });
+  if (r.is_critical_role && benchScore(r) <= 1) out.push({ key: 'noSuccessor' });
+  if (r.mobility_status === 'Now') out.push({ key: 'mobileNow' });
+  if (!hasCompletePlan(r)) out.push({ key: 'plan' });
+  else if (r.dev_plan.some((p) => p.status === 'At Risk')) out.push({ key: 'planAtRisk' });
+  return out.slice(0, 4);
 }

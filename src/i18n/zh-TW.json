@@ -202,6 +202,23 @@
     },
     "teamsTitle": "各團隊進度",
     "showAll": "顯示全部 {{count}} 個團隊",
-    "showLess": "收合"
+    "showLess": "收合",
+    "calTitle": "校準討論",
+    "calSubtitle": "已提交的 {{count}} 個團隊，需要與 HRBP、上一級 Supervisor 完成討論後才能鎖定。",
+    "calNudge": "{{count}} 個團隊還沒預約討論，建議本週內排定。",
+    "calNext": "接下來的討論",
+    "calNone": "目前沒有已預約的討論。",
+    "calKey": "{{count}} 位關鍵人才",
+    "stalledTitle": "可能卡住的團隊",
+    "stalledNote": "還在填寫或已退回，而且 {{days}} 天以上沒有任何儲存。今天可以先關心這幾位。",
+    "stalledNone": "目前沒有停滯的團隊。",
+    "neverSaved": "尚未開始",
+    "idleDays": "{{days}} 天未更新",
+    "stalledMore": "另有 {{count}} 個團隊，可在下方清單篩選「草稿」查看",
+    "calProbes": [
+      "「已就緒」的判斷，有具體的事例支持嗎？換作其他 Supervisor 也會這樣評嗎？",
+      "流失風險是 Supervisor 的推測，還是本人親口說過？",
+      "每位關鍵人才的發展計畫，下個月的第一步是什麼？誰負責？"
+    ]
   }
 }

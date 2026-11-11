@@ -182,7 +182,11 @@ test('dashboards show data, drill down, and manager AI stays read-only', async (
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByText('Lin, Cedar')).toBeVisible();
   await drawer.getByText('Lin, Cedar').click();
+  await expect(drawer.getByText('對話準備')).toBeVisible();
+  await drawer.getByRole('button', { name: '展開完整內容' }).click();
   await expect(drawer.getByText(/三週內/)).toBeVisible();
+  await drawer.getByRole('button', { name: '返回' }).click();
+  await expect(drawer.getByText('Lin, Cedar')).toBeVisible();
   await page.getByRole('button', { name: '關閉', exact: true }).click();
 
   for (const name of ['接班梯隊', '職涯與發展', '組織畫像']) {

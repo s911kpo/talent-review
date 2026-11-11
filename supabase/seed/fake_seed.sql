@@ -251,4 +251,4 @@ insert into public.cycle_population (cycle_id, employee_id, in_scope, supervisor
   ('11111111-1111-4111-8111-111111111111', 900120, true, 900021, 'Lin, Juniper21', 'R&D', '5104', 'Process Engineer'),
   ('11111111-1111-4111-8111-111111111111', 900121, true, 900021, 'Lin, Juniper21', 'R&D', '5104', 'Sr. Process Engineer'),
   ('11111111-1111-4111-8111-111111111111', 900122, true, 900021, 'Lin, Juniper21', 'R&D', '5104', 'Quality Engineer')
-on conflict (cycle_id, employee_id) do nothing;
+on conflict (cycle_id, employee_id) do update set position = excluded.position;

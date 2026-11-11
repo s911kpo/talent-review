@@ -57,3 +57,57 @@ describe('dashboard v2 measures', () => {
     expect(s.headlines(ds, false).some((h) => h.kind === 'concentration')).toBe(false);
   });
 });
+
+describe('dashboard v2.1 measures', () => {
+  const crit = (id: number, risk: string, successors: Successor[], patch: Partial<Review> = {}) =>
+    review(id, { is_critical_role: true, retention_risk: risk, successors, ...patch });
+
+  it('role risk matrix places critical roles by holder risk and successor readiness', () => {
+    const ds: Dataset = { people: [1, 2, 3].map((i) => person(i)), reviews: [
+      crit(1, 'High', []),
+      crit(2, 'High', [succ('Ready Now')]),
+      crit(3, 'Low', [succ('3+ years')]),
+    ] };
+    const cell = (bench: string, risk: string) => s.roleRiskMatrix(ds).find((r) => r.bench === bench)!.cells.find((c) => c.risk === risk)!.ids;
+    expect(cell('gap', 'High')).toEqual([1]);
+    expect(cell('strong', 'High')).toEqual([2]);
+    expect(cell('thin', 'Low')).toEqual([3]);
+  });
+
+  it('bench depth ignores TBH rows', () => {
+    const ds: Dataset = { people: [1, 2, 3].map((i) => person(i)), reviews: [
+      crit(1, 'Low', [succ('Ready Now', 'tbh')]),
+      crit(2, 'Low', [succ('Ready Now')]),
+      crit(3, 'Low', [succ('Ready Now'), succ('1-2 years', 'external')]),
+    ] };
+    expect(s.benchDepth(ds).map((d) => d.ids)).toEqual([[1], [2], [3]]);
+  });
+
+  it('gender pipeline hides steps under five people', () => {
+    const ds: Dataset = { people: [1, 2, 3, 4, 5, 6].map((i) => person(i, 'PE', i <= 3 ? 'F' : 'M')), reviews: [1, 2, 4, 5, 6].map((i) => review(i)) };
+    const p = s.genderPipeline(ds);
+    expect(p[0]).toMatchObject({ stage: 'scope', femalePct: 50 });
+    expect(p[1]).toMatchObject({ stage: 'key', femalePct: 40 });
+    expect(p[2]).toMatchObject({ stage: 'critical', n: 0, femalePct: null });
+  });
+
+  it('mobility pool needs both near readiness and near mobility', () => {
+    const near = [{ rank: 1, role_title: 'x', readiness: '1-2 years' }];
+    const ds: Dataset = { people: [1, 2, 3].map((i) => person(i)), reviews: [
+      review(1, { mobility_status: 'Now', next_roles: near }),
+      review(2, { mobility_status: 'Not Now', next_roles: near }),
+      review(3, { mobility_status: '1-2 years', next_roles: [{ rank: 1, role_title: 'x', readiness: '3+ years' }] }),
+    ] };
+    expect(s.mobilityPool(ds)).toEqual([1]);
+  });
+
+  it('person prompts are questions drawn from what was entered, at most four', () => {
+    const r = review(1, {
+      aspirations_not_discussed: true, retention_risk: 'High', retention_reasons: ['Compensation Reasons', 'Career Move', 'Hybrid Work'],
+      next_roles: [{ rank: 1, role_title: 'Lead', readiness: 'Ready Now' }], is_critical_role: true, successors: [],
+    });
+    const keys = s.personProbes(r).map((p) => p.key);
+    expect(keys).toEqual(['aspirations', 'reason.Compensation Reasons', 'reason.Career Move', 'readyNow']);
+    expect(s.personProbes(review(2, { retention_risk: 'Low' })).map((p) => p.key)).toEqual(['plan']);
+  });
+});

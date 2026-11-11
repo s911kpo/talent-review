@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Filter, GitFork, LayoutDashboard, ListChecks, ShieldAlert, Sprout, Users, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ChevronDown, Filter, GitFork, LayoutDashboard, ListChecks, ShieldAlert, Sprout, Users, X } from 'lucide-react';
 import { ErrorNotice } from '../../components/AppShell';
 import { fetchDashboard, fetchPlantAverages, type DashboardData, type PlantAverages } from '../../data/dashboard';
 import * as m from '../../lib/metrics';
 import { ReferenceProvider, useRef_ } from '../manager/referenceData';
-import { ReviewSummary } from '../manager/ReviewSummary';
-import { RISK_COLORS } from './Chart';
-import { ActionsSection, Avatar, BenchSection, GrowthSection, OrgSection, OverviewSection, RiskSection, type Ctx, type Mode } from './sections';
+import { Drill, type DrillStep } from './Drill';
+import { ActionsSection, BenchSection, GrowthSection, OrgSection, OverviewSection, RiskSection, type Ctx, type Mode } from './sections';
 
 const SECTIONS = [
   { key: 'overview', Icon: LayoutDashboard, View: OverviewSection },
@@ -29,9 +29,19 @@ function Inner({ mode }: { mode: Mode }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [averages, setAverages] = useState<PlantAverages | null>(null);
   const [failed, setFailed] = useState(false);
-  const [section, setSection] = useState<SectionKey>('overview');
-  const [filters, setFilters] = useState<m.Filters>(m.NO_FILTERS);
-  const [drill, setDrill] = useState<{ title: string; ids: number[] } | null>(null);
+  // Section and filters live in the URL, so the browser Back button returns from a drill-in
+  // and a view can be shared or bookmarked.
+  const [params, setParams] = useSearchParams();
+  const section = (params.get('sec') ?? 'overview') as SectionKey;
+  const filters = readFilters(params);
+  const update = (patch: Record<string, string | null>) => {
+    const next = new URLSearchParams(params);
+    for (const [k, v] of Object.entries(patch)) { if (v) next.set(k, v); else next.delete(k); }
+    setParams(next);
+  };
+  const setSection = (sec: SectionKey) => { update({ sec: sec === 'overview' ? null : sec }); window.scrollTo({ top: 0 }); };
+  const setFilters = (f: m.Filters) => update(writeFilters(f));
+  const [drill, setDrill] = useState<DrillStep | null>(null);
 
   const load = useCallback(async () => {
     setFailed(false);
@@ -45,15 +55,18 @@ function Inner({ mode }: { mode: Mode }) {
 
   useEffect(() => void load(), [load]);
 
-  const ds = useMemo(() => (data ? m.applyFilters(data, filters) : null), [data, filters]);
+  const filterKey = JSON.stringify(filters);
+  const ds = useMemo(() => (data ? m.applyFilters(data, filters) : null), [data, filterKey]);
 
   if (failed) return <ErrorNotice onRetry={() => void load()} />;
   if (!data || !ds) return <p role="status" className="text-muted">{t('app.loading')}</p>;
 
   const ctx: Ctx = {
     ds, data, mode, averages,
-    open: (title, ids) => setDrill({ title, ids }),
-    setDept: (dept) => setFilters({ ...filters, dept }),
+    open: (title, ids) => setDrill({ kind: 'list', title, ids }),
+    openPerson: (id) => setDrill({ kind: 'person', id }),
+    setDept: (dept) => { setFilters({ ...filters, dept }); window.scrollTo({ top: 0 }); },
+    goSection: (sec) => setSection(sec as SectionKey),
   };
   const shown = SECTIONS.filter((x) => !('hrOnly' in x) || mode === 'hr');
   const View = shown.find((x) => x.key === section)?.View ?? OverviewSection;
@@ -67,6 +80,14 @@ function Inner({ mode }: { mode: Mode }) {
       </div>
 
       <FilterBar data={data} filters={filters} setFilters={setFilters} />
+      {filters.dept && (
+        <div className="flex flex-wrap items-center gap-3 rounded-card border border-primary/20 bg-primary-soft px-4 py-2.5 text-sm">
+          <button type="button" className="inline-flex items-center gap-1 font-medium text-primary-ink hover:underline" onClick={() => setFilters({ ...filters, dept: '' })}>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />{t('dash.backToPlant')}
+          </button>
+          <span className="text-muted">{t('dash.filteredBy')}：<span className="font-semibold text-ink">{filters.dept}</span></span>
+        </div>
+      )}
 
       <div role="tablist" aria-label={t('dash.title')} className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
         {shown.map(({ key, Icon }) => {
@@ -83,7 +104,7 @@ function Inner({ mode }: { mode: Mode }) {
 
       <div role="tabpanel"><View ctx={ctx} /></div>
 
-      {drill && <Drill drill={drill} data={data} onClose={() => setDrill(null)} />}
+      {drill && <Drill start={drill} data={data} onClose={() => setDrill(null)} />}
     </div>
   );
 }
@@ -135,54 +156,23 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   );
 }
 
-function Drill({ drill, data, onClose }: { drill: { title: string; ids: number[] }; data: DashboardData; onClose: () => void }) {
-  const { t } = useTranslation();
-  const { labelOf } = useRef_();
-  const [selected, setSelected] = useState<number | null>(null);
-  useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    document.addEventListener('keydown', esc);
-    return () => document.removeEventListener('keydown', esc);
-  }, [onClose]);
-  const ids = [...new Set(drill.ids)];
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={drill.title}>
-      <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" aria-hidden="true" onClick={onClose} />
-      <div className="relative flex h-full w-full max-w-xl flex-col bg-canvas shadow-lift">
-        <div className="flex items-start justify-between gap-3 border-b border-line bg-card px-5 py-4">
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold leading-snug">{drill.title}</h2>
-            <p className="text-sm text-muted">{t('dash.drill.count', { count: ids.length })}</p>
-          </div>
-          <button type="button" className="btn-ghost px-2 py-1" aria-label={t('dash.close')} onClick={onClose}><X className="h-5 w-5" aria-hidden="true" /></button>
-        </div>
-        <ul className="flex-1 space-y-2 overflow-y-auto p-4">
-          {ids.map((id) => {
-            const p = data.people.find((x) => x.employee_id === id);
-            const review = data.reviews.find((r) => r.employee_id === id);
-            const name = p?.name ?? String(id);
-            const open = selected === id;
-            return (
-              <li key={id} className="card overflow-hidden">
-                <button type="button" className="flex w-full items-center gap-3 p-3 text-left hover:bg-subtle/60" aria-expanded={open} disabled={!review}
-                  onClick={() => setSelected(open ? null : id)}>
-                  <Avatar name={name} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{name}</span>
-                    <span className="block truncate text-xs text-muted">{[p?.dept, p?.position].filter(Boolean).join(' · ')}</span>
-                  </span>
-                  {review?.is_critical_role && <span className="tag bg-info-bg text-info-fg">{t('dash.drill.critical')}</span>}
-                  {review?.retention_risk && (
-                    <span className="tag bg-subtle text-ink"><span className="h-2 w-2 rounded-full" style={{ background: RISK_COLORS[review.retention_risk] }} aria-hidden="true" />{labelOf('retention_risk', review.retention_risk)}</span>
-                  )}
-                  {review && <ChevronDown className={`h-4 w-4 text-muted transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />}
-                </button>
-                {open && review && <div className="border-t border-line bg-card p-4 text-sm"><ReviewSummary review={review} /></div>}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
-  );
+function readFilters(p: URLSearchParams): m.Filters {
+  const sup = p.get('sup');
+  return {
+    dept: p.get('dept') ?? '',
+    reviewer: sup ? Number(sup) : null,
+    critical: (p.get('crit') ?? '') as m.Filters['critical'],
+    tenure: (p.get('ten') ?? '') as m.Filters['tenure'],
+    submittedOnly: p.get('sub') === '1',
+  };
+}
+
+function writeFilters(f: m.Filters): Record<string, string | null> {
+  return {
+    dept: f.dept || null,
+    sup: f.reviewer === null ? null : String(f.reviewer),
+    crit: f.critical || null,
+    ten: f.tenure || null,
+    sub: f.submittedOnly ? '1' : null,
+  };
 }

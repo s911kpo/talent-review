@@ -30,8 +30,10 @@ const sources = walk(srcDir).filter((f) => /\.(ts|tsx)$/.test(f));
 const read = (f: string) => readFileSync(f, 'utf8');
 
 function flatten(obj: Record<string, unknown>, prefix = ''): string[] {
+  // A list (for example probing questions) is one key read with returnObjects; its items count too.
   return Object.entries(obj).flatMap(([k, v]) =>
-    typeof v === 'object' && v !== null ? flatten(v as Record<string, unknown>, `${prefix}${k}.`) : [`${prefix}${k}`],
+    Array.isArray(v) ? [`${prefix}${k}`, ...flatten(v as unknown as Record<string, unknown>, `${prefix}${k}.`)]
+      : typeof v === 'object' && v !== null ? flatten(v as Record<string, unknown>, `${prefix}${k}.`) : [`${prefix}${k}`],
   );
 }
 

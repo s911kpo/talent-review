@@ -82,7 +82,7 @@ export const BENCH_CLASSES: BenchClass[] = ['strong', 'developing', 'thin', 'gap
 export const benchClass = (score: number): BenchClass =>
   score >= 3 ? 'strong' : score === 2 ? 'developing' : score === 1 ? 'thin' : 'gap';
 
-const hasCompletePlan = (r: Review) => activeAreas(r).length > 0 && isStepComplete('DEV_PLAN', r);
+export const hasCompletePlan = (r: Review) => activeAreas(r).length > 0 && isStepComplete('DEV_PLAN', r);
 const isMedHigh = (r: Review) => r.retention_risk === 'Medium' || r.retention_risk === 'High';
 
 export interface Kpis {

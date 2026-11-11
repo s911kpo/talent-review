@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChartColumn, CircleHelp, Download, Network, Sparkles, Users, X } from 'lucide-react';
 import { runExport } from '../admin/ExportPanel';
@@ -36,7 +36,9 @@ export function MyTeamPage() {
   const [teamState, setTeamState] = useState<TeamSubmission | null>(null);
   const [lineTeams, setLineTeams] = useState<LineTeam[]>([]);
   const [failed, setFailed] = useState(false);
-  const [tab, setTab] = useState<'team' | 'line' | 'dash' | 'ai'>('team');
+  const [params, setParams] = useSearchParams();
+  const tab = (params.get('tab') ?? 'team') as 'team' | 'line' | 'dash' | 'ai';
+  const setTab = (next: typeof tab) => setParams(next === 'team' ? {} : { tab: next });
   const [exporting, setExporting] = useState(false);
   const [tourOpen, setTourOpen] = useState(() => readLocal(`tourSeen.${profile?.userId}`) !== '1');
   const [bannerOpen, setBannerOpen] = useState(() => readLocal('mobileBannerSeen') !== '1');

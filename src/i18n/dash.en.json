@@ -50,168 +50,341 @@
         "t": "Review completion",
         "def": "Key talent reviews already submitted to HR (including confirmed and locked).",
         "formula": "Key talent submitted or later ÷ all key talent",
-        "use": "If it lags, open Review progress to see which teams have not submitted. Other measures are only representative once completion is high."
+        "use": "If it lags, open Review progress to see which teams have not submitted. Other measures are only representative once completion is high.",
+        "probe": [
+          "Which teams have not started, and where are they stuck: choosing, writing, or not knowing how?",
+          "Is the submitted content good enough to make decisions on?",
+          "What help do Supervisors need before the deadline: one-to-one support or examples?"
+        ]
       },
       "key": {
         "t": "Key talent",
         "def": "People a Supervisor marked as key talent this cycle.",
         "formula": "Number of key talent; share = key talent ÷ people in scope",
-        "use": "The share is a reference, never a target. Use it to check that departments nominate consistently and raise outliers in calibration."
+        "use": "The share is a reference, never a target. Use it to check that departments nominate consistently and raise outliers in calibration.",
+        "probe": [
+          "Do departments nominate key talent on the same criteria? Can they say why this person?",
+          "Is anyone listed for seniority or goodwill rather than impact?",
+          "Who should be listed but is not, such as a fast-growing new hire?"
+        ]
       },
       "alert": {
         "t": "Retention alert",
         "def": "People in a critical role who are rated high retention risk.",
         "formula": "Critical role = yes and retention risk = High",
-        "use": "Losing them hits the business immediately. Agree an individual retention action with the Supervisor and HRBP within two weeks."
+        "use": "Losing them hits the business immediately. Agree an individual retention action with the Supervisor and HRBP within two weeks.",
+        "probe": [
+          "When did their Supervisor last talk with them about their career?",
+          "If they left next month, what would stop immediately, and who could step in?",
+          "What reason to stay can we offer: challenge, growth, recognition or pay?"
+        ]
       },
       "ready": {
         "t": "Ready-now coverage",
         "def": "Share of critical roles with at least one successor who could step in now.",
         "formula": "Critical roles with a Ready Now successor ÷ all critical roles",
-        "use": "Low coverage means an opening is likely filled from outside or stays vacant. Start with the Succession gaps list."
+        "use": "Low coverage means an opening is likely filled from outside or stays vacant. Start with the Succession gaps list.",
+        "probe": [
+          "For roles with low coverage, is there no candidate, or is the candidate one step away?",
+          "Do the ready-now successors know it, and do they want the role?",
+          "What single experience would bring a 1–2 year successor forward?"
+        ]
       },
       "talk": {
         "t": "Career conversation gap",
         "def": "Key talent whose Supervisor ticked 'career goals not yet discussed'.",
         "formula": "People ticked ÷ all key talent",
-        "use": "A 15-minute career conversation is the cheapest retention action. Start with medium and high risk."
+        "use": "A 15-minute career conversation is the cheapest retention action. Start with medium and high risk.",
+        "probe": [
+          "Why has the conversation not happened: not knowing how to start, or no time?",
+          "What would help Supervisors hold it well: a question list, an example, or an HRBP alongside?",
+          "Where should the outcome go: the development plan or a retention action?"
+        ]
       },
       "health": {
         "t": "Department talent health",
         "q": "Which department needs attention first?",
         "def": "Four core measures per department, compared with the overall value of the current filter.",
         "formula": "Flagged when 10 or more points worse than overall.",
-        "use": "Start with the department with the most flags, then open the other sections for the reasons. This compares departments, not Supervisors."
+        "use": "Start with the department with the most flags, then open the other sections for the reasons. This compares departments, not Supervisors.",
+        "probe": [
+          "In the department with most flags, is the issue shared or concentrated in one team?",
+          "Is the department leader aware of this picture?",
+          "Which cell do we want to change by the next review?"
+        ]
       },
       "headcount": {
         "t": "Headcount and key talent by department",
         "q": "Where is our key talent?",
         "def": "People in review scope per department and how many of them are key talent.",
         "formula": "Dark = key talent; light = others in scope; percentage = key talent ÷ people in scope",
-        "use": "Check whether key talent sits in a few departments. Clear differences in share are worth a consistency check."
+        "use": "Check whether key talent sits in a few departments. Clear differences in share are worth a consistency check.",
+        "probe": [
+          "Where the key talent share is high, are criteria looser? Where it is low, is anyone missed?",
+          "How exposed is a department whose key talent is concentrated?",
+          "Large departments with few key talent: is it the nature of the work, or under-development?"
+        ]
       },
       "gender": {
-        "t": "Gender representation",
-        "q": "Do women reach the key talent list at the same rate?",
-        "def": "Share of women among key talent, compared with their share of everyone in scope.",
-        "formula": "Female key talent ÷ key talent vs. women ÷ people in scope. Hidden under five people so nobody can be identified.",
-        "use": "A gap of five points or more is worth checking nomination criteria."
+        "t": "Women in the talent pipeline",
+        "q": "At which step does the share of women drop?",
+        "def": "Share of women at each step: review scope, key talent, critical roles, ready now.",
+        "formula": "Women at each step ÷ people at that step; hidden under five",
+        "use": "The step with the clear drop is where to check nomination, appointment or development opportunities.",
+        "probe": [
+          "At which step does the share of women drop: nomination, critical roles, or readiness?",
+          "Do our criteria disadvantage some ways of working?",
+          "At the biggest drop, what can we do: mentoring, rotation, or clearer criteria?"
+        ]
       },
       "tenure": {
         "t": "Tenure profile",
         "q": "At what career stage is our key talent?",
-        "def": "Distribution of key talent and of everyone in scope across tenure bands.",
+        "def": "Share of key talent and of everyone in scope in each tenure band.",
         "formula": "People in each band ÷ people in that group",
-        "use": "Concentrated in senior bands: knowledge-transfer and retirement risk. In junior bands: longer development, more coaching needed."
+        "use": "Skewed senior: knowledge-transfer and retirement risk. Skewed junior: more coaching needed.",
+        "probe": [
+          "Is senior key talent passing on their experience in a planned way?",
+          "Does junior key talent have enough coaching and stage?",
+          "What will this picture look like in five years, and are we ready?"
+        ]
       },
       "riskMap": {
         "t": "Retention risk map",
         "q": "Whose departure would hurt most?",
         "def": "Key talent split by retention risk (high, medium, low) and by whether they hold a critical role.",
         "formula": "Each cell = number of people; click for the list",
-        "use": "Handle high risk × critical role first, then medium risk × critical role."
+        "use": "Handle high risk × critical role first, then medium risk × critical role.",
+        "probe": [
+          "Does every high-risk critical person have an owner and a date?",
+          "For medium risk, what moved them up from low?",
+          "Are we taking the low-risk but very critical people for granted?"
+        ]
       },
       "reasons": {
         "t": "Main reasons people may leave",
         "q": "Why might people leave?",
         "def": "Reasons Supervisors ticked for medium and high risk people (several allowed).",
         "formula": "People with the reason ÷ medium and high risk people",
-        "use": "When reasons cluster, a policy fix (pay, career paths, workload) beats one-by-one retention."
+        "use": "When reasons cluster, a policy fix (pay, career paths, workload) beats one-by-one retention.",
+        "probe": [
+          "Can a policy fix the most common reason, or does it need one-by-one action?",
+          "Are these reasons the Supervisor's guess, or what the person said?",
+          "If we could fix only one reason first, which has most impact?"
+        ]
       },
       "poach": {
         "t": "Most likely to be poached",
         "q": "Who does the market want?",
         "def": "High retention risk and already ready for their next role.",
         "formula": "Retention risk = High and next-role readiness = Ready Now",
-        "use": "Ready but without an opportunity. Discuss promotion, rotation or a bigger scope first."
+        "use": "Ready but without an opportunity. Discuss promotion, rotation or a bigger scope first.",
+        "probe": [
+          "Do they know we see them as ready?",
+          "Is there a real opportunity in the next six months?",
+          "If not, can a bigger scope or project keep them for now?"
+        ]
       },
       "talkRisk": {
         "t": "At risk, career not discussed",
         "q": "Who should we talk to this week?",
         "def": "Medium or high retention risk, and the Supervisor has not discussed career goals with them.",
         "formula": "Retention risk = Medium or High, and 'not yet discussed' ticked",
-        "use": "Hold a 15-minute career conversation within two weeks."
+        "use": "Hold a 15-minute career conversation within two weeks.",
+        "probe": [
+          "Who books this conversation, and by when?",
+          "Is the Supervisor ready to hear \"I want to leave\"?",
+          "Who follows up that promises made are kept?"
+        ]
       },
       "benchDept": {
         "t": "Bench strength by department",
         "q": "If a critical role opened tomorrow, who would step in?",
         "def": "Each critical role, grouped by the readiness of its best successor.",
         "formula": "Ready now; 1–2 years; long-range = 3+ years or emergency cover only; none = no successor or to be hired (TBH)",
-        "use": "Red roles have nobody today. Amber plus red is the two-year succession gap."
+        "use": "Red roles have nobody today. Amber plus red is the two-year succession gap.",
+        "probe": [
+          "Red roles: is nobody available, or has nobody looked yet?",
+          "Amber candidates: which experience do they lack most?",
+          "Blue candidates: is acting-up or rotation planned for the coming year?"
+        ]
       },
       "uncovered": {
         "t": "Succession gaps",
         "q": "Which critical roles have nobody within two years?",
         "def": "Critical roles where no successor could take over within two years (long-range, emergency cover, TBH or none).",
         "formula": "Critical role and best successor is 3+ years, emergency cover or none",
-        "use": "Name a successor first; where nobody exists internally, plan hiring early."
-      },
-      "coverage": {
-        "t": "Critical role succession map",
-        "q": "Every critical role at a glance",
-        "def": "One tile per critical role, colored by best successor readiness, grouped by department.",
-        "formula": "Colors as in Bench strength by department",
-        "use": "See where gaps cluster. Select a tile for the holder and successors."
+        "use": "Name a successor first; where nobody exists internally, plan hiring early.",
+        "probe": [
+          "Which of these roles would hurt most if it opened?",
+          "Could someone from another department be a candidate?",
+          "For roles needing an outside hire, has recruiting been told?"
+        ]
       },
       "concentration": {
         "t": "Successors relied on several times",
         "q": "Is someone the backup for several roles?",
         "def": "The same person named as successor for two or more critical roles.",
         "formula": "Roles per named successor, two or more only",
-        "use": "One person can fill only one role, so real coverage is lower than it looks. Find a second candidate. HR only."
+        "use": "One person can fill only one role, so real coverage is lower than it looks. Find a second candidate. HR only.",
+        "probe": [
+          "Can they really back up this many roles at once?",
+          "If they take one role, who covers the rest?",
+          "Can each of these roles find another candidate?"
+        ]
       },
       "external": {
         "t": "External dependence",
         "def": "Share of successor slots that are external candidates or to be hired (TBH).",
         "formula": "External and TBH ÷ all successor slots",
-        "use": "Higher means more reliance on hiring and more room to grow internal talent."
+        "use": "Higher means more reliance on hiring and more room to grow internal talent.",
+        "probe": [
+          "Are these roles external because nobody is inside, or because nobody is being developed?",
+          "Have we estimated the time and cost of hiring?",
+          "Which role could start growing an internal candidate now?"
+        ]
       },
       "fragile": {
         "t": "Paper-only succession",
         "def": "The near-term successor (ready now or 1–2 years) of a critical role is themselves at medium or high risk.",
         "formula": "Near-term successor with retention risk Medium or High",
-        "use": "Both could leave together. Retaining the successor protects two roles."
+        "use": "Both could leave together. Retaining the successor protects two roles.",
+        "probe": [
+          "What is the successor's own retention action?",
+          "Do holder and successor share a team and the same reasons to leave?",
+          "Do we need a second candidate?"
+        ]
       },
       "pipeline": {
         "t": "Next-step readiness",
         "q": "How many are ready to step up?",
         "def": "Readiness of key talent for their next role. With several next roles, the nearest counts.",
         "formula": "People at each readiness ÷ key talent with a next role",
-        "use": "Ready people without an opportunity become a retention risk."
+        "use": "Ready people without an opportunity become a retention risk.",
+        "probe": [
+          "Do ready people have a real opportunity in the coming year?",
+          "What experience do 1–2 year people lack most?",
+          "For 3+ years, does the current plan shorten the time enough?"
+        ]
       },
       "mobility": {
         "t": "Willingness to move",
         "q": "Who is open to moving?",
         "def": "Key talent's openness to moving to another department, site or location.",
         "formula": "People per option ÷ key talent who answered",
-        "use": "People open to moving soon are the first internal source for openings."
+        "use": "People open to moving soon are the first internal source for openings.",
+        "probe": [
+          "Where do those open to moving want to go, and why?",
+          "For \"not now\": family reasons, or no attractive opportunity?",
+          "Will these people hear first when an internal role opens?"
+        ]
       },
       "mix": {
         "t": "70/20/10 development mix",
         "q": "Do plans build skills on the job, or only in class?",
         "def": "Actual share of development actions by type, against the 70/20/10 reference.",
         "formula": "Actions of each type ÷ actions with a type",
-        "use": "A high share of courses (10%) means plans lack real assignments. The reference is not a target."
+        "use": "A high share of courses (10%) means plans lack real assignments. The reference is not a target.",
+        "probe": [
+          "How many real on-the-job assignments are in the plans?",
+          "After a course, is there a chance to apply what was learned?",
+          "Do mentoring and benchmarking have a named partner and rhythm?"
+        ]
       },
       "checkpoints": {
         "t": "Checkpoint calendar",
         "q": "When should we follow up?",
         "def": "Development goals falling due in each month.",
         "formula": "Count by target month",
-        "use": "A month before a peak, HR reminds Supervisors to prepare follow-ups."
+        "use": "A month before a peak, HR reminds Supervisors to prepare follow-ups.",
+        "probe": [
+          "Do Supervisors have time to follow up in peak months?",
+          "Who reminds, and who confirms?",
+          "How do results feed the next review?"
+        ]
       },
       "pbm": {
         "t": "PBM Our Values",
         "q": "What are our common strengths and gaps?",
         "def": "How often each Our Values item was named as a strength and as an improvement area.",
         "formula": "Mentions per value (left: improvement, right: strength)",
-        "use": "Improvement areas many people share are good topics for a group workshop."
+        "use": "Improvement areas many people share are good topics for a group workshop.",
+        "probe": [
+          "Is the most common improvement area personal, or caused by the environment?",
+          "Are the most common strengths used and recognized?",
+          "Which topic most deserves a group workshop first?"
+        ]
       },
       "planComplete": {
         "t": "Development plan completeness",
         "def": "Share of key talent whose development plan has every required field.",
         "formula": "Key talent with a complete plan ÷ all key talent",
-        "use": "Incomplete plans cannot be tracked. Ask Supervisors to add actions, dates and how progress is checked."
+        "use": "Incomplete plans cannot be tracked. Ask Supervisors to add actions, dates and how progress is checked.",
+        "probe": [
+          "Which field is most often missing?",
+          "Do Supervisors not know how to write it, or lack time?",
+          "What example or template can we provide?"
+        ]
+      },
+      "keyReasons": {
+        "t": "Why people are key talent",
+        "q": "What do we rely on?",
+        "def": "Reasons Supervisors chose for each key talent (several allowed).",
+        "formula": "People with the reason ÷ key talent",
+        "use": "The mix shows what the organization really depends on. Many scarce-skill holders mean transfer risk; many high-potential people need development resources.",
+        "probe": [
+          "Do the reasons people are key match the capabilities the department will need?",
+          "Is anyone learning the scarce skills yet?",
+          "Does every high-potential person have a development plan to match?"
+        ]
+      },
+      "roleMatrix": {
+        "t": "Critical role risk matrix",
+        "q": "Which roles may open with nobody ready?",
+        "def": "Each critical role placed by the holder's retention risk and the readiness of the best successor. Roles are compared, not people.",
+        "formula": "Across: holder retention risk (high, medium, low). Down: successor (none, long-range, 1–2 years, ready now)",
+        "use": "Act on the top-right first (high risk, nobody ready), then work outward.",
+        "probe": [
+          "Top-right roles: the holder may leave and nobody is ready. Who owns it, and by when?",
+          "Do several roles in one department sit in the danger zone?",
+          "Retain the holder first or build the successor first: which is faster?"
+        ]
+      },
+      "depth": {
+        "t": "Bench depth",
+        "q": "How many candidates does each critical role have?",
+        "def": "Named successor candidates per critical role (internal or external, TBH excluded).",
+        "formula": "Critical roles with 0, 1, or 2+ candidates",
+        "use": "One candidate is fragile: if they leave, coverage is gone. Common practice is at least two for critical roles.",
+        "probe": [
+          "If the only successor also leaves, what then?",
+          "Could another team provide a second candidate?",
+          "Where there are two or more, do the candidates know their paths?"
+        ]
+      },
+      "pool": {
+        "t": "Internal mobility pool",
+        "q": "When a role opens, who inside should we talk to first?",
+        "def": "Key talent ready for a next role within two years and open to moving within two years.",
+        "formula": "Mobility = now or 1–2 years, and next-role readiness = ready now or 1–2 years",
+        "use": "Start here when a role opens. A small pool means weak internal mobility.",
+        "probe": [
+          "Are these people matched to specific openings or successor slots?",
+          "Will their Supervisors let them go?",
+          "Is internal transfer fast enough that they do not leave while waiting?"
+        ]
+      },
+      "planExec": {
+        "t": "Development plan execution",
+        "q": "Are the plans moving?",
+        "def": "Current status of every development goal.",
+        "formula": "Goals per status (people = those holding a goal in that status)",
+        "use": "Find the cause of at-risk and not-started goals before the next checkpoint. Development happens in execution, after the review.",
+        "probe": [
+          "At-risk plans: blocked by time, resources, or Supervisor support?",
+          "Why have not-started plans not started?",
+          "Did completed plans change anything visible?"
+        ]
       }
     },
     "k": {
@@ -336,6 +509,12 @@
         "sameReadiness": "Identical readiness",
         "vaguePlans": "Vague checkpoints",
         "noTbhAllReady": "All ready now, no TBH"
+      },
+      "riskNoPlan": {
+        "t": "Retention without a development plan",
+        "why": "Medium or high risk, but the development plan is incomplete. Keeping people needs a direction to grow.",
+        "next": "Write the retention conversation into the development plan",
+        "owner": "Supervisor"
       }
     },
     "drill": {
@@ -349,7 +528,82 @@
     "unitRoles": "roles",
     "unitTeams": "teams",
     "ofKey": "{{pct}} of key talent",
-    "viewAllRoles": "View all {{count}} roles"
+    "viewAllRoles": "View all {{count}} roles",
+    "probeTitle": "Questions to ask in the discussion",
+    "probeButton": "Probing questions",
+    "pipeline": {
+      "scope": "Review scope",
+      "key": "Key talent",
+      "critical": "Critical role",
+      "ready": "Ready now"
+    },
+    "pipeDrop": "Biggest drop: {{from}} → {{to}}, {{delta}} points",
+    "pipeFlat": "The share of women is similar at every step",
+    "pipeHeadline": "Women are {{scope}} of review scope and {{end}} at \"{{last}}\"",
+    "deptGap": "By department: scope vs. key talent",
+    "deptGapNote": "Gray dot = women in scope, violet dot = women among key talent. A red line means 5+ points fewer among key talent.",
+    "seniorShare": "5+ years",
+    "juniorShare": "Under 1 year",
+    "tenureTake": "{{pct}} of key talent has 5+ years (overall {{all}})",
+    "matrixRisk": "Holder retention risk",
+    "matrixBench": "Successor readiness",
+    "matrixDanger": "Danger zone",
+    "matrixFirst": "Roles to act on first",
+    "matrixNone": "No critical role is in the danger zone.",
+    "depthLabel": {
+      "0": "No candidate",
+      "1": "One candidate",
+      "2+": "Two or more"
+    },
+    "depthTake": "{{pct}} of critical roles have fewer than two candidates",
+    "planStatus": {
+      "Not Started": "Not started",
+      "On Track": "On track",
+      "At Risk": "At risk",
+      "Completed": "Completed"
+    },
+    "goals": "{{count}} goals",
+    "poolTake": "{{count}} key talent are ready and open to moving within two years",
+    "back": "Back",
+    "backToList": "Back to list",
+    "profile": "Talent profile",
+    "convPrep": "Conversation prep",
+    "convPrepNote": "Generated from what the Supervisor entered. Questions to ask, not conclusions.",
+    "filteredBy": "Filtered by",
+    "backToPlant": "Back to whole plant",
+    "fieldRisk": "Retention risk",
+    "fieldReasons": "Possible reasons",
+    "fieldNext": "Next step",
+    "fieldMobility": "Mobility",
+    "fieldSuccessors": "Successors",
+    "fieldPlan": "Development plan",
+    "fieldKeyWhy": "Why key talent",
+    "fieldCritical": "Critical role",
+    "noneEntered": "Not entered",
+    "successorOf": "Named successor for",
+    "openPerson": "Open {{name}}'s profile",
+    "viewDetail": "See analysis",
+    "person": {
+      "aspirations": "\"What do you most want to achieve at work in the next year or two, and how can I help?\"",
+      "riskNoReason": "\"Is anything at work making you feel stuck or wanting a change?\"",
+      "readyNow": "\"If you had the chance to take on {{role}}, would you want it? What would you still need?\"",
+      "noSuccessor": "(Ask yourself) \"If they were away for a month from tomorrow, what would stop, and who could start learning it?\"",
+      "mobileNow": "\"Where would you like to go next, and what matters most to you?\"",
+      "plan": "\"Let's make the development goal concrete: what will be different when it is done, and who confirms it?\"",
+      "planAtRisk": "\"Where is the plan stuck? What should I change: time, resources, or opportunities?\"",
+      "reason": {
+        "Career Move": "\"What would you like to be doing in two years, and what step is missing now?\"",
+        "Competitive Market": "\"What attracts you about outside offers, and which of those could we offer here?\"",
+        "Family Reasons": "\"Is there a work arrangement that would make things easier at home?\"",
+        "Compensation Reasons": "\"Do you feel your reward matches your contribution? Which part matters most to you?\"",
+        "Retirement": "\"What are your plans for the next few years, and how would you like to pass on your experience?\"",
+        "Hybrid Work": "\"What way of working lets you do your best?\"",
+        "Work Environment": "\"What in the team makes the work harder than it should be?\"",
+        "Risk of burnout": "\"Is your current workload sustainable? What could we set aside?\"",
+        "Role Development/Role Fit": "\"Which parts of your role give you the most satisfaction, and which would you like less of?\"",
+        "Culture Fit": "\"What here feels different from the way you like to work?\""
+      }
+    }
   },
   "ai": {
     "tabHr": "AI studio",

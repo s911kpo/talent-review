@@ -1,6 +1,28 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Info, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Info, MessageCircleQuestion, type LucideIcon } from 'lucide-react';
+
+/** Probing questions for a measure, or an empty list. */
+export function useProbes(id: string): string[] {
+  const { t, i18n } = useTranslation();
+  const key = `dash.m.${id}.probe`;
+  if (!i18n.exists(key)) return [];
+  const v = t(key, { returnObjects: true });
+  return Array.isArray(v) ? (v as string[]) : [];
+}
+
+export function ProbeList({ items }: { items: string[] }) {
+  const { t } = useTranslation();
+  return (
+    // Spans only: this also renders inside the info popover, which sits in a heading.
+    <span className="block rounded-lg border border-primary/20 bg-primary-soft/60 p-3 text-left">
+      <span className="flex items-center gap-1.5 text-xs font-semibold text-primary-ink"><MessageCircleQuestion className="h-3.5 w-3.5" aria-hidden="true" />{t('dash.probeTitle')}</span>
+      {items.map((q, i) => (
+        <span key={q} className="mt-1.5 flex gap-2 text-sm font-normal text-ink"><span className="num shrink-0 text-primary-ink">{i + 1}.</span><span>{q}</span></span>
+      ))}
+    </span>
+  );
+}
 
 export const fmtPct = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${Math.round(v)}%`);
 
@@ -20,6 +42,7 @@ export function InfoTip({ id }: { id: string }) {
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
   }, [open]);
   const name = t(`dash.m.${id}.t`);
+  const probes = useProbes(id);
   return (
     <span ref={ref} className="relative inline-flex">
       <button
@@ -39,6 +62,7 @@ export function InfoTip({ id }: { id: string }) {
               <span className={`mt-0.5 block ${k === 'formula' ? 'rounded-md bg-subtle px-2 py-1 font-medium' : 'text-muted'}`}>{t(`dash.m.${id}.${k}`)}</span>
             </span>
           ))}
+          {probes.length > 0 && <span className="mt-3 block"><ProbeList items={probes} /></span>}
         </span>
       )}
     </span>
@@ -51,6 +75,8 @@ export function Panel({ id, children, aside, className = '', titleOverride }: {
 }) {
   const { t, i18n } = useTranslation();
   const qKey = `dash.m.${id}.q`;
+  const probes = useProbes(id);
+  const [ask, setAsk] = useState(false);
   return (
     <section className={`card p-5 ${className}`} aria-labelledby={`p-${id}`}>
       <div className="flex items-start justify-between gap-3">
@@ -60,8 +86,17 @@ export function Panel({ id, children, aside, className = '', titleOverride }: {
           </h3>
           {i18n.exists(qKey) && <p className="mt-0.5 text-sm text-muted">{t(qKey)}</p>}
         </div>
-        {aside}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {aside}
+          {probes.length > 0 && (
+            <button type="button" aria-expanded={ask} onClick={() => setAsk(!ask)}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition ${ask ? 'bg-primary text-white' : 'bg-primary-soft text-primary-ink hover:bg-primary/15'}`}>
+              <MessageCircleQuestion className="h-3.5 w-3.5" aria-hidden="true" />{t('dash.probeButton')}
+            </button>
+          )}
+        </div>
       </div>
+      {ask && <div className="mt-3"><ProbeList items={probes} /></div>}
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -77,8 +112,8 @@ const TONE: Record<Tone, { icon: string; ring: string }> = {
 };
 
 /** Headline number with what it means, its definition, an optional ring, and the plant comparison. */
-export function KpiCard({ id, Icon, tone, value, sub, ring, compare, onOpen }: {
-  id: string; Icon: LucideIcon; tone: Tone; value: string; sub: string; ring?: number | null; compare?: string | null; onOpen?: () => void;
+export function KpiCard({ id, Icon, tone, value, sub, ring, compare, onOpen, onAnalyze }: {
+  id: string; Icon: LucideIcon; tone: Tone; value: string; sub: string; ring?: number | null; compare?: string | null; onOpen?: () => void; onAnalyze?: () => void;
 }) {
   const { t } = useTranslation();
   const body = (
@@ -98,6 +133,11 @@ export function KpiCard({ id, Icon, tone, value, sub, ring, compare, onOpen }: {
       {onOpen ? (
         <button type="button" className="flex flex-1 flex-col text-left" onClick={onOpen}>{body}<span className="sr-only">{t('dash.viewList')}</span></button>
       ) : <div className="flex flex-1 flex-col">{body}</div>}
+      {onAnalyze && (
+        <button type="button" onClick={onAnalyze} className="mt-3 inline-flex items-center gap-1 self-start text-xs font-medium text-primary hover:underline">
+          {t('dash.viewDetail')}<ArrowRight className="h-3 w-3" aria-hidden="true" />
+        </button>
+      )}
       <span className="absolute bottom-3 right-3"><InfoTip id={id} /></span>
     </div>
   );

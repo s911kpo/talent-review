@@ -93,7 +93,7 @@ const lines = [
   '',
   'insert into public.cycle_population (cycle_id, employee_id, in_scope, supervisor_id, supervisor_name_raw, dept, dept_no, position) values',
   all.map((p) => `  (${q(CYCLE_ID)}, ${p.employeeId}, ${p.inScope}, ${p.supervisorId}, ${q(nameOf(p.supervisorId))}, ${q(p.dept)}, ${q(p.deptNo)}, ${q(p.position)})`).join(',\n'),
-  'on conflict (cycle_id, employee_id) do nothing;',
+  'on conflict (cycle_id, employee_id) do update set position = excluded.position;',
   '',
 ];
 mkdirSync(join(root, 'supabase/seed'), { recursive: true });

@@ -202,6 +202,23 @@
     },
     "teamsTitle": "Teams",
     "showAll": "Show all {{count}} teams",
-    "showLess": "Show fewer"
+    "showLess": "Show fewer",
+    "calTitle": "Calibration discussions",
+    "calSubtitle": "{{count}} submitted teams need a discussion with the HRBP and the Supervisor above before locking.",
+    "calNudge": "{{count}} teams have not booked a discussion yet. Book them this week.",
+    "calNext": "Coming up",
+    "calNone": "No discussions booked yet.",
+    "calKey": "{{count}} key talent",
+    "stalledTitle": "Teams that may be stuck",
+    "stalledNote": "Still drafting or returned, with no save for {{days}}+ days. Check in with them today.",
+    "stalledNone": "No team is stalled.",
+    "neverSaved": "Not started",
+    "idleDays": "{{days}} days idle",
+    "stalledMore": "{{count}} more; filter the list below by Draft",
+    "calProbes": [
+      "Is \"ready now\" backed by concrete examples? Would another Supervisor rate it the same?",
+      "Is the retention risk the Supervisor's guess, or something the person said?",
+      "What is the first step of each development plan next month, and who owns it?"
+    ]
   }
 }

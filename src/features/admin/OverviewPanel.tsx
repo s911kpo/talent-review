@@ -6,7 +6,7 @@ import {
 import { ErrorNotice, PageHeader } from '../../components/AppShell';
 import { confirmTeam, hrOverview, type TeamOverview } from '../../data/hr';
 import { saveBlob } from '../../lib/export/pinList';
-import { Ring } from '../dashboard/ui';
+import { ProbeList, Ring } from '../dashboard/ui';
 import { Avatar } from '../dashboard/sections';
 import { useCycleSelection } from './useCycles';
 
@@ -122,8 +122,9 @@ export function OverviewPanel({ onNavigate }: { onNavigate?: (page: string) => v
       />
       {(failed || cyclesFailed) && <ErrorNotice onRetry={() => void load()} />}
 
-      <div className="grid items-start gap-6 xl:grid-cols-3">
-        <section className="card relative overflow-hidden p-6 xl:col-span-2" aria-labelledby="hr-progress">
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="flex flex-col gap-6 xl:col-span-2">
+        <section className="card relative overflow-hidden p-6" aria-labelledby="hr-progress">
           <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary-soft" aria-hidden="true" />
           <div className="relative flex flex-wrap items-center gap-8">
             <div className="relative grid place-items-center">
@@ -161,7 +162,10 @@ export function OverviewPanel({ onNavigate }: { onNavigate?: (page: string) => v
             </div>
           </div>
         </section>
+        <Calibration rows={rows} />
+        </div>
 
+        <div className="flex flex-col gap-6">
         <section className="card p-5" aria-labelledby="hr-todo">
           <h2 id="hr-todo" className="font-semibold">{t('hrHome.todoTitle')}</h2>
           <ul className="mt-3 space-y-1">
@@ -182,6 +186,8 @@ export function OverviewPanel({ onNavigate }: { onNavigate?: (page: string) => v
             <button type="button" className="btn-secondary" onClick={() => onNavigate?.('export')}><FileDown className="h-4 w-4" aria-hidden="true" />{t('hrq.tabExport')}</button>
           </div>
         </section>
+        <Stalled rows={rows} />
+        </div>
       </div>
 
       <section className="card overflow-hidden" aria-labelledby="hr-teams">
@@ -253,5 +259,104 @@ export function OverviewPanel({ onNavigate }: { onNavigate?: (page: string) => v
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * The step after submission: each team's calibration discussion with the HRBP and the +1 Supervisor.
+ * Shows how many are done, scheduled or still to book, and the next few dates.
+ */
+function Calibration({ rows }: { rows: TeamOverview[] }) {
+  const { t, i18n } = useTranslation();
+  const ready = rows.filter((r) => ['submitted', 'confirmed', 'locked'].includes(r.status));
+  const by = (s: string) => ready.filter((r) => r.discussion_status === s);
+  const parts = [
+    { key: 'done', n: by('done').length, color: '#1BAF7A' },
+    { key: 'scheduled', n: by('scheduled').length, color: '#2A78D6' },
+    { key: 'not_scheduled', n: by('not_scheduled').length, color: '#EDA100' },
+  ];
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = by('scheduled').filter((r) => (r.discussion_date ?? '') >= today)
+    .sort((a, b) => String(a.discussion_date).localeCompare(String(b.discussion_date))).slice(0, 6);
+  return (
+    <section className="card flex-1 p-6" aria-labelledby="hr-cal">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 id="hr-cal" className="text-lg font-semibold">{t('hrHome.calTitle')}</h2>
+          <p className="mt-0.5 text-sm text-muted">{t('hrHome.calSubtitle', { count: ready.length })}</p>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-6 md:grid-cols-2">
+        <div>
+          <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-line/60" aria-hidden="true">
+            {parts.map((p) => p.n > 0 && <span key={p.key} style={{ flexGrow: p.n, background: p.color }} />)}
+          </div>
+          <ul className="mt-4 grid grid-cols-3 gap-3">
+            {parts.map((p) => (
+              <li key={p.key} className="rounded-lg bg-subtle p-3">
+                <span className="flex items-center gap-1.5 text-xs text-muted"><span className="h-2 w-2 rounded-full" style={{ background: p.color }} aria-hidden="true" />{t(`hrq.discussion.${p.key}`)}</span>
+                <span className="num mt-1 block text-2xl font-semibold">{p.n}</span>
+              </li>
+            ))}
+          </ul>
+          {parts[2].n > 0 && <p className="mt-3 text-sm text-warn-fg">{t('hrHome.calNudge', { count: parts[2].n })}</p>}
+          <div className="mt-5"><ProbeList items={t('hrHome.calProbes', { returnObjects: true }) as string[]} /></div>
+        </div>
+        <div>
+          <p className="eyebrow">{t('hrHome.calNext')}</p>
+          {upcoming.length === 0 ? <p className="mt-3 text-sm text-muted">{t('hrHome.calNone')}</p> : (
+            <ul className="mt-2 divide-y divide-line">
+              {upcoming.map((r) => {
+                const d = new Date(`${r.discussion_date}T00:00:00`);
+                return (
+                  <li key={r.reviewer_id} className="flex items-center gap-3 py-2">
+                    <span className="grid w-11 shrink-0 place-items-center rounded-lg border border-line py-1 leading-none">
+                      <span className="text-[0.625rem] text-muted">{d.toLocaleDateString(i18n.language, { month: 'short' })}</span>
+                      <span className="num text-base font-semibold">{d.getDate()}</span>
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{r.full_name}</span>
+                      <span className="block text-xs text-muted">{t('hrHome.calKey', { count: Number(r.key_count) })}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const STALL_DAYS = 5;
+
+/** Teams still drafting (or returned) with no saves for a while: who to nudge today. */
+function Stalled({ rows }: { rows: TeamOverview[] }) {
+  const { t } = useTranslation();
+  const now = Date.now();
+  const idle = (r: TeamOverview) => (r.last_updated ? Math.floor((now - new Date(r.last_updated).getTime()) / 86400000) : null);
+  const stalled = rows.filter((r) => ['draft', 'returned'].includes(r.status) && (idle(r) ?? STALL_DAYS) >= STALL_DAYS)
+    .sort((a, b) => (idle(b) ?? 99) - (idle(a) ?? 99));
+  return (
+    <section className="card flex-1 p-5" aria-labelledby="hr-stalled">
+      <h2 id="hr-stalled" className="font-semibold">{t('hrHome.stalledTitle')}</h2>
+      <p className="mt-0.5 text-sm text-muted">{t('hrHome.stalledNote', { days: STALL_DAYS })}</p>
+      {stalled.length === 0 ? <p className="mt-3 text-sm text-muted">{t('hrHome.stalledNone')}</p> : (
+        <ul className="mt-3 divide-y divide-line">
+          {stalled.slice(0, 5).map((r) => (
+            <li key={r.reviewer_id} className="flex items-center gap-3 py-2">
+              <Avatar name={r.full_name} />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{r.full_name}</span>
+                <span className="block text-xs text-muted">{Number(r.complete_count)} / {Number(r.key_count)} · {t(`status.${r.status}`)}</span>
+              </span>
+              <span className="tag bg-warn-bg text-warn-fg">{idle(r) === null ? t('hrHome.neverSaved') : t('hrHome.idleDays', { days: idle(r) })}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {stalled.length > 5 && <p className="mt-2 text-xs text-muted">{t('hrHome.stalledMore', { count: stalled.length - 5 })}</p>}
+    </section>
   );
 }
