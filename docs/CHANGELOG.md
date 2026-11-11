@@ -14,7 +14,7 @@
 - 本機瀏覽器窗格可連到 `*.supabase.co`；其他主管的公司電腦是否也能連，部署後要實測
 
 **尚未完成**
-- （已完成）staging：https://papaya-madeleine-31cdad.netlify.app；主管公司電腦連線尚待實測
+- （已完成）staging：https://papaya-madeleine-31cdad.netlify.app，Tim 已用示範主管帳號登入成功；其他主管的公司電腦連線尚待實測
 
 ## P3 儀表板與 AI、P4 部分打磨（2026-11-11 夜）
 
