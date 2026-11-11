@@ -1,0 +1,27 @@
+# Supabase's free plan pauses a project after 7 days without activity.
+# This runs a small database read twice a week (Monday and Thursday). If it fails,
+# GitHub emails the repository owner. The URL and anon key are the public values in netlify.toml.
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: '0 1 * * 1,4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the database through the public API
+        run: |
+          url=$(grep -oP 'VITE_SUPABASE_URL = "\K[^"]+' netlify.toml)
+          key=$(grep -oP 'VITE_SUPABASE_ANON_KEY = "\K[^"]+' netlify.toml)
+          code=$(curl -s -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 20 \
+            -X POST "$url/rest/v1/rpc/keep_alive" -H "apikey: $key" -H "Authorization: Bearer $key" -H "Content-Type: application/json" -d "{}")
+          echo "Supabase answered HTTP $code"
+          test "$code" = "200"

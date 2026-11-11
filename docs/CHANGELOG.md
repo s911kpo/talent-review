@@ -1,5 +1,16 @@
 # Changelog
 
+## 免費方案防護（2026-11-11）
+
+**完成**
+- 防暫停：GitHub Actions 每週一、四呼叫 `keep_alive()`。這是新 migration，只回傳時間；遠端已套用並回應 200
+- 本機每週備份：存進獨立 git repo，每版有 tag，筆數驟降會提示；Windows 排程已建立，並以 Tim 的帳號實際跑成功
+- 還原：`restore-backup.mjs` 產生 SQL；以 PGlite 驗證能逐筆還原（含狀態與版本歷史），真實遠端備份也還原成功
+
+**尚未驗證**
+- GitHub 排程第一次自動執行（11/12 09:00）
+- 呼叫 API 是否算 Supabase 的「活動」：官方未明確定義，需觀察一週以上
+
 ## 接上真實 Supabase（2026-11-11）
 
 **完成**
