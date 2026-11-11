@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "verify:remote": "node scripts/verify-remote.mjs",
+    "db:apply": "node scripts/apply-migrations.mjs",
     "dev": "vite",
     "demo": "vite --mode demo",
     "build": "tsc --noEmit && vite build",

@@ -1,5 +1,21 @@
 # Changelog
 
+## 接上真實 Supabase（2026-11-11）
+
+**完成**
+- 專案 `ap-southeast-1`（Singapore），8 個 migration 與假資料已套用，版本紀錄與 `supabase db push` 相容
+- `auth-pin`、`admin-users` 已部署；`ai-generate` 尚未部署（AI 未啟用）
+- 12 個示範帳號已建立，`.local` 合成 Email 可用
+- `scripts/verify-remote.mjs`：19 項遠端檢查全過（匿名拒絕、PIN 登入與鎖定、範圍、自我排除、草稿不外流、跨團隊寫入被擋、HR 專屬函式）
+- 本機 App 接真實後端，示範主管登入後看到正確的 10 位部屬
+
+**公司網路的限制**
+- Zscaler 擋下這台電腦直接連 Postgres（5432）與 Supabase CLI 的連線；改用 HTTPS 管理 API（`scripts/apply-migrations.mjs`）
+- 本機瀏覽器窗格可連到 `*.supabase.co`；其他主管的公司電腦是否也能連，部署後要實測
+
+**尚未完成**
+- push 到 GitHub、Netlify 部署
+
 ## P3 儀表板與 AI、P4 部分打磨（2026-11-11 夜）
 
 **完成**

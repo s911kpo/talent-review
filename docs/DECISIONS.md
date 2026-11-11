@@ -31,4 +31,6 @@ SPEC 未定義細節的決定。格式：日期｜決定｜理由｜替代方案
 | 2026-11-11 | 提示詞維持 `prompts/*.md` 可編輯，部署前打包成 TS 模組（`npm run prompts:gen`） | 不依賴 Edge Function 的靜態檔支援 | 執行時讀檔 |
 | 2026-11-11 | AI 分析排除發起者本人的評核資料 | SPEC §0.1「任何人都看不到自己被評的那一筆」 | 全部送出 |
 | 2026-11-11 | 採 Supabase 免費方案、AI 預設隱藏（`VITE_AI_ENABLED`） | Tim 在看到成效前不能支付 Supabase Pro 與 Anthropic 費用；SPEC §16 的降級方案允許 AI 延後 | 付費方案 |
+| 2026-11-11 | 透過 Supabase 管理 API（HTTPS）套用 migrations，並寫入 CLI 的版本表 | 公司網路擋下 Postgres 直連；仍是同一批 migration 檔，沒有手動改結構 | `supabase db push`（換網路時可改回） |
+| 2026-11-11 | 金鑰由 `setup-keys.cmd` 對話框收集，`fill-supabase-keys.mjs` 補齊，全程不顯示值 | Tim 不熟悉編輯設定檔；金鑰不應出現在對話 | 手動編輯 `.env.local` |
 | 2026-11-11 | 鎖定時若人有 HR 本人的評核，批次動作仍會改狀態但 HR 看不到內容 | 狀態變更不洩漏內容，否則整隊會卡住 | 擋下整隊 |
