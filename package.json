@@ -18,7 +18,13 @@
     "prompts:gen": "node scripts/gen-prompts.mjs",
     "db:push": "supabase db push --linked",
     "demo:provision": "node scripts/provision-demo-users.mjs",
-    "demo:remove": "node scripts/provision-demo-users.mjs --remove"
+    "demo:remove": "node scripts/provision-demo-users.mjs --remove",
+    "demo:showcase": "vite --mode showcase",
+    "build:showcase": "vite build --mode showcase --base /demo/ --outDir dist/demo",
+    "build:site": "npm run build && npm run build:showcase",
+    "test:stress": "vitest run --config vitest.stress.config.ts",
+    "test:stress:ui": "playwright test --config playwright.stress.config.ts",
+    "test:resilience": "playwright test --config playwright.resilience.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

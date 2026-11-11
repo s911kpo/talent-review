@@ -36,6 +36,13 @@ export async function signInHr(email: string, password: string): Promise<LoginRe
   return error.status === 400 ? 'invalid' : 'unavailable';
 }
 
+/** Quick-entry accounts for the fictional demo; null outside demo mode. */
+export const demoAccounts = () => (isDemoMode ? demo.entryPoints() : null);
+export const demoHrEmail = 'demo-hr@talentreview.local';
+export function resetDemo(): void {
+  if (isDemoMode) demo.reset();
+}
+
 export async function signOut(): Promise<void> {
   if (isDemoMode) {
     demo.signOut();

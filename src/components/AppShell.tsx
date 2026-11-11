@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogOut } from 'lucide-react';
 import { FONT_STEPS, useSession } from '../app/session';
+import { DemoBanner } from '../features/auth/DemoEntry';
 
 export function TopControls() {
   const { t } = useTranslation();
@@ -35,6 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { profile, logout } = useSession();
   return (
     <div className="min-h-screen">
+      <DemoBanner />
       <header className="border-b border-line bg-card">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <span className="font-semibold">{t('app.name')}</span>

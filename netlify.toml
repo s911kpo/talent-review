@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm run build:site"
   publish = "dist"
 
 # Public client values: they ship inside the browser bundle anyway. Data is protected by RLS.

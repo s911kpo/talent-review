@@ -13,6 +13,26 @@ npm test          # 單元與 RLS 測試
 npx playwright test   # E2E（375 與 1440 兩種寬度）
 ```
 
+## 示範站（給主管與 Diana 看）
+
+- 網址：`https://papaya-madeleine-31cdad.netlify.app/demo/`
+- 600 位虛構員工，所有評核已填好。登入頁有一鍵進入 HR、廠長、部門主管、課級主管。
+- 資料只存在瀏覽器裡，頁面頂端的「重設示範資料」可以回到初始狀態。
+- 本機：`npm run demo:showcase`（600 人）或 `npx vite --mode stress`（5,000 人）
+
+## 測試
+
+| 指令 | 內容 | 時間 |
+|---|---|---|
+| `npm test` | 單元、權限（RLS）、匯出驗收 | 約 10 秒 |
+| `npx playwright test` | 主管與 HR 完整流程、無障礙，375 與 1440 寬度 | 約 40 秒 |
+| `npm run test:stress` | 資料庫與儀表板計算，5,000 人 | 約 1 分鐘 |
+| `npm run test:stress:ui` | 5,000 人的畫面操作 | 約 30 秒 |
+| `npm run test:resilience` | 8 種報錯情境，連到 Supabase | 約 1 分鐘 |
+| `node scripts/load-remote.mjs` | 11 位主管同時存檔，連到 Supabase | 約 10 秒 |
+
+最近一次結果：`docs/TEST_REPORT_SCALE.md`。
+
 ## 部署
 
 1. 在 `.env.local` 填入 Supabase 與 Anthropic 的值。

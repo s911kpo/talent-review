@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ConflictError, saveReview, snapshotReview } from '../../data/review';
+import { NotEditableError, SessionExpiredError } from '../../data/conflict';
 import { readLocal, writeLocal } from '../../lib/localPrefs';
 import type { Review } from '../../lib/review/types';
 
-export type SaveState = 'saved' | 'saving' | 'error' | 'offline' | 'conflict';
+export type SaveState = 'saved' | 'saving' | 'error' | 'offline' | 'conflict' | 'expired' | 'locked';
+/** States where retrying cannot help; the screen explains what to do instead. */
+export const BLOCKING_STATES: SaveState[] = ['conflict', 'expired', 'locked'];
 
 const DEBOUNCE_MS = 1500;
 const RETRY_MS = 5000;
@@ -31,11 +34,13 @@ export function useAutosave(initial: Review, canEdit: boolean) {
   const changedSinceSnapshot = useRef(false);
   const inFlight = useRef<Promise<void> | null>(null);
   const timer = useRef<number | undefined>(undefined);
+  const blocked = useRef(false);
 
   const flush = useCallback(async (): Promise<void> => {
     window.clearTimeout(timer.current);
     if (inFlight.current) await inFlight.current;
     if (!dirty.current || !canEdit) return;
+    if (blocked.current) return;
 
     if (!navigator.onLine) {
       setState('offline');
@@ -63,7 +68,20 @@ export function useAutosave(initial: Review, canEdit: boolean) {
         }
       } catch (err) {
         if (err instanceof ConflictError) {
+          blocked.current = true;
           setState('conflict');
+          return;
+        }
+        // Work stays held on this device (written on every change), so nothing is lost.
+        if (err instanceof SessionExpiredError) {
+          dirty.current = true;
+          blocked.current = true;
+          setState('expired');
+          return;
+        }
+        if (err instanceof NotEditableError) {
+          blocked.current = true;
+          setState('locked');
           return;
         }
         dirty.current = true;
@@ -83,7 +101,7 @@ export function useAutosave(initial: Review, canEdit: boolean) {
     dirty.current = true;
     changedSinceSnapshot.current = true;
     writeLocal(pendingKey(next.id), JSON.stringify(next));
-    setState((s) => (s === 'conflict' ? s : 'saving'));
+    setState((s) => (BLOCKING_STATES.includes(s) ? s : 'saving'));
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => void flush(), DEBOUNCE_MS);
   }, [flush]);

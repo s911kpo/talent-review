@@ -65,7 +65,11 @@
     "colAction": "操作",
     "open": "開啟",
     "close": "關閉",
-    "status": { "setup": "準備中", "open": "進行中", "closed": "已關閉" }
+    "status": {
+      "setup": "準備中",
+      "open": "進行中",
+      "closed": "已關閉"
+    }
   },
   "namelist": {
     "cycle": "套用到週期",
@@ -133,5 +137,15 @@
     "hrPasswordTitle": "請立即複製這組密碼，之後無法再次查看",
     "hrPasswordLabel": "{{email}} 的密碼",
     "hrDismiss": "我已複製"
+  },
+  "demo": {
+    "title": "示範環境",
+    "body": "所有人名、工號與內容皆為虛構，可以自由操作。變更只存在這個瀏覽器。選一個角色進入：",
+    "asHr": "以 HR 身分進入（全廠儀表板與後台）",
+    "asGm": "以廠長身分進入（看整條組織線）",
+    "asDeptHead": "以部門主管身分進入",
+    "asSection": "以課級主管身分進入",
+    "banner": "示範環境：所有人名與資料皆為虛構。",
+    "reset": "重設示範資料"
   }
 }

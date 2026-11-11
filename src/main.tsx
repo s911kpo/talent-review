@@ -8,7 +8,7 @@ import { SessionProvider } from './app/session';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <SessionProvider>
         <App />
       </SessionProvider>

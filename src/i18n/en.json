@@ -65,7 +65,11 @@
     "colAction": "Action",
     "open": "Open",
     "close": "Close",
-    "status": { "setup": "Setup", "open": "Open", "closed": "Closed" }
+    "status": {
+      "setup": "Setup",
+      "open": "Open",
+      "closed": "Closed"
+    }
   },
   "namelist": {
     "cycle": "Apply to cycle",
@@ -133,5 +137,15 @@
     "hrPasswordTitle": "Copy this password now. It cannot be shown again",
     "hrPasswordLabel": "Password for {{email}}",
     "hrDismiss": "I have copied it"
+  },
+  "demo": {
+    "title": "Demo environment",
+    "body": "All names, IDs and content are fictional. Changes stay in this browser only. Choose a role:",
+    "asHr": "Enter as HR (plant dashboards and console)",
+    "asGm": "Enter as plant GM (whole line)",
+    "asDeptHead": "Enter as a department manager",
+    "asSection": "Enter as a section manager",
+    "banner": "Demo environment: all names and data are fictional.",
+    "reset": "Reset demo data"
   }
 }

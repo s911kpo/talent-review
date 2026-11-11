@@ -91,7 +91,12 @@
     "offline": "Offline. Your work is held on this device",
     "conflictTitle": "This record was updated elsewhere",
     "conflictBody": "To avoid overwriting those changes, reload before continuing.",
-    "reload": "Reload"
+    "reload": "Reload",
+    "expiredTitle": "Your sign-in has expired",
+    "expiredBody": "Your changes are held on this device. Sign in again and return to this employee; they will be sent automatically.",
+    "signInAgain": "Sign in again",
+    "lockedTitle": "This review was submitted or locked",
+    "lockedBody": "HR may have just confirmed or locked the team, so it can no longer be edited. Reload to see the latest content; to make changes, use Request changes on the home page."
   },
   "q": {
     "yes": "Yes",

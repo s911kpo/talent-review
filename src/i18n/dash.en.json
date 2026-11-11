@@ -91,7 +91,37 @@
     "progress": "Completion by reviewer",
     "drillTitle": "People",
     "close": "Close",
-    "scopeNoteManager": "Covers your team and organization line. Managers below you count once submitted."
+    "scopeNoteManager": "Covers your team and organization line. Managers below you count once submitted.",
+    "viewAll": "View all {{count}}",
+    "networkByDept": "Shown one department at a time at this size. Choose a department.",
+    "networkDept": "Network: department",
+    "tabG": "Insights",
+    "ins": {
+      "intro": "Cross-checks of what managers entered. These are leads for who to talk to first, not scores or rankings. Only HR sees cross-team results.",
+      "convTitle": "Talk to these people first: career conversations",
+      "convNote": "Medium or High retention risk, and nobody has discussed their career aspirations yet. A 15-minute conversation is the cheapest, fastest retention action.",
+      "unlistedTitle": "Talent other managers can see",
+      "unlistedNote": "Other managers name them as Ready Now or 1-2 years successors, but their own manager has not listed them as key talent. Worth confirming in calibration.",
+      "namedFor": "Roles they are named for",
+      "namedCount": "Named successor for {{count}} roles",
+      "more": "{{count}} more; use export or filters to see them",
+      "fragileTitle": "Covered on paper, fragile in practice",
+      "fragileNote": "A critical role whose near-ready successor is at Medium or High retention risk. Both people could leave together; keeping the successor protects two roles.",
+      "matchTitle": "Look inside before hiring outside",
+      "matchNote": "Critical roles with a thin bench or a TBH successor, matched to people whose own next role is that job and who are ready soon. Talk to them before opening the requisition.",
+      "calTitle": "Calibration prompts",
+      "calNote": "These describe how the form was filled in, not anyone’s quality. When they appear, the HRBP may want to ask one more question. Teams with 4 or more key talents only.",
+      "sig": {
+        "allLowRisk": "everyone is Low retention risk",
+        "sameReadiness": "everyone has the same next-role readiness",
+        "vaguePlans": "most plans have a very thin evaluation method",
+        "noTbhAllReady": "every successor is Ready Now and there is no TBH"
+      },
+      "supplyTitle": "Internal mobility supply vs. external hiring need",
+      "supplyNote": "Per department: key talents open to moving soon, against critical roles that need an outside hire. Where supply is enough, consider internal moves first.",
+      "mobile": "Open to moving soon",
+      "tbhRoles": "Critical roles needing outside hire"
+    }
   },
   "ai": {
     "tabHr": "AI studio",

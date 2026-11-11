@@ -12,6 +12,8 @@ export interface Person {
   reviewer_id: number;
   start_date: string | null;
   gender: string | null;
+  /** Job title in this cycle; used to match internal candidates to roles. */
+  position?: string | null;
 }
 
 export interface Dataset {

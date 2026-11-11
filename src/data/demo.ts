@@ -9,6 +9,8 @@ import { ConflictError } from './conflict';
 import questionsJson from './generated/questionBank.json';
 import optionsJson from './generated/options.json';
 import { readLocal, writeLocal } from '../lib/localPrefs';
+import { generateOrg } from '../lib/mock/orgGenerator';
+import { AFTER_SUBMIT, kpis } from '../lib/metrics';
 import { emptyReview, isEditable, missingSteps } from '../lib/review/steps';
 import type {
   DevPlanItem, DirectoryEntry, LineTeam, NextRole, OptionItem, Question, Review, ReviewComment, Successor, TeamSubmission,
@@ -39,10 +41,45 @@ const person = (employeeId: number, supervisor: number, i: number, position: str
     startDate: monthsAgo(months),
   });
 
-person(MANAGER, GM, 0, 'Department Manager', 96);
-for (let i = 0; i < 4; i++) person(900003 + i, GM, i + 1, 'Department Manager', 80 + i);
-for (let i = 0; i < 10; i++) person(900030 + i, MANAGER, i + 2, titles[i % titles.length], i === 3 ? 2 : 14 + i * 9);
-for (let i = 0; i < 6; i++) person(900040 + i, 900003, i + 5, titles[i % titles.length], 30 + i);
+// 'showcase' fills a whole fictional plant with finished reviews (for walkthroughs with leaders);
+// the default small team starts empty (for tests and for trying the manager flow).
+export const SHOWCASE = import.meta.env.VITE_DEMO_DATASET === 'showcase';
+const showcase = SHOWCASE
+  ? generateOrg({ size: Number(import.meta.env.VITE_DEMO_SIZE) || 600, cycleId: CYCLE_ID })
+  : null;
+const genders = new Map<number, string>();
+
+if (showcase) {
+  for (const p of showcase.people) {
+    people.push({ ...p });
+    genders.set(p.employeeId, p.gender);
+  }
+} else {
+  person(MANAGER, GM, 0, 'Department Manager', 96);
+  for (let i = 0; i < 4; i++) person(900003 + i, GM, i + 1, 'Department Manager', 80 + i);
+  for (let i = 0; i < 10; i++) person(900030 + i, MANAGER, i + 2, titles[i % titles.length], i === 3 ? 2 : 14 + i * 9);
+  for (let i = 0; i < 6; i++) person(900040 + i, 900003, i + 5, titles[i % titles.length], 30 + i);
+}
+
+const isReviewer = (id: number) => people.some((p) => p.supervisor === id);
+/** Everyone below `id` who is not a direct report: the read-only line. */
+function lineOf(id: number): Person[] {
+  const out: Person[] = [];
+  const walk = (boss: number) => {
+    for (const p of people.filter((x) => x.supervisor === boss)) {
+      if (boss !== id) out.push(p);
+      if (isReviewer(p.employeeId)) walk(p.employeeId);
+    }
+  };
+  walk(id);
+  return out;
+}
+
+/** Quick-entry accounts shown on the demo login screens. */
+export function demoEntryPoints() {
+  const section = people.find((p) => p.position.startsWith('Section Manager'));
+  return { gm: GM, deptHead: MANAGER, section: section?.employeeId ?? null };
+}
 
 interface Store {
   user: number | null;
@@ -56,23 +93,43 @@ const blankTeam = (): TeamSubmission => ({
   hr_comment: null, discussion_status: 'not_scheduled', discussion_date: null,
 });
 
-function load(): Store {
+const STORE_KEY = SHOWCASE ? 'demo-showcase-v1' : 'demo';
+
+function load(fresh = false): Store {
+  if (fresh) return initial();
   try {
-    const raw = readLocal('demo');
+    const raw = readLocal(STORE_KEY);
     if (raw) return JSON.parse(raw) as Store;
   } catch {
     // Corrupt demo state simply starts over.
   }
+  return initial();
+}
+
+function initial(): Store {
+  if (showcase) return { user: null, reviews: structuredClone(showcase.reviews), teams: structuredClone(showcase.teams), comments: structuredClone(showcase.comments) };
   return { user: null, reviews: [], teams: {} };
 }
 
 let store = load();
-const persist = () => writeLocal('demo', JSON.stringify(store));
+const toDashPerson = (p: Person) => ({
+  employee_id: p.employeeId, name: p.fullName, dept: p.dept, reviewer_id: p.supervisor, position: p.position,
+  start_date: p.startDate, gender: genders.get(p.employeeId) ?? (p.employeeId % 2 ? 'M' : 'F'),
+});
+
+const persist = () => writeLocal(STORE_KEY, JSON.stringify(store));
 const me = () => store.user ?? 0;
 const team = (id: number) => (store.teams[id] ??= blankTeam());
 const wait = async () => new Promise((r) => setTimeout(r, 30));
 
 export const demo = {
+  entryPoints: demoEntryPoints,
+  /** Puts the demo back to its starting data. */
+  reset() {
+    store = load(true);
+    persist();
+  },
+
   cycle: {
     id: CYCLE_ID, code: 'Q4-2026', quarter_label: 'Q4 2026', status: 'open',
     due_at: '2026-11-30T15:59:59Z',
@@ -82,7 +139,7 @@ export const demo = {
 
   signIn(employeeId: string): boolean {
     const id = Number(employeeId);
-    if (id !== MANAGER && id !== GM) return false;
+    if (SHOWCASE ? !isReviewer(id) : id !== MANAGER && id !== GM) return false;
     store.user = id;
     persist();
     return true;
@@ -98,7 +155,7 @@ export const demo = {
     }
     return {
       userId: `demo-${store.user}`, employeeId: store.user, role: 'manager',
-      displayName: store.user === GM ? 'Wang, Demo GM' : 'Lin, Alder',
+      displayName: SHOWCASE ? people.find((p) => p.employeeId === store.user)?.fullName ?? '' : store.user === GM ? 'Wang, Demo GM' : 'Lin, Alder',
       locale: readLocal('locale') === 'en' ? 'en' : 'zh-TW',
       fontScale: Number(readLocal('fontScale')) || 1,
     };
@@ -180,18 +237,31 @@ export const demo = {
   },
 
   dashboard: async () => {
-    const list = store.user === HR_DEMO ? people : people.filter((p) => p.supervisor === me());
+    const hr = store.user === HR_DEMO;
+    // Same rules as the database: own team in any state, the line only from submitted onward.
+    const line = hr ? [] : lineOf(me());
+    const list = hr ? people.filter((p) => p.supervisor !== 0) : [...people.filter((p) => p.supervisor === me()), ...line];
+    const lineIds = new Set(line.map((p) => p.employeeId));
     return {
-      people: list.filter((p) => p.supervisor !== GM || me() === GM || store.user === HR_DEMO).map((p) => ({
-        employee_id: p.employeeId, name: p.fullName, dept: p.dept, reviewer_id: p.supervisor,
-        start_date: p.startDate, gender: p.employeeId % 2 ? 'M' : 'F',
-      })),
-      reviews: store.reviews.filter((r) => r.is_key_talent && (store.user === HR_DEMO || r.reviewer_id === me())).map((r) => structuredClone(r)),
+      people: list.map((p) => toDashPerson(p)),
+      reviews: store.reviews.filter((r) => r.is_key_talent && (hr || r.reviewer_id === me()
+        || (lineIds.has(r.employee_id) && AFTER_SUBMIT.includes(r.status)))).map((r) => structuredClone(r)),
       reviewerNames: new Map(people.map((p) => [p.employeeId, p.fullName])),
     };
   },
 
-  plantAverages: async () => ({ key_pct: 22, med_high_pct: 31, coverage_pct: 44, plan_complete_pct: 58, not_discussed_pct: 17 }),
+  plantAverages: async () => {
+    if (!SHOWCASE) return { key_pct: 22, med_high_pct: 31, coverage_pct: 44, plan_complete_pct: 58, not_discussed_pct: 17 };
+    const k = kpis({
+      people: people.filter((p) => p.supervisor !== 0).map(toDashPerson),
+      reviews: store.reviews.filter((r) => r.is_key_talent && AFTER_SUBMIT.includes(r.status)),
+    });
+    const round = (v: number | null) => (v === null ? null : Math.round(v));
+    return {
+      key_pct: round(k.keyPct), med_high_pct: round(k.medHighPct), coverage_pct: round(k.coveragePct),
+      plan_complete_pct: round(k.planCompletePct), not_discussed_pct: round(k.notDiscussedPct),
+    };
+  },
 
   population: () => people.map((p) => ({ employee_id: p.employeeId, in_scope: true, supervisor_id: p.supervisor })),
 
@@ -203,7 +273,8 @@ export const demo = {
   },
 
   hrOverview: async (): Promise<TeamOverview[]> => {
-    return [MANAGER, 900003].map((id) => {
+    const ids = SHOWCASE ? [...new Set(people.map((p) => p.supervisor).filter((s) => s !== 0))] : [MANAGER, 900003];
+    return ids.map((id) => {
       const p = people.find((x) => x.employeeId === id)!;
       const mine = store.reviews.filter((r) => r.reviewer_id === id && r.is_key_talent);
       const t = team(id);
@@ -282,8 +353,9 @@ export const demo = {
   },
 
   lineTeams: async (): Promise<LineTeam[]> => {
-    if (me() !== GM) return [];
-    return [...new Set(people.filter((p) => p.supervisor !== GM && p.supervisor !== 0).map((p) => p.supervisor))].map((id) => {
+    if (!SHOWCASE && me() !== GM) return [];
+    const below = new Set(lineOf(me()).map((p) => p.supervisor));
+    return [...below].filter((id) => id !== me()).map((id) => {
       const p = people.find((x) => x.employeeId === id)!;
       return {
         reviewer_id: id, full_name: p.fullName, local_name: p.localName, status: team(id).status,

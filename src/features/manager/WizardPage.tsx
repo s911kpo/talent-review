@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronLeft, ChevronRight, CircleCheck, Lightbulb, ListChecks, Users, X } from 'lucide-react';
+import { useSession } from '../../app/session';
 import { AppShell, ErrorNotice } from '../../components/AppShell';
 import { listComments, listReviewsByReviewer } from '../../data/review';
 import { answeredCount, isEditable, isStepComplete, missingSteps, STEP_KEYS, type StepKey } from '../../lib/review/steps';
@@ -18,8 +19,8 @@ const stamp = (iso: string, locale: string) =>
 
 export function SaveIndicator({ state, savedAt }: { state: SaveState; savedAt: string }) {
   const { t, i18n } = useTranslation();
-  if (state === 'conflict') return null;
-  const styles: Record<Exclude<SaveState, 'conflict'>, string> = {
+  if (state === 'conflict' || state === 'expired' || state === 'locked') return null;
+  const styles: Record<Exclude<SaveState, 'conflict' | 'expired' | 'locked'>, string> = {
     saved: 'text-muted', saving: 'text-muted', error: 'text-risk-fg', offline: 'text-warn-fg',
   };
   const text = state === 'saved' ? t('autosave.saved', { time: stamp(savedAt, i18n.language) })
@@ -74,6 +75,7 @@ function Wizard({ initial, others, comments, onChanged }: {
   const [params, setParams] = useSearchParams();
   const { team, question, pick } = useRef_();
   const canEdit = isEditable(initial.status);
+  const { logout } = useSession();
   const { review, update, state, savedAt, leave } = useAutosave(initial, canEdit);
   const [guideOpen, setGuideOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -284,6 +286,30 @@ function Wizard({ initial, others, comments, onChanged }: {
           <div className="card max-w-sm p-5">
             <h2 id={`${labelId}-c`} className="font-semibold">{t('autosave.conflictTitle')}</h2>
             <p className="mt-1 text-sm text-muted">{t('autosave.conflictBody')}</p>
+            <button
+              type="button" className="btn-primary mt-4"
+              onClick={() => {
+                try { localStorage.removeItem(`talent-review.pending.${review.id}`); } catch { /* storage may be unavailable */ }
+                window.location.reload();
+              }}
+            >{t('autosave.reload')}</button>
+          </div>
+        </div>
+      )}
+      {state === 'expired' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" role="alertdialog" aria-modal="true" aria-labelledby={`${labelId}-e`}>
+          <div className="card max-w-sm p-5">
+            <h2 id={`${labelId}-e`} className="font-semibold">{t('autosave.expiredTitle')}</h2>
+            <p className="mt-1 text-sm text-muted">{t('autosave.expiredBody')}</p>
+            <button type="button" className="btn-primary mt-4" onClick={() => void logout()}>{t('autosave.signInAgain')}</button>
+          </div>
+        </div>
+      )}
+      {state === 'locked' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" role="alertdialog" aria-modal="true" aria-labelledby={`${labelId}-l`}>
+          <div className="card max-w-sm p-5">
+            <h2 id={`${labelId}-l`} className="font-semibold">{t('autosave.lockedTitle')}</h2>
+            <p className="mt-1 text-sm text-muted">{t('autosave.lockedBody')}</p>
             <button
               type="button" className="btn-primary mt-4"
               onClick={() => {

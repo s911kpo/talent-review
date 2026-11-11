@@ -32,6 +32,7 @@ async function allPages<T>(page: (from: number, to: number) => PromiseLike<{ dat
 interface PopRow {
   employee_id: number;
   dept: string | null;
+  position: string | null;
   supervisor_id: number;
   employees: { full_name: string; start_date: string | null; gender: string | null };
 }
@@ -42,7 +43,7 @@ export async function fetchDashboard(cycleId: string): Promise<DashboardData> {
 
   const [population, reviewRows] = await Promise.all([
     allPages<PopRow>((from, to) => supabase().from('cycle_population')
-      .select('employee_id, dept, supervisor_id, employees(full_name, start_date, gender)')
+      .select('employee_id, dept, position, supervisor_id, employees(full_name, start_date, gender)')
       .eq('cycle_id', cycleId).eq('in_scope', true).order('employee_id').range(from, to)),
     allPages<ReviewRow>((from, to) => supabase().from('reviews').select(SELECT_REVIEW)
       .eq('cycle_id', cycleId).eq('is_key_talent', true).order('employee_id').range(from, to)),
@@ -52,6 +53,7 @@ export async function fetchDashboard(cycleId: string): Promise<DashboardData> {
     employee_id: p.employee_id,
     name: p.employees.full_name,
     dept: p.dept ?? '',
+    position: p.position,
     reviewer_id: p.supervisor_id,
     start_date: p.employees.start_date,
     gender: p.employees.gender,

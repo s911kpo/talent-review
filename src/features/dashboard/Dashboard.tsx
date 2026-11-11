@@ -5,6 +5,7 @@ import { ErrorNotice } from '../../components/AppShell';
 import { fetchDashboard, fetchPlantAverages, fetchThemeTags, type DashboardData, type PlantAverages } from '../../data/dashboard';
 import { hrOverview, type TeamOverview } from '../../data/hr';
 import * as m from '../../lib/metrics';
+import * as ins from '../../lib/metrics/insights';
 import type { ThemeTag } from '../../lib/metrics';
 import { ReferenceProvider, useRef_ } from '../manager/referenceData';
 import { ReviewSummary } from '../manager/ReviewSummary';
@@ -12,7 +13,8 @@ import { BENCH_COLORS, Chart, RISK_COLORS, type ChartClick } from './Chart';
 
 type Mode = 'hr' | 'manager';
 const showPct = (v: number | null | undefined) => (v === null || v === undefined ? '—' : `${Math.round(Number(v))}%`);
-const TABS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
+const TABS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+const HR_ONLY: Tab[] = ['F', 'G'];
 type Tab = (typeof TABS)[number];
 
 export default function Dashboard({ mode }: { mode: Mode }) {
@@ -57,7 +59,7 @@ function Inner({ mode }: { mode: Mode }) {
   const depts = [...new Set(data.people.map((p) => p.dept))].sort();
   const reviewers = [...new Set(data.people.map((p) => p.reviewer_id))];
   const open = (title: string, ids: number[]) => setDrill({ title, ids });
-  const tabs = TABS.filter((x) => x !== 'F' || mode === 'hr');
+  const tabs = TABS.filter((x) => !HR_ONLY.includes(x) || mode === 'hr');
 
   return (
     <div className="space-y-4">
@@ -68,7 +70,11 @@ function Inner({ mode }: { mode: Mode }) {
           options={[['', t('dash.all')], ...depts.map((d): [string, string] => [d, d])]} />
         <Select label={t('dash.filterReviewer')} value={filters.reviewer === null ? '' : String(filters.reviewer)}
           onChange={(v) => setFilters({ ...filters, reviewer: v ? Number(v) : null })}
-          options={[['', t('dash.all')], ...reviewers.map((r): [string, string] => [String(r), data.reviewerNames.get(r) ?? String(r)])]} />
+          options={[['', t('dash.all')], ...reviewers.map((r): [string, string] => {
+            const name = data.reviewerNames.get(r) ?? String(r);
+            const twins = reviewers.filter((x) => data.reviewerNames.get(x) === name).length > 1;
+            return [String(r), twins ? `${name} (${r})` : name];
+          })]} />
         <Select label={t('dash.filterCritical')} value={filters.critical} onChange={(v) => setFilters({ ...filters, critical: v as m.Filters['critical'] })}
           options={[['', t('dash.all')], ['yes', t('dash.yes')], ['no', t('dash.no')]]} />
         <Select label={t('dash.filterTenure')} value={filters.tenure} onChange={(v) => setFilters({ ...filters, tenure: v as m.Filters['tenure'] })}
@@ -102,6 +108,7 @@ function Inner({ mode }: { mode: Mode }) {
       {tab === 'D' && <CareerTab ds={ds} open={open} averages={averages} />}
       {tab === 'E' && <DevTab ds={ds} open={open} tags={tags} mode={mode} />}
       {tab === 'F' && mode === 'hr' && <ProgressTab teams={teams} />}
+      {tab === 'G' && mode === 'hr' && <InsightsTab ds={ds} open={open} reviewerNames={data.reviewerNames} />}
 
       {drill && <Drill drill={drill} data={data} onClose={() => setDrill(null)} />}
     </div>
@@ -283,14 +290,40 @@ function RiskTab({ ds, open, averages }: TabProps) {
   );
 }
 
+/** First few names, then a button to the full drill-down list. Keeps panels readable at plant scale. */
+function ShortList({ ids, label, open, render }: { ids: number[]; label: string; open: TabProps['open']; render: (id: number) => ReactNode }) {
+  const { t } = useTranslation();
+  const SHOWN = 8;
+  return (
+    <>
+      <ul className="mt-2 space-y-0.5 text-sm">{ids.slice(0, SHOWN).map((id) => <li key={id}>{render(id)}</li>)}</ul>
+      <button type="button" className="btn-secondary mt-2" onClick={() => open(label, ids)}>
+        {ids.length > SHOWN ? t('dash.viewAll', { count: ids.length }) : t('dash.viewList')}
+      </button>
+    </>
+  );
+}
+
+const NETWORK_LIMIT = 30;
+
 function BenchTab({ ds, open, mode }: TabProps & { mode: Mode }) {
   const { t } = useTranslation();
   const bench = m.benchByDept(ds);
   const single = m.singlePoints(ds);
   const concentration = m.successorConcentration(ds);
-  const links = m.successionLinks(ds);
+  const allLinks = m.successionLinks(ds);
   const external = m.externalDependencyPct(ds);
-  const nameOf = (id: number) => ds.people.find((p) => p.employee_id === id)?.name ?? String(id);
+  const person = new Map(ds.people.map((p) => [p.employee_id, p]));
+  const nameOf = (id: number) => person.get(id)?.name ?? String(id);
+  const deptOf = (id: number) => person.get(id)?.dept ?? '';
+
+  // At plant scale one sankey of every role is unreadable, so it shows one department at a time.
+  const linkDepts = [...new Set(allLinks.map((l) => deptOf(l.holderId)))].sort();
+  const busiest = linkDepts.slice().sort((a, b) => allLinks.filter((l) => deptOf(l.holderId) === b).length - allLinks.filter((l) => deptOf(l.holderId) === a).length)[0] ?? '';
+  const tooMany = new Set(allLinks.map((l) => l.holderId)).size > NETWORK_LIMIT;
+  const [netDept, setNetDept] = useState('');
+  const shownDept = tooMany ? (netDept || busiest) : '';
+  const links = shownDept ? allLinks.filter((l) => deptOf(l.holderId) === shownDept) : allLinks;
 
   // Holders and successors are separate nodes, so mutual succession cannot form a cycle.
   const holders = [...new Set(links.map((l) => `H:${nameOf(l.holderId)}`))];
@@ -325,8 +358,7 @@ function BenchTab({ ds, open, mode }: TabProps & { mode: Mode }) {
         {single.length === 0 ? <p className="text-sm text-muted">{t('dash.noData')}</p> : (
           <>
             <p className="text-2xl font-semibold text-brand">{single.length}</p>
-            <ul className="mt-2 text-sm">{single.map((id) => <li key={id}>{nameOf(id)}</li>)}</ul>
-            <button type="button" className="btn-secondary mt-2" onClick={() => open(t('dash.singlePoint'), single)}>{t('dash.viewList')}</button>
+            <ShortList ids={single} label={t('dash.singlePoint')} open={open} render={(id) => <>{nameOf(id)} <span className="text-muted">· {deptOf(id)}</span></>} />
           </>
         )}
       </Panel>
@@ -334,7 +366,7 @@ function BenchTab({ ds, open, mode }: TabProps & { mode: Mode }) {
         <Panel title={t('dash.concentration')}>
           {concentration.length === 0 ? <p className="text-sm text-muted">{t('dash.noConcentration')}</p> : (
             <ul className="space-y-1 text-sm">
-              {concentration.map((c) => (
+              {concentration.slice(0, 8).map((c) => (
                 <li key={c.id}>
                   <button type="button" className="underline" onClick={() => open(c.name, c.holders)}>{c.name}</button>：{t('dash.people', { count: c.holders.length })}
                 </li>
@@ -347,7 +379,12 @@ function BenchTab({ ds, open, mode }: TabProps & { mode: Mode }) {
         <p className="text-2xl font-semibold text-brand">{showPct(external)}</p>
       </Panel>
       <div className="lg:col-span-2">
-        <Panel title={t('dash.network')}>
+        <Panel title={t('dash.network')} note={tooMany ? t('dash.networkByDept') : undefined}>
+          {tooMany && (
+            <div className="mb-3 max-w-xs">
+              <Select label={t('dash.networkDept')} value={shownDept} onChange={setNetDept} options={linkDepts.map((d): [string, string] => [d, d])} />
+            </div>
+          )}
           {links.length === 0 ? <p className="text-sm text-muted">{t('dash.noData')}</p> : (
             <Chart
               label={t('dash.network')}
@@ -365,6 +402,103 @@ function BenchTab({ ds, open, mode }: TabProps & { mode: Mode }) {
                 }],
               }}
             />
+          )}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+/** HR-only cross-team insights: conversations to have, not scores. See src/lib/metrics/insights.ts. */
+function InsightsTab({ ds, open, reviewerNames }: TabProps & { reviewerNames: Map<number, string> }) {
+  const { t } = useTranslation();
+  const { labelOf } = useRef_();
+  const person = new Map(ds.people.map((p) => [p.employee_id, p]));
+  const name = (id: number) => person.get(id)?.name ?? reviewerNames.get(id) ?? String(id);
+  const dept = (id: number) => person.get(id)?.dept ?? '';
+  const conv = ins.conversationPriorities(ds);
+  const unlisted = ins.unlistedSuccessors(ds);
+  const fragile = ins.fragileCoverage(ds);
+  const matches = ins.internalMatches(ds);
+  const calibration = ins.calibrationSignals(ds);
+  const supply = ins.mobilitySupply(ds);
+  const empty = <p className="text-sm text-muted">{t('dash.noData')}</p>;
+
+  return (
+    <div className="space-y-4">
+      <p className="rounded-card bg-info-bg px-4 py-3 text-sm text-info-fg">{t('dash.ins.intro')}</p>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title={t('dash.ins.convTitle')} note={t('dash.ins.convNote')}>
+          {conv.high.length + conv.medium.length === 0 ? empty : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {([['High', conv.high], ['Medium', conv.medium]] as const).map(([risk, ids]) => (
+                <div key={risk}>
+                  <p className="text-sm font-medium">{labelOf('retention_risk', risk)} · {t('dash.people', { count: ids.length })}</p>
+                  {ids.length > 0 && <ShortList ids={ids} label={`${t('dash.ins.convTitle')} · ${labelOf('retention_risk', risk)}`} open={open} render={(id) => <>{name(id)} <span className="text-muted">· {dept(id)}</span></>} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+        <Panel title={t('dash.ins.unlistedTitle')} note={t('dash.ins.unlistedNote')}>
+          {unlisted.length === 0 ? empty : (
+            <ul className="space-y-1 text-sm">
+              {unlisted.slice(0, 8).map((u) => (
+                <li key={u.id}>
+                  <button type="button" className="underline" onClick={() => open(`${name(u.id)} · ${t('dash.ins.namedFor')}`, u.namedFor)}>{name(u.id)}</button>
+                  <span className="text-muted"> · {dept(u.id)} · {t('dash.ins.namedCount', { count: u.namedFor.length })}</span>
+                </li>
+              ))}
+              {unlisted.length > 8 && <li className="text-muted">{t('dash.ins.more', { count: unlisted.length - 8 })}</li>}
+            </ul>
+          )}
+        </Panel>
+        <Panel title={t('dash.ins.fragileTitle')} note={t('dash.ins.fragileNote')}>
+          {fragile.length === 0 ? empty : (
+            <>
+              <p className="text-2xl font-semibold text-brand">{fragile.length}</p>
+              <ul className="mt-2 space-y-0.5 text-sm">
+                {fragile.slice(0, 8).map((f) => (
+                  <li key={`${f.holderId}-${f.successorId}`}>{name(f.holderId)} → {name(f.successorId)} <span className="text-muted">({labelOf('retention_risk', f.successorRisk)})</span></li>
+                ))}
+              </ul>
+              <button type="button" className="btn-secondary mt-2" onClick={() => open(t('dash.ins.fragileTitle'), [...new Set(fragile.flatMap((f) => [f.holderId, f.successorId]))])}>
+                {t('dash.viewAll', { count: fragile.length })}
+              </button>
+            </>
+          )}
+        </Panel>
+        <Panel title={t('dash.ins.matchTitle')} note={t('dash.ins.matchNote')}>
+          {matches.length === 0 ? empty : (
+            <ul className="space-y-2 text-sm">
+              {matches.slice(0, 6).map((mt) => (
+                <li key={mt.holderId}>
+                  <span className="font-medium">{mt.role}</span> <span className="text-muted">({name(mt.holderId)})</span>
+                  <br />← {mt.candidates.map((c) => `${name(c.id)}・${dept(c.id)}・${labelOf('readiness', c.readiness)}`).join('；')}
+                </li>
+              ))}
+              {matches.length > 6 && <li className="text-muted">{t('dash.ins.more', { count: matches.length - 6 })}</li>}
+            </ul>
+          )}
+        </Panel>
+        <Panel title={t('dash.ins.calTitle')} note={t('dash.ins.calNote')}>
+          {calibration.length === 0 ? empty : (
+            <ul className="space-y-1 text-sm">
+              {calibration.map((c) => (
+                <li key={c.reviewerId}>
+                  <button type="button" className="underline" onClick={() => open(name(c.reviewerId), ds.reviews.filter((r) => r.reviewer_id === c.reviewerId).map((r) => r.employee_id))}>{name(c.reviewerId)}</button>
+                  <span className="text-muted">：{c.signals.map((x) => t(`dash.ins.sig.${x}`)).join('、')}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+        <Panel title={t('dash.ins.supplyTitle')} note={t('dash.ins.supplyNote')}>
+          {supply.length === 0 ? empty : (
+            <table className="w-full text-sm">
+              <thead><tr><th className="th">{t('dash.cDept')}</th><th className="th">{t('dash.ins.mobile')}</th><th className="th">{t('dash.ins.tbhRoles')}</th></tr></thead>
+              <tbody>{supply.map((r) => <tr key={r.dept}><td className="td">{r.dept}</td><td className="td">{r.mobile}</td><td className="td">{r.tbhRoles}</td></tr>)}</tbody>
+            </table>
           )}
         </Panel>
       </div>

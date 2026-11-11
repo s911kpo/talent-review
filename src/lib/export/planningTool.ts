@@ -213,7 +213,7 @@ export function exportFileName(cycleCode: string, scope: string, when: Date): st
 
 export async function buildExportBlob(input: ExportInput): Promise<Blob> {
   const { default: ExcelJS } = await import('exceljs');
-  const response = await fetch('/templates/template.xlsx');
+  const response = await fetch(`${import.meta.env.BASE_URL}templates/template.xlsx`);
   if (!response.ok) throw new Error('template_unavailable');
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(await response.arrayBuffer());

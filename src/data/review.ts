@@ -3,7 +3,7 @@ import type {
   DirectoryEntry, LineTeam, OptionItem, Question, Review, ReviewComment, TeamSubmission,
 } from '../lib/review/types';
 import { isDemoMode, supabase } from './client';
-import { ConflictError } from './conflict';
+import { ConflictError, classifySaveError } from './conflict';
 import { demo } from './demo';
 
 export { ConflictError };
@@ -143,10 +143,7 @@ export async function saveReview(review: Review): Promise<SaveResult> {
     p_successors: successors,
     p_dev_plan: devPlan,
   });
-  if (error) {
-    if (error.message.includes('version_conflict')) throw new ConflictError();
-    throw error;
-  }
+  if (error) throw classifySaveError(error);
   return data[0] as SaveResult;
 }
 

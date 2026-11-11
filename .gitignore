@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 !.env.demo
+!.env.showcase
+!.env.stress
 
 # Dependencies and builds
 node_modules/
