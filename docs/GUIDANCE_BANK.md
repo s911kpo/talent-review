@@ -115,16 +115,16 @@
 ## 3. PBM_STRENGTHS — PBM 文化強項 / PBM Cultural Strengths（M 欄）
 
 **題目**
-- 中：在 PBM（原則導向管理）中，這位員工最常實踐哪 1–3 項原則？
-- EN: Which 1–3 PBM Guiding Principles does this person demonstrate most frequently?
+- 中：在 PBM 核心價值（Our Values）中，這位員工最常實踐哪 1–3 項？
+- EN: Which 1–3 PBM Values (Our Values) does this person demonstrate most frequently?
 
 **一行提示**
-- 中：先選原則，再用一句話描述你實際看到的行為。
-- EN: Pick the principle(s), then describe one behavior you actually observed.
+- 中：先選價值，再用一句話描述你實際看到的行為。
+- EN: Pick the value(s), then describe one behavior you actually observed.
 
 **燈泡**
-- 中：PBM 看的是「做事的方式」，不只是結果。請選他經常展現的原則，並寫出具體行為：在什麼情境下，他做了什麼。例如「謙遜」可以是主動承認自己的錯誤並修正；「客戶導向」可以是先站在客戶的角度確認需求再動手。一句行為證據就夠了。
-- EN: PBM is about how work gets done, not only results. Select principles the person shows frequently and write the specific behavior: in what situation, what did they do. For example, Humility can look like openly owning a mistake and fixing it; Customer Focus can look like confirming the customer's real need before acting. One behavioral sentence is enough.
+- 中：PBM 看的是「做事的方式」，不只是結果。Molex 的 8 項核心價值是：誠信（Integrity）、當責管理與合規（Stewardship & Compliance）、原則性企業家精神（Principled Entrepreneurship）、轉型（Transformation）、知識（Knowledge）、謙遜（Humility）、尊重（Respect）、自我實現（Self-Actualize）。請選他經常展現的價值，並寫出具體行為：在什麼情境下，他做了什麼。例如「謙遜」可以是主動承認自己的錯誤並修正；「原則性企業家精神」可以是主動找出為客戶與公司創造價值的機會，並在規範內推動。一句行為證據就夠了。
+- EN: PBM is about how work gets done, not only results. Molex's eight values are Integrity, Stewardship & Compliance, Principled Entrepreneurship, Transformation, Knowledge, Humility, Respect and Self-Actualize. Select values the person shows frequently and write the specific behavior: in what situation, what did they do. For example, Humility can look like openly owning a mistake and fixing it; Principled Entrepreneurship can look like proactively spotting a way to create value for customers and the company, and driving it within the rules. One behavioral sentence is enough.
 
 **好範例**
 - 中：
@@ -139,16 +139,16 @@
 - EN: Integrity: he is honest.
 
 **常見陷阱**
-- 中：只寫原則名稱而沒有行為；選太多項原則，每項都沒有證據。
-- EN: Naming a principle without behavior; selecting many principles with no evidence.
+- 中：只寫價值名稱而沒有行為；選太多項，每項都沒有證據。
+- EN: Naming a value without behavior; selecting many values with no evidence.
 
 ---
 
 ## 4. PBM_IMPROVE — PBM 文化改善機會 / PBM Cultural Improvement Opportunities（N 欄）
 
 **題目**
-- 中：在哪 1–3 項原則上，這位員工如果改善，能對團隊文化帶來更大的貢獻？
-- EN: In which 1–3 principles could this person improve to contribute even more to our culture?
+- 中：在哪 1–3 項 PBM 核心價值上，這位員工如果改善，能對團隊文化帶來更大的貢獻？
+- EN: In which 1–3 PBM Values could this person improve to contribute even more to our culture?
 
 **一行提示**
 - 中：描述可以觀察到的行為與期待的改變，不評論個性。

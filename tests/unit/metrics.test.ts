@@ -182,6 +182,11 @@ describe('development map', () => {
   it('sums actions by owner', () => {
     expect(m.ownerLoad(ds)).toEqual([{ owner: 'Amy', actions: 3 }]);
   });
+  it('lists all PBM values in order, with zeros, when given the list', () => {
+    const r = m.pbmDistribution(ds, ['Integrity', 'Stewardship & Compliance', 'Humility']);
+    expect(r.map((x) => x.principle)).toEqual(['Integrity', 'Stewardship & Compliance', 'Humility']);
+    expect(r[1]).toEqual({ principle: 'Stewardship & Compliance', strengths: 0, improvements: 0 });
+  });
   it('counts PBM principles on both sides', () => {
     expect(m.pbmDistribution(ds)).toEqual(expect.arrayContaining([
       { principle: 'Integrity', strengths: 2, improvements: 0 },

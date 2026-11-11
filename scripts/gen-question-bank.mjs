@@ -108,12 +108,24 @@ const sql = [
   'on conflict (key) do nothing;',
   '',
 ].join('\n');
-writeFileSync(join(root, 'supabase/migrations/20261111000200_question_bank.sql'), sql, 'utf8');
+// The initial migration is frozen once applied. Later wording changes ship as their own migration
+// (see 20261111000600_spec_v1_1.sql); pass --write-initial only when rebuilding from scratch.
+if (process.argv.includes('--write-initial')) {
+  writeFileSync(join(root, 'supabase/migrations/20261111000200_question_bank.sql'), sql, 'utf8');
+}
 
-const optionSql = readFileSync(join(root, 'supabase/migrations/20261110000400_option_lists.sql'), 'utf8');
-const options = [...optionSql.matchAll(/\('(\w+)', '([^']+)', '([^']+)', '([^']+)', (\d+)\)/g)].map((m) => ({
-  list_key: m[1], value: m[2], label_zh: m[3], label_en: m[4], sort: Number(m[5]),
-}));
+// Option tuples come from the migrations in order. A later migration that lists values for a
+// list_key replaces that whole list (that is how SPEC v1.1 swapped the PBM values).
+const OPTION_FILES = ['20261110000400_option_lists.sql', '20261111000600_spec_v1_1.sql'];
+const byList = new Map();
+for (const f of OPTION_FILES) {
+  const text = readFileSync(join(root, 'supabase/migrations', f), 'utf8');
+  const found = [...text.matchAll(/\('(\w+)', '([^']+)', '([^']+)', '([^']+)', (\d+)\)/g)].map((m) => ({
+    list_key: m[1], value: m[2], label_zh: m[3], label_en: m[4], sort: Number(m[5]),
+  }));
+  for (const key of new Set(found.map((o) => o.list_key))) byList.set(key, found.filter((o) => o.list_key === key));
+}
+const options = [...byList.values()].flat();
 
 mkdirSync(join(root, 'src/data/generated'), { recursive: true });
 writeFileSync(join(root, 'src/data/generated/questionBank.json'), JSON.stringify(rows, null, 2) + '\n', 'utf8');

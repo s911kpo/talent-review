@@ -35,11 +35,11 @@ async function answerAll(page: Page) {
   await page.getByRole('textbox').fill('製程問題分析：三週內把不良率從 2.1% 降到 0.6%');
   await next(page);
 
-  await page.getByLabel('原則').selectOption('Knowledge');
+  await page.getByLabel('核心價值').selectOption('Knowledge');
   await page.getByLabel('行為證據').fill('每次異常處理後都整理成 one-page lesson');
   await next(page);
 
-  await page.getByLabel('原則').selectOption('Transformation');
+  await page.getByLabel('核心價值').selectOption('Transformation');
   await page.getByLabel('行為證據').fill('主動試用 MES 新功能可以帶動組內數位化');
   await next(page);
 

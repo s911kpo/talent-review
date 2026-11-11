@@ -419,11 +419,11 @@ function CareerTab({ ds, open, averages }: TabProps) {
 
 function DevTab({ ds, open, tags, mode }: TabProps & { tags: ThemeTag[] | null; mode: Mode }) {
   const { t } = useTranslation();
-  const { labelOf } = useRef_();
+  const { labelOf, optionsFor } = useRef_();
   const mix = m.devMix(ds);
   const timeline = m.planTimeline(ds);
   const owners = m.ownerLoad(ds);
-  const pbm = m.pbmDistribution(ds);
+  const pbm = m.pbmDistribution(ds, optionsFor('pbm_principle').map((o) => o.value));
   const themes = tags ? m.themeMatrix(tags, ds) : null;
   return (
     <div className="grid gap-4 lg:grid-cols-2">

@@ -286,7 +286,8 @@ export function ownerLoad({ reviews }: Dataset) {
   return [...load].map(([owner, actions]) => ({ owner, actions })).sort((a, b) => b.actions - a.actions);
 }
 
-export function pbmDistribution({ reviews }: Dataset) {
+/** Counts each PBM value on both sides. With `values`, every listed value appears in that order (zeros included). */
+export function pbmDistribution({ reviews }: Dataset, values: string[] = []) {
   const out = new Map<string, { strengths: number; improvements: number }>();
   const add = (principle: string, field: 'strengths' | 'improvements') => {
     if (!principle) return;
@@ -298,7 +299,9 @@ export function pbmDistribution({ reviews }: Dataset) {
     r.pbm_strengths.forEach((p) => add(p.principle, 'strengths'));
     r.pbm_improvements.forEach((p) => add(p.principle, 'improvements'));
   }
-  return [...out].map(([principle, c]) => ({ principle, ...c }));
+  for (const v of values) if (!out.has(v)) out.set(v, { strengths: 0, improvements: 0 });
+  const rank = (p: string) => (values.includes(p) ? values.indexOf(p) : values.length);
+  return [...out].sort((a, b) => rank(a[0]) - rank(b[0])).map(([principle, c]) => ({ principle, ...c }));
 }
 
 export interface ThemeTag { employee_id: number; area_idx: number; theme: string; }

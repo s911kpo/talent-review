@@ -9,7 +9,7 @@
   },
   "section": {
     "A": "A. Role and performance",
-    "B": "B. PBM culture",
+    "B": "B. PBM Values",
     "C": "C. Career development",
     "D": "D. Retention and succession",
     "E": "E. Development plan",
@@ -32,7 +32,8 @@
     "badgeReturned": "Returned by HR",
     "lineEmpty": "There are no managers below you.",
     "lineMembers": "{{count}} direct reports",
-    "lineNote": "Content appears here after each manager submits.",
+    "lineNote": "Content appears here after your managers submit. This view is read-only and needs no approval in the system; final alignment happens in your discussion with the HRBP, then HR confirms.",
+    "timeHint": "About 15 minutes or less per key talent. You can fill it in over several sittings.",
     "help": "Help",
     "mobileBanner": "Desktop recommended; mobile is best for viewing and quick edits",
     "dismiss": "Dismiss"
@@ -95,7 +96,7 @@
   "q": {
     "yes": "Yes",
     "no": "No",
-    "principle": "Principle",
+    "principle": "PBM Value",
     "evidence": "Behavioral evidence",
     "add": "Add another",
     "remove": "Remove item {{n}}",
@@ -212,7 +213,7 @@
     "title2": "Select key talent",
     "body2": "You decide who needs focused attention first. There is no quota; base it on business need.",
     "title3": "One question at a time",
-    "body3": "Answer one question at a time. If unsure, open the lightbulb beside the question for guidance and examples.",
+    "body3": "Answer one question at a time; about 15 minutes or less per key talent. If unsure, open the lightbulb next to the question for criteria and examples.",
     "title4": "Autosave, submit, meet your HRBP",
     "body4": "Your work saves automatically, so you can finish over several sittings. Submit when done, then finalize with your HRBP.",
     "skip": "Skip",

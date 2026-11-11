@@ -1,6 +1,6 @@
 # Talent Review App — 開發規格書（交付 Claude Code）
 
-版本：v1.0 ｜ 2026-11-10 ｜ 需求方：Tim Hsu（HRBP, Molex Taiwan Xindian）
+版本：v1.1 ｜ 2026-11-10（v1.1：PBM 核心價值改為 Molex Our Values 8 項；+1 主管流程說明） ｜ 需求方：Tim Hsu（HRBP, Molex Taiwan Xindian）
 配套文件：`02_GUIDANCE_BANK.md`（引導題庫，中英）、`docs/template/DSS_Talent_Assessment_Succession_tool_template.xlsx`（匯出範本）
 
 > 給 Claude Code：本文件是唯一需求來源。遇到本文件未定義的細節，選擇「最簡單、可替換、不影響匯出格式」的做法，並記錄在 `docs/DECISIONS.md`。不要停下來等待回覆。
@@ -64,8 +64,10 @@
 
 | 角色 | 登入方式 | 可看 | 可改 |
 |---|---|---|---|
-| `manager`（評核人） | 主管工號 ＋ HR 發的 PIN | 自己直屬 Y 部屬；下屬主管那條線（唯讀，且只看「已提交」以後的內容）；自己範圍的儀表板＋全廠平均（只有比例） | 自己直屬部屬的盤點內容（在 Draft／Returned 狀態時） |
+| `manager`（評核人；含 +1 主管） | 主管工號 ＋ HR 發的 PIN | 自己直屬 Y 部屬；下屬主管那條線（唯讀，且只看「已提交」以後的內容）；自己範圍的儀表板＋全廠平均（只有比例） | 自己直屬部屬的盤點內容（在 Draft／Returned 狀態時） |
 | `hr` | Email ＋ 密碼（Tim、Diana） | 全部 | 全部；確認／退回／鎖定／解鎖；後台管理 |
+
+**+1 主管**：系統內只有唯讀權限，不做簽核。最後的對齊（HRBP 促進討論、+1 主管做最後決定）在線下進行，結果由 HR 在系統內確認並鎖定。
 
 **定義**
 - **直屬範圍**：本週期 snapshot 中 `supervisor_id = me` 且 `in_scope = true` 的員工。
@@ -196,9 +198,9 @@ team:    draft → submitted → confirmed → locked
 | key_talent_reason（新） | Critical Role Holder / Strong Performance Impact / Scarce or Hard-to-Replace Skill / Successor Candidate / High Growth Potential / High-Impact Retention Concern | 關鍵職位任職者 / 績效貢獻突出 / 稀缺或難以取代的技能 / 關鍵職位接班候選人 / 成長潛力高 / 流失衝擊大 |
 | dev_type（新） | Experience (70%) / Exposure (20%) / Education (10%) | 工作歷練 / 人際學習（輔導、導師、標竿） / 正式學習（課程、證照） |
 | plan_status（新） | Not Started / On Track / At Risk / Completed | 未開始 / 進行中 / 有風險 / 已完成 |
-| pbm_principle（新） | Integrity / Compliance / Value Creation / Principled Entrepreneurship / Customer Focus / Knowledge / Transformation / Humility / Respect / Fulfillment | 誠信 / 合規 / 價值創造 / 原則性企業家精神 / 客戶導向 / 知識 / 轉型 / 謙遜 / 尊重 / 成就感 |
+| pbm_principle（新） | Integrity / Stewardship & Compliance / Principled Entrepreneurship / Transformation / Knowledge / Humility / Respect / Self-Actualize | 誠信 / 當責管理與合規 / 原則性企業家精神 / 轉型 / 知識 / 謙遜 / 尊重 / 自我實現 |
 
-> ⚠️ `pbm_principle` 的 10 項名稱依 Koch Guiding Principles 擬定，**需要 Tim 對照公司最新官方用詞確認**（例如「Change」或「Transformation」）。資料表本身可編輯，不用改程式。
+> `pbm_principle` 採用 Molex PBM「Our Values」8 項（已與 Tim 的 Molex 專案資料交叉確認）。UI 稱為「PBM 核心價值（Our Values）」。英文 value 是匯出 M、N 欄時用的原文，不能翻譯；中文標籤 HR 可以在後台調整。
 > 注意：Criteria 頁的文字寫「Ready 1-2 Years」，下拉值是「1-2 years」。匯出一律用下拉值。
 
 ---
@@ -238,7 +240,7 @@ team:    draft → submitted → confirmed → locked
 |---|---|---|---|---|---|
 | 1 | CRITICAL_ROLE | S | 是／否單選 | 是 | |
 | 2 | PERF_STRENGTHS | O | 多行文字 | 是 | |
-| 3 | PBM_STRENGTHS | M | 選原則（1–3）＋每項一句行為證據 | 是（至少 1） | |
+| 3 | PBM_STRENGTHS | M | 選 PBM 核心價值（1–3，option_lists: pbm_principle）＋每項一句行為證據 | 是（至少 1） | |
 | 4 | PBM_IMPROVE | N | 同上（1–3） | 是（至少 1） | |
 | 5 | DEV_AREAS | P | 1–3 項，每項一句 | 是（至少 1） | |
 | 6 | ASPIRATIONS | Q | 多行文字＋勾選框「尚未與本人討論」 | 是（勾選框可以代替） | |
@@ -326,7 +328,7 @@ team:    draft → submitted → confirmed → locked
 - 發展計畫時間軸（甘特式）：依目標月份，可以看出哪些月份 checkpoint 集中。
 - 負責人負荷：每位 owner 名下的行動數。
 - 發展主題：由 AI（§10）把 P 欄與計畫目標歸類成能力主題（例如專案管理、跨部門溝通、技術深度、領導力），再以主題 × 部門矩陣呈現，作為學習地圖的輸入。沒有執行 AI 時，這張圖顯示「尚未生成」並提供按鈕。
-- PBM 原則分布：M（強項）與 N（改善）各原則被提及的次數，用雙向條形圖呈現。
+- PBM 核心價值分布：M（強項）與 N（改善）中各項價值被提及的次數，用雙向條形圖呈現。
 
 **F. 盤點進度（工作看板）**：同 §7.1，但以圖形呈現。
 

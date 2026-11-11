@@ -102,6 +102,7 @@ export function MyTeamPage() {
               {days !== null && ` · ${days >= 0 ? t('home.daysLeft', { days }) : t('home.overdue')}`}
             </p>
           )}
+          {editing && <p className="mt-1 text-sm text-muted">{t('home.timeHint')}</p>}
           <div className="mt-3 flex flex-wrap gap-2">
             <Link to={action.to} className="btn-primary">{action.label}</Link>
             {editing && keyTalent.length > 0 && <Link to="/team/select" className="btn-secondary">{t('home.editSelect')}</Link>}

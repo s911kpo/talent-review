@@ -274,65 +274,51 @@
   },
   {
     "list_key": "pbm_principle",
-    "value": "Compliance",
-    "label_zh": "合規",
-    "label_en": "Compliance",
+    "value": "Stewardship & Compliance",
+    "label_zh": "當責管理與合規",
+    "label_en": "Stewardship & Compliance",
     "sort": 2
-  },
-  {
-    "list_key": "pbm_principle",
-    "value": "Value Creation",
-    "label_zh": "價值創造",
-    "label_en": "Value Creation",
-    "sort": 3
   },
   {
     "list_key": "pbm_principle",
     "value": "Principled Entrepreneurship",
     "label_zh": "原則性企業家精神",
     "label_en": "Principled Entrepreneurship",
-    "sort": 4
-  },
-  {
-    "list_key": "pbm_principle",
-    "value": "Customer Focus",
-    "label_zh": "客戶導向",
-    "label_en": "Customer Focus",
-    "sort": 5
-  },
-  {
-    "list_key": "pbm_principle",
-    "value": "Knowledge",
-    "label_zh": "知識",
-    "label_en": "Knowledge",
-    "sort": 6
+    "sort": 3
   },
   {
     "list_key": "pbm_principle",
     "value": "Transformation",
     "label_zh": "轉型",
     "label_en": "Transformation",
-    "sort": 7
+    "sort": 4
+  },
+  {
+    "list_key": "pbm_principle",
+    "value": "Knowledge",
+    "label_zh": "知識",
+    "label_en": "Knowledge",
+    "sort": 5
   },
   {
     "list_key": "pbm_principle",
     "value": "Humility",
     "label_zh": "謙遜",
     "label_en": "Humility",
-    "sort": 8
+    "sort": 6
   },
   {
     "list_key": "pbm_principle",
     "value": "Respect",
     "label_zh": "尊重",
     "label_en": "Respect",
-    "sort": 9
+    "sort": 7
   },
   {
     "list_key": "pbm_principle",
-    "value": "Fulfillment",
-    "label_zh": "成就感",
-    "label_en": "Fulfillment",
-    "sort": 10
+    "value": "Self-Actualize",
+    "label_zh": "自我實現",
+    "label_en": "Self-Actualize",
+    "sort": 8
   }
 ]
