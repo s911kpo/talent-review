@@ -6,6 +6,7 @@ import {
   MonitorPlay, Route, ShieldAlert, Sprout, Target, X,
 } from 'lucide-react';
 import { ErrorNotice } from '../../components/AppShell';
+import { MolexLogo } from '../../components/MolexLogo';
 import { fetchDashboard, type DashboardData } from '../../data/dashboard';
 import * as m from '../../lib/metrics';
 import { execStory, type ExecStory } from '../../lib/metrics/exec';
@@ -160,7 +161,7 @@ function Header({ theme, present, dept, story, cycleLabel, onTheme, onPresent, o
       <div className="h-1 bg-[var(--x-brand)]" aria-hidden="true" />
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-6 gap-y-3 px-4 py-4 sm:px-8">
         <div className="flex min-w-0 items-center gap-4">
-          <span className="select-none text-xl font-black tracking-[0.18em] text-[color:var(--x-brandtext)]">MOLEX</span>
+          <MolexLogo className="h-7 w-auto shrink-0" />
           <span className="h-8 w-px bg-[var(--x-line)]" aria-hidden="true" />
           <div className="min-w-0">
             <p className={`truncate text-xs font-medium uppercase tracking-[0.14em] ${muted}`}>{t('exec.org')}</p>

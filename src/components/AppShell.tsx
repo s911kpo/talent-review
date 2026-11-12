@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LogOut, Menu, X, type LucideIcon } from 'lucide-react';
 import { FONT_STEPS, useSession } from '../app/session';
 import { DemoBanner } from '../features/auth/DemoEntry';
+import { MolexLogo } from './MolexLogo';
 
 export function TopControls({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ export function TopControls({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
         {([['zh-TW', '繁中'], ['en', 'EN']] as const).map(([value, label]) => (
           <button
             key={value} type="button" aria-pressed={locale === value}
-            className={`btn px-2 py-1 ${locale === value ? (tone === 'dark' ? 'bg-white/15 text-white' : 'bg-primary-soft text-primary-ink') : base}`}
+            className={`btn whitespace-nowrap px-2 py-1 ${locale === value ? (tone === 'dark' ? 'bg-white/15 text-white' : 'bg-primary-soft text-primary-ink') : base}`}
             onClick={() => setLocale(value)}
           >{label}</button>
         ))}
@@ -36,8 +37,9 @@ export function TopControls({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
 export function BrandMark({ tone = 'dark', compact = false }: { tone?: 'light' | 'dark'; compact?: boolean }) {
   const { t } = useTranslation();
   return (
-    <span className="flex items-center gap-2.5">
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm font-bold text-white" aria-hidden="true">TR</span>
+    <span className="flex items-center gap-3">
+      <MolexLogo className="h-5 w-auto shrink-0" />
+      <span className={`h-7 w-px ${tone === 'dark' ? 'bg-white/20' : 'bg-line'} ${compact ? 'hidden sm:block' : ''}`} aria-hidden="true" />
       <span className={`leading-tight ${compact ? 'hidden sm:block' : ''}`}>
         <span className={`block text-sm font-semibold ${tone === 'dark' ? 'text-white' : 'text-ink'}`}>{t('app.name')}</span>
         <span className={`block text-xs ${tone === 'dark' ? 'text-navy-text' : 'text-muted'}`}>{t('app.site')}</span>
@@ -119,7 +121,7 @@ export function AppShell({ children, nav, active, onNavigate }: {
           )}
           <span className={nav ? 'lg:hidden' : ''}><BrandMark tone="light" compact /></span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <TopControls />
           <span className="hidden h-6 w-px bg-line sm:block" aria-hidden="true" />
           <UserChip />
