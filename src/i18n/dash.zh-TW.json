@@ -430,7 +430,9 @@
       "hidden": "人數少於 5 人，不顯示",
       "byDept": "各部門",
       "tenureKey": "關鍵人才",
-      "tenureAll": "整體"
+      "tenureAll": "整體",
+      "tenureHint": "滑到柱子上看人數，點柱子打開名單",
+      "tenureList": "{{group}}：年資 {{band}}"
     },
     "risk": {
       "High": "高",

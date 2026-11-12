@@ -77,7 +77,7 @@ export function AccountsPanel() {
 
   async function downloadPins() {
     if (!issued) return;
-    const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+    const stamp = new Date().toISOString().slice(0, 16).replace(/\D/g, ''); // Digits only: YYYYMMDDHHmm.
     saveBlob(await buildPinListBlob(issued.results), `PIN_list_${stamp}.xlsx`);
     setIssued(null); // Plain-text PINs are dropped from memory after the single download.
   }

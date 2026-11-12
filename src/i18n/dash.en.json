@@ -430,7 +430,9 @@
       "hidden": "Fewer than 5 people, hidden",
       "byDept": "By department",
       "tenureKey": "Key talent",
-      "tenureAll": "Everyone"
+      "tenureAll": "Everyone",
+      "tenureHint": "Hover a bar for headcount; click it to open the list",
+      "tenureList": "{{group}}: tenure {{band}}"
     },
     "risk": {
       "High": "High",

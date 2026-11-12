@@ -11,6 +11,7 @@ export const INK = { primary: '#101828', secondary: '#5D6B82', grid: '#E4E8F0', 
 export interface ChartClick {
   name?: string;
   seriesName?: string;
+  seriesIndex?: number;
   dataIndex?: number;
   data?: unknown;
 }

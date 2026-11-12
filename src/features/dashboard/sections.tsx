@@ -150,26 +150,27 @@ function DeptHealth({ ctx }: { ctx: Ctx }) {
   return (
     <Panel id="health" aside={<span className="hidden items-center gap-1.5 text-xs text-muted sm:flex"><span className="h-3 w-0.5 rounded bg-ink/60" aria-hidden="true" />{t('dash.health.overall')}</span>}>
       {rows.length === 0 ? <Empty /> : (
-        <div className="-mx-5 overflow-x-auto">
-          <table className="w-full">
-            <thead>
+        // Header and the overall row stay frozen while the departments scroll, so every value keeps its label and benchmark.
+        <div className="-mx-5 max-h-[30rem] overflow-auto">
+          <table className="w-full border-separate border-spacing-0">
+            <thead className="sticky top-0 z-10">
               <tr>
-                <th className="th pl-5">{t('dash.filterDept')}</th>
+                <th className="th sticky left-0 z-10 pl-5">{t('dash.filterDept')}</th>
                 <th className="th">{t('dash.health.colKey')}</th>
                 {cols.map((c) => <th key={c.key} className="th">{c.label}</th>)}
               </tr>
-            </thead>
-            <tbody>
-              <tr className="bg-subtle/60">
-                <td className="td pl-5 font-semibold">{t('dash.health.overall')}</td>
+              <tr className="bg-card shadow-[0_2px_4px_-2px_rgba(16,24,40,0.12)]">
+                <td className="td sticky left-0 bg-card pl-5 font-semibold">{t('dash.health.overall')}</td>
                 <td className="td"><span className="num font-semibold">{all.key}</span> <span className="text-xs text-muted">/ {all.scope}</span></td>
                 {cols.map((c) => (
                   <td key={c.key} className="td"><span className="num font-semibold">{fmtPct(all[c.key])}</span></td>
                 ))}
               </tr>
+            </thead>
+            <tbody>
               {rows.map((d) => (
                 <tr key={d.dept} className="hover:bg-subtle/60">
-                  <td className="td pl-5">
+                  <td className="td sticky left-0 bg-card pl-5">
                     <button type="button" className="text-left font-medium hover:text-primary hover:underline" onClick={() => ctx.setDept(d.dept)}>{d.dept}</button>
                   </td>
                   <td className="td"><span className="num font-semibold">{d.key}</span> <span className="text-xs text-muted">/ {d.scope} · {fmtPct(d.keyPct)}</span></td>
@@ -225,6 +226,12 @@ function TenurePanel({ ctx }: { ctx: Ctx }) {
   const bands = s.tenureShares(m.tenureDistribution(ctx.ds));
   const senior = (k: 'keyPct' | 'allPct') => bands.filter((b) => ['5to10y', '10yplus'].includes(b.band)).reduce((n, b) => n + (b[k] ?? 0), 0);
   const junior = (k: 'keyPct' | 'allPct') => bands.filter((b) => ['lt6m', '6to12m'].includes(b.band)).reduce((n, b) => n + (b[k] ?? 0), 0);
+  // Counts and names behind each bar: shares are relative, so the reader can always get to the people.
+  const keySet = new Set(ctx.ds.reviews.map((r) => r.employee_id));
+  const ids = bands.map((b) => ctx.ds.people.filter((p) => m.tenureBand(p.start_date) === b.band).map((p) => p.employee_id));
+  const groups = [t('dash.org.tenureKey'), t('dash.org.tenureAll')];
+  const bandIds = (series: number, i: number) => (series === 0 ? ids[i].filter((id) => keySet.has(id)) : ids[i]);
+  const people = (n: number) => t('dash.people', { count: n });
   return (
     <Panel id="tenure" aside={<Legend items={[{ label: t('dash.org.tenureKey'), color: PALETTE[0] }, { label: t('dash.org.tenureAll'), color: NEUTRAL }]} />}>
       <div className="mb-2 flex flex-wrap gap-2">
@@ -232,8 +239,20 @@ function TenurePanel({ ctx }: { ctx: Ctx }) {
         <span className="tag bg-subtle text-ink">{t('dash.juniorShare')} {fmtPct(junior('keyPct'))} <span className="font-normal text-muted">/ {fmtPct(junior('allPct'))}</span></span>
       </div>
       <Chart label={t('dash.m.tenure.t')} height={250}
+        onClick={(p) => {
+          const i = p.dataIndex ?? 0;
+          const series = p.seriesIndex ?? 0;
+          ctx.open(t('dash.org.tenureList', { group: groups[series], band: t(`dash.band.${bands[i].band}`) }), bandIds(series, i));
+        }}
         option={{
-          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: number) => `${v}%` },
+          tooltip: {
+            trigger: 'axis', axisPointer: { type: 'shadow' },
+            formatter: (items: { dataIndex: number; seriesIndex: number; marker: string; value: number }[]) => {
+              const i = items[0]?.dataIndex ?? 0;
+              const rows = items.map((it) => `${it.marker}${groups[it.seriesIndex]}　<b>${people(bandIds(it.seriesIndex, i).length)}</b>　${it.value}%`);
+              return [`<b>${t(`dash.band.${bands[i].band}`)}</b>`, ...rows].join('<br/>');
+            },
+          },
           grid: { left: 36, right: 8, top: 24, bottom: 28 },
           xAxis: { type: 'category', data: bands.map((b) => t(`dash.band.${b.band}`)), axisTick: { show: false }, axisLine: { lineStyle: { color: INK.axis } }, axisLabel: { fontSize: 11, interval: 0 } },
           yAxis: { type: 'value', axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: INK.grid } } },
@@ -243,6 +262,7 @@ function TenurePanel({ ctx }: { ctx: Ctx }) {
             { name: t('dash.org.tenureAll'), type: 'bar', barMaxWidth: 22, itemStyle: { color: NEUTRAL, borderRadius: [4, 4, 0, 0] }, data: bands.map((b) => Math.round(b.allPct ?? 0)) },
           ],
         }} />
+      <p className="mt-1 text-xs text-muted">{t('dash.org.tenureHint')}</p>
     </Panel>
   );
 }
