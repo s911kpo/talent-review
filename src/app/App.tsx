@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { lazy, Suspense, type ReactElement } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSession } from './session';
@@ -11,6 +11,8 @@ import { ReferenceProvider } from '../features/manager/referenceData';
 import { SubmittedPage } from '../features/manager/SubmittedPage';
 import { WizardPage } from '../features/manager/WizardPage';
 import { HrConsolePage } from '../features/admin/HrConsolePage';
+
+const ExecPage = lazy(() => import('../features/exec/ExecPage'));
 
 function Guard({ role, children }: { role: 'manager' | 'hr'; children: ReactElement }) {
   const { profile, loading } = useSession();
@@ -43,6 +45,7 @@ export function App() {
         <Route path="submitted" element={<SubmittedPage />} />
       </Route>
       <Route path="/hr" element={<Guard role="hr"><HrConsolePage /></Guard>} />
+      <Route path="/hr/exec" element={<Guard role="hr"><Suspense fallback={null}><ExecPage /></Suspense></Guard>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

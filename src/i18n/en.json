@@ -79,7 +79,8 @@
       "questions": "Edit questions, guidance and examples.",
       "audit": "Search every recorded change."
     },
-    "navHome": "Home"
+    "navHome": "Home",
+    "navExec": "Executive view"
   },
   "cycles": {
     "empty": "No cycles yet. Create one first.",

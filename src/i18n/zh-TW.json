@@ -79,7 +79,8 @@
       "questions": "編輯題目、提示與範例。",
       "audit": "查詢所有變更紀錄。"
     },
-    "navHome": "首頁"
+    "navHome": "首頁",
+    "navExec": "高管戰情"
   },
   "cycles": {
     "empty": "還沒有任何週期，請先建立一個。",

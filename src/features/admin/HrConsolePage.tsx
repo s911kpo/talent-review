@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import { CalendarRange, ChartColumn, ClipboardCheck, Eye, FileDown, FileUp, Home, KeyRound, ListTree, ScrollText, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CalendarRange, ChartColumn, ClipboardCheck, Eye, FileDown, FileUp, Home, KeyRound, ListTree, MonitorPlay, ScrollText, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AppShell, PageHeader, type NavGroup } from '../../components/AppShell';
 import { isAiEnabled } from '../../data/client';
 import { AccountsPanel } from './AccountsPanel';
@@ -23,6 +23,8 @@ const PAGES = [
   { key: 'overview', group: 'work', label: 'hr.navHome', Icon: Home, Panel: OverviewPanel, own: true },
   { key: 'queue', group: 'work', label: 'hrq.tabQueue', Icon: ClipboardCheck, Panel: QueuePanel },
   { key: 'dashboard', group: 'work', label: 'ai.tabHrDash', Icon: ChartColumn, Panel: DashboardTab, own: true },
+  // Opens the full-screen executive view (/hr/exec) instead of a panel.
+  { key: 'exec', group: 'work', label: 'hr.navExec', Icon: MonitorPlay, Panel: () => null, own: true },
   { key: 'export', group: 'work', label: 'hrq.tabExport', Icon: FileDown, Panel: ExportPanel },
   { key: 'ai', group: 'work', label: 'ai.tabHr', Icon: Sparkles, Panel: AiTab },
   { key: 'preview', group: 'admin', label: 'hrq.tabPreview', Icon: Eye, Panel: PreviewPanel },
@@ -40,7 +42,8 @@ export function HrConsolePage() {
   // The page is in the URL so the browser Back button moves between pages.
   const [params, setParams] = useSearchParams();
   const page = (params.get('p') ?? 'overview') as PageKey;
-  const setPage = (p: PageKey) => setParams(p === 'overview' ? {} : { p });
+  const navigate = useNavigate();
+  const setPage = (p: PageKey) => (p === 'exec' ? navigate('/hr/exec') : setParams(p === 'overview' ? {} : { p }));
   const pages = PAGES.filter((x) => x.key !== 'ai' || isAiEnabled);
   const current = pages.find((x) => x.key === page) ?? pages[0];
   const nav: NavGroup[] = (['work', 'admin'] as const).map((group) => ({

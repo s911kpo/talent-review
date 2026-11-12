@@ -12,9 +12,11 @@ import enHr from '../../src/i18n/hr.en.json';
 
 import zhDash from '../../src/i18n/dash.zh-TW.json';
 import enDash from '../../src/i18n/dash.en.json';
+import zhExec from '../../src/i18n/exec.zh-TW.json';
+import enExec from '../../src/i18n/exec.en.json';
 
-const zh = { ...zhBase, ...zhManager, ...zhHr, ...zhDash };
-const en = { ...enBase, ...enManager, ...enHr, ...enDash };
+const zh = { ...zhBase, ...zhManager, ...zhHr, ...zhDash, ...zhExec };
+const en = { ...enBase, ...enManager, ...enHr, ...enDash, ...enExec };
 
 const root = join(__dirname, '..', '..');
 const srcDir = join(root, 'src');
@@ -48,7 +50,7 @@ describe('i18n', () => {
 
   it('defines every key used in code', () => {
     const missing: string[] = [];
-    const patterns = [/\bt\('([a-zA-Z0-9_.]+)'/g, /'((?:login|hrLogin|hr|app|top|team|cycles|namelist|accounts|badge|home|kt|wizard|autosave|q|plan|check|sub|tour|hrq|exp|opts|qb|aud|pv|dash|ai)\.[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)'/g];
+    const patterns = [/\bt\('([a-zA-Z0-9_.]+)'/g, /'((?:login|hrLogin|hr|app|top|team|cycles|namelist|accounts|badge|home|kt|wizard|autosave|q|plan|check|sub|tour|hrq|exp|opts|qb|aud|pv|dash|exec|ai)\.[a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)'/g];
     for (const file of sources) {
       for (const pattern of patterns) {
         for (const match of read(file).matchAll(pattern)) {

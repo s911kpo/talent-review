@@ -69,3 +69,24 @@ test('HR console has no WCAG A or AA violations', async ({ page }) => {
     await scan(page, name);
   }
 });
+
+test('executive view: both looks pass WCAG, presentation mode steps through chapters, a number opens its list', async ({ page }) => {
+  await page.goto('/login');
+  await page.evaluate(seed, -1);
+  await page.goto('/hr/exec');
+  await expect(page.getByRole('heading', { name: '人才盤點全貌' })).toBeVisible();
+  await scan(page, 'exec-command');
+  await page.getByRole('button', { name: '雙層' }).click();
+  await expect(page).toHaveURL(/theme=hybrid/);
+  await scan(page, 'exec-hybrid');
+  await page.getByRole('button', { name: '定義與管理意義' }).first().click();
+  await expect(page.getByText('定義與公式').first()).toBeVisible();
+  await page.getByRole('button', { name: '簡報模式' }).click();
+  await expect(page.getByRole('heading', { name: '留任風險' })).toHaveCount(0);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('heading', { name: '留任風險' })).toBeVisible();
+  await expect(page.getByText('管理價值')).toBeVisible();
+  await page.getByRole('button', { name: '離開簡報' }).click();
+  await page.locator('#ch-whole').getByRole('button', { name: /查看名單|看名單/ }).first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+});

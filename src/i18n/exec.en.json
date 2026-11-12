@@ -1,0 +1,177 @@
+{
+  "exec": {
+    "title": "Talent command view",
+    "org": "OSBU-Connectivity · Xindian",
+    "status": "Talent Inventory Status",
+    "cycle": "{{cycle}} talent review",
+    "progress": "{{pct}} reviewed",
+    "progressNote": "{{done}} / {{total}} key talents submitted",
+    "theme": "Style",
+    "themeCommand": "Command",
+    "themeHybrid": "Layered",
+    "present": "Present",
+    "exitPresent": "Exit presentation",
+    "backToConsole": "Back to HR console",
+    "prev": "Previous",
+    "next": "Next",
+    "chapters": "Chapters",
+    "notesShow": "Definitions and meaning",
+    "notesHide": "Hide",
+    "noteDef": "Definition and formula",
+    "noteValue": "Why it matters",
+    "noteUse": "What to do with it",
+    "viewList": "View list",
+    "people": "{{count}} people",
+    "roles": "{{count}} roles",
+    "goals": "{{count}} goals",
+    "plant": "Plant",
+    "backToPlant": "Back to plant",
+    "filtered": "Showing only: {{dept}}",
+    "hidden": "Too few",
+    "overallMark": "Plant",
+    "keyHint": "Hover a number for headcount; click to open the list",
+    "ch": {
+      "whole": {
+        "t": "Talent inventory at a glance",
+        "q": "Are our key people staying, and is every seat covered?",
+        "def": "Four core numbers. Key talent: people a Supervisor named. Medium or high retention risk: medium or high ÷ key talent. Ready-now coverage: critical roles with a Ready Now successor ÷ all critical roles (TBH excluded). Career conversation gap: career goals not yet discussed ÷ key talent.",
+        "value": "Shows the three people risks at once: will they leave, is anyone ready, are Supervisors talking with them. Departments are flagged only when 10 points worse than the plant, so small differences don't take up time.",
+        "use": "Pick this quarter's focus department and topic. Click a department and every chapter below switches to it."
+      },
+      "risk": {
+        "t": "Retention risk",
+        "q": "Who may leave, why, and whose departure hurts most?",
+        "def": "Retention risk is the Supervisor's assessment (high, medium, low). Grid = risk × whether the person holds a critical role. Reason share = people with that reason ÷ medium or high risk people (several allowed).",
+        "value": "High risk in a critical role hurts the business the day they leave, so they come first. When reasons cluster, a policy fix works better than one-by-one retention.",
+        "use": "Within two weeks, the Supervisor and HRBP agree a retention action for each high-risk critical role holder; take the top two reasons to the pay or policy discussion."
+      },
+      "bench": {
+        "t": "Succession bench",
+        "q": "If a critical seat empties tomorrow, who steps in?",
+        "def": "Each critical role is classed by its best successor: ready now, 1–2 years, long term (3+ years or emergency cover), none (nobody or only TBH). Danger zone = high risk with nobody, medium risk with nobody, high risk with only long-term cover. Depth = named candidates (TBH excluded).",
+        "value": "Roles are compared, not people. A danger-zone role that empties means hiring outside or a long vacancy. A role with one candidate drops to zero if that person leaves.",
+        "use": "Name a successor or start hiring for danger-zone roles before next quarter; add a second candidate where there is only one."
+      },
+      "growth": {
+        "t": "Development and mobility",
+        "q": "Are people getting ready, and are plans moving?",
+        "def": "Next-step readiness: each person's nearest. Internal pool: ready within two years and open to moving within two years. Goals counted by status (not started, on track, at risk, completed). PBM Our Values: times named as a strength or an improvement area.",
+        "value": "People who are ready with nowhere to go become a retention risk. Goals stuck at not started or at risk mean the review has not turned into action. Shared PBM improvement areas suit a group program.",
+        "use": "Check the internal pool before opening a role; find out why goals are stuck before the next checkpoint; put the top PBM improvement area into next year's training plan."
+      },
+      "actions": {
+        "t": "Decisions for leadership",
+        "q": "What do we commit to this quarter?",
+        "def": "Each card is a list with a clear rule; click the number to open it. Rules are defined in each chapter.",
+        "value": "Turns the review into actions that can be assigned and tracked, not a report.",
+        "use": "Give each item an owner and a date, and follow up at the next management meeting."
+      }
+    },
+    "whole": {
+      "key": "Key talent",
+      "keySub": "{{pct}} of review scope",
+      "risk": "Medium or high risk",
+      "riskSub": "{{count}} key talents",
+      "ready": "Ready-now coverage",
+      "readySub": "{{ready}} / {{total}} critical roles",
+      "talk": "Career conversation gap",
+      "talkSub": "{{count}} not yet discussed",
+      "story": "Of {{key}} key talents, {{risk}} are medium or high risk; of {{critical}} critical roles, only {{ready}} have someone ready now.",
+      "storyHot": "Watch first: {{dept}} at {{value}} {{measure}}, {{gap}} points {{dir}} than the plant.",
+      "storyCalm": "No department is 10 points worse than the plant.",
+      "grid": "Department heat",
+      "gridNote": "A cell lights up only when 10 points worse than the plant (and 3+ people)",
+      "worse": "worse",
+      "higher": "higher",
+      "lower": "lower",
+      "measure": {
+        "riskPct": "medium or high risk",
+        "readyPct": "ready-now coverage",
+        "talkGapPct": "career conversation gap"
+      },
+      "keyCol": "Key talent"
+    },
+    "risk": {
+      "story": "{{count}} key talents are medium or high risk; {{high}} of them are high risk in a critical role.",
+      "storyReason": "The most common reason is \"{{reason}}\" ({{pct}}).",
+      "map": "Risk × role",
+      "critical": "Critical role",
+      "other": "Other role",
+      "reasons": "Main reasons",
+      "reasonsNote": "Share of medium or high risk; several allowed",
+      "talkFirst": "Medium or high risk, no career talk yet",
+      "talkFirstNote": "The cheapest retention action: a 15-minute talk"
+    },
+    "bench": {
+      "story": "Of {{total}} critical roles, {{ready}} have someone ready now; {{danger}} sit in the danger zone.",
+      "storyThin": "{{pct}} of critical roles have fewer than 2 candidates.",
+      "readyRing": "Ready-now coverage",
+      "matrix": "Critical role risk matrix",
+      "matrixX": "Holder's retention risk",
+      "matrixY": "Best successor",
+      "class": {
+        "gap": "Nobody",
+        "thin": "Long term",
+        "developing": "1–2 years",
+        "strong": "Ready now"
+      },
+      "dangerCritical": "Most at risk",
+      "dangerSerious": "At risk",
+      "depth": "Bench depth",
+      "depthLabel": {
+        "0": "0",
+        "1": "1",
+        "2+": "2 or more"
+      },
+      "fragile": "Fragile cover",
+      "fragileNote": "The near-term successor is medium or high risk too"
+    },
+    "growth": {
+      "story": "{{pool}} people are ready within two years and open to moving; {{stalled}} of {{total}} goals are not started or at risk.",
+      "storyPbm": "The most common PBM improvement area is \"{{value}}\".",
+      "readiness": "Next-step readiness",
+      "pool": "Internal pool",
+      "poolNote": "Look here first when a role opens",
+      "plans": "Goal execution",
+      "pbm": "PBM Our Values",
+      "strengths": "Strength",
+      "improvements": "Improvement"
+    },
+    "actions": {
+      "story": "{{count}} items need an owner and a date.",
+      "owner": "Owner",
+      "items": {
+        "danger": {
+          "t": "Danger-zone critical roles",
+          "why": "The holder may leave and nobody can take over within two years",
+          "act": "Name a successor or start hiring before next quarter",
+          "owner": "Supervisor + HRBP"
+        },
+        "talk": {
+          "t": "Talk careers with these people first",
+          "why": "Medium or high risk, no career conversation yet",
+          "act": "A 15-minute talk within two weeks",
+          "owner": "Supervisor"
+        },
+        "fragile": {
+          "t": "Shore up fragile cover",
+          "why": "The successor may leave too",
+          "act": "Add the successor to retention actions, or name a second candidate",
+          "owner": "Supervisor + HRBP"
+        },
+        "riskNoPlan": {
+          "t": "Retention without a development plan",
+          "why": "Medium or high risk, development plan incomplete",
+          "act": "Write the retention talk's outcome into the plan",
+          "owner": "Supervisor"
+        },
+        "pool": {
+          "t": "Look inside before hiring",
+          "why": "Ready within two years and open to moving",
+          "act": "Talk with them before the next opening",
+          "owner": "HRBP + Recruiting"
+        }
+      }
+    }
+  }
+}

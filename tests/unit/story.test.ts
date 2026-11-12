@@ -111,3 +111,19 @@ describe('dashboard v2.1 measures', () => {
     expect(s.personProbes(review(2, { retention_risk: 'Low' })).map((p) => p.key)).toEqual(['plan']);
   });
 });
+
+describe('executive story', () => {
+  it('flags a department only when 10 points worse with 3+ people, and lists danger-zone roles', async () => {
+    const { attentionSignals, dangerRoles } = await import('../../src/lib/metrics/exec');
+    const people = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => person(i, i <= 4 ? 'PE' : 'QA'));
+    const ds: Dataset = { people, reviews: [
+      review(1, { retention_risk: 'High' }), review(2, { retention_risk: 'High' }), review(3, { retention_risk: 'Medium' }),
+      review(5, { retention_risk: 'Low' }), review(6, { retention_risk: 'Low' }), review(7, { retention_risk: 'Low' }),
+      review(8, { retention_risk: 'High', is_critical_role: true, successors: [] }),
+    ] };
+    const sig = attentionSignals(ds);
+    expect(sig.find((x) => x.measure === 'riskPct')?.dept).toBe('PE');
+    expect(sig.every((x) => x.gap >= 10)).toBe(true);
+    expect(dangerRoles(ds)).toMatchObject({ critical: [8], serious: [] });
+  });
+});

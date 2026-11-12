@@ -8,14 +8,16 @@ import hrZh from './hr.zh-TW.json';
 import hrEn from './hr.en.json';
 import dashZh from './dash.zh-TW.json';
 import dashEn from './dash.en.json';
+import execZh from './exec.zh-TW.json';
+import execEn from './exec.en.json';
 import { readLocal } from '../lib/localPrefs';
 
 export type Locale = 'zh-TW' | 'en';
 
 void i18n.use(initReactI18next).init({
   resources: {
-    'zh-TW': { translation: { ...zhTW, ...managerZh, ...hrZh, ...dashZh } },
-    en: { translation: { ...en, ...managerEn, ...hrEn, ...dashEn } },
+    'zh-TW': { translation: { ...zhTW, ...managerZh, ...hrZh, ...dashZh, ...execZh } },
+    en: { translation: { ...en, ...managerEn, ...hrEn, ...dashEn, ...execEn } },
   },
   lng: readLocal('locale') === 'en' ? 'en' : 'zh-TW',
   fallbackLng: 'zh-TW',
