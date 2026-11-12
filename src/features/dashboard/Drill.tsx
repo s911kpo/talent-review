@@ -15,7 +15,7 @@ export type DrillStep = { kind: 'list'; title: string; ids: number[] } | { kind:
  * Side sheet for drilling into a number: list → person → their successor → ... with breadcrumbs and Back,
  * so a reader can follow a thread and return to exactly where they were.
  */
-export function Drill({ start, data, onClose }: { start: DrillStep; data: DashboardData; onClose: () => void }) {
+export function Drill({ start, data, onClose, tone = 'light' }: { start: DrillStep; data: DashboardData; onClose: () => void; tone?: 'light' | 'dark' }) {
   const { t } = useTranslation();
   const [stack, setStack] = useState<DrillStep[]>([start]);
   const current = stack[stack.length - 1];
@@ -32,9 +32,9 @@ export function Drill({ start, data, onClose }: { start: DrillStep; data: Dashbo
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={label(current)}>
+    <div className={`fixed inset-0 z-50 flex justify-end ${tone === 'dark' ? 'drill-dark' : ''}`} role="dialog" aria-modal="true" aria-label={label(current)}>
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" aria-hidden="true" onClick={onClose} />
-      <div className="relative flex h-full w-full max-w-xl flex-col bg-canvas shadow-lift">
+      <div className={`relative flex h-full w-full max-w-xl flex-col bg-canvas shadow-lift ${tone === 'dark' ? 'border-l-2 border-[#D6193A]' : ''}`}>
         <div className="border-b border-line bg-card px-5 py-4">
           <div className="flex items-center justify-between gap-2">
             {stack.length > 1 ? (
@@ -91,11 +91,11 @@ function PersonList({ ids, data, onOpen }: { ids: number[]; data: DashboardData;
         const name = p?.name ?? String(id);
         return (
           <li key={id}>
-            <button type="button" onClick={() => onOpen(id)} aria-label={t('dash.openPerson', { name })}
+            <button type="button" onClick={() => onOpen(id)}
               className="card flex w-full items-center gap-3 p-3 text-left transition hover:border-primary/40 hover:shadow-lift">
               <Avatar name={name} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{name}</span>
+                <span className="block truncate font-medium">{name}<span className="sr-only">, {t('dash.openPerson', { name })}</span></span>
                 <span className="block truncate text-xs text-muted">{[p?.dept, p?.position].filter(Boolean).join(' · ')}</span>
               </span>
               {review?.is_critical_role && <span className="tag bg-info-bg text-info-fg">{t('dash.drill.critical')}</span>}

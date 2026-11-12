@@ -9,7 +9,7 @@ import { ErrorNotice } from '../../components/AppShell';
 import { MolexLogo } from '../../components/MolexLogo';
 import { fetchDashboard, type DashboardData } from '../../data/dashboard';
 import * as m from '../../lib/metrics';
-import { execStory, type ExecStory } from '../../lib/metrics/exec';
+import { execStory, pbmView, type ExecStory } from '../../lib/metrics/exec';
 import * as s from '../../lib/metrics/story';
 import { ReferenceProvider, useRef_ } from '../manager/referenceData';
 import { Drill, type DrillStep } from '../dashboard/Drill';
@@ -17,10 +17,9 @@ import { Drill, type DrillStep } from '../dashboard/Drill';
 /*
  * Executive talent view: the same data as the strategy dashboard, told as a story for leadership.
  * Whole picture first, then risk, succession, development and the decisions to make (Tim, 2026-11-12).
- * Two looks share one page: "command" (dark throughout) and "hybrid" (dark headline band, light analysis).
+ * One dark "command centre" look; the layered look and the style switch were dropped (Tim: no value for executives).
  */
 
-type Theme = 'command' | 'hybrid';
 type Vars = CSSProperties & Record<`--x-${string}`, string>;
 
 const DARK: Vars = {
@@ -29,13 +28,6 @@ const DARK: Vars = {
   '--x-track': 'rgba(148,163,184,0.16)', '--x-alert': '#FF5A6E', '--x-alertbg': 'rgba(255,90,110,0.16)',
   '--x-warn': '#F5B83D', '--x-warnbg': 'rgba(245,184,61,0.15)', '--x-good': '#34D6A3', '--x-alertsolid': '#C41E3A', '--x-brand': '#D6193A', '--x-brandtext': '#FF7487',
   '--x-glow': '0 0 22px rgba(78,168,255,0.45)',
-};
-const LIGHT: Vars = {
-  '--x-bg': '#F3F5F9', '--x-panel': '#FFFFFF', '--x-panel2': '#F7F9FC', '--x-line': '#E2E7F0',
-  '--x-ink': '#101828', '--x-muted': '#5D6B82', '--x-data': '#2A78D6', '--x-datasoft': '#E4EEFB',
-  '--x-track': '#ECEFF5', '--x-alert': '#C8102E', '--x-alertbg': '#FDECEF',
-  '--x-warn': '#C27C00', '--x-warnbg': '#FFF4DB', '--x-good': '#0E9F6E', '--x-alertsolid': '#C8102E', '--x-brand': '#C8102E', '--x-brandtext': '#C8102E',
-  '--x-glow': 'none',
 };
 
 const panel = 'rounded-2xl border border-[color:var(--x-line)] bg-[var(--x-panel)]';
@@ -71,7 +63,6 @@ function Exec() {
   const [drill, setDrill] = useState<DrillStep | null>(null);
   // Look, presentation mode, chapter and department live in the URL: Back returns, and a view can be shared.
   const [params, setParams] = useSearchParams();
-  const theme: Theme = params.get('theme') === 'hybrid' ? 'hybrid' : 'command';
   const present = params.get('present') === '1';
   const chapter = Math.min(CHAPTERS.length - 1, Math.max(0, Number(params.get('ch') ?? 0) || 0));
   const dept = params.get('dept') ?? '';
@@ -108,9 +99,6 @@ function Exec() {
     update({ present: present ? null : '1', ch: null });
   };
 
-  const hero = DARK;
-  const body = theme === 'command' ? DARK : LIGHT;
-
   if (failed) return <div className="p-6"><ErrorNotice onRetry={() => void load()} /></div>;
   if (!data || !ds || !story) return <p role="status" className="p-8 text-muted">{t('app.loading')}</p>;
 
@@ -129,31 +117,28 @@ function Exec() {
   const shown = present ? [CHAPTERS[chapter]] : CHAPTERS;
 
   return (
-    <div className="min-h-screen bg-[var(--x-bg)] text-[color:var(--x-ink)]" style={body}>
-      <div style={hero} className="bg-[var(--x-bg)] text-[color:var(--x-ink)]">
-        <Header theme={theme} present={present} dept={dept} story={story} cycleLabel={cycle.quarter_label}
-          onTheme={(th) => update({ theme: th === 'command' ? null : th }, true)} onPresent={togglePresent} onPlant={() => ctx.setDept('')} />
+    <div className="min-h-screen bg-[var(--x-bg)] text-[color:var(--x-ink)]" style={DARK}>
+      <div>
+        <Header present={present} dept={dept} story={story} cycleLabel={cycle.quarter_label}
+          onPresent={togglePresent} onPlant={() => ctx.setDept('')} />
         {!present && <ChapterNav onJump={(k) => document.getElementById(`ch-${k}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />}
-        {theme === 'hybrid' && shown[0].key === 'whole' && (
-          <div className="mx-auto max-w-[1400px] px-4 pb-8 sm:px-8"><Chapter index={0} k="whole" ctx={ctx}>{views.whole}</Chapter></div>
-        )}
       </div>
 
       <main className="mx-auto max-w-[1400px] space-y-14 px-4 py-8 sm:px-8">
-        {shown.filter((c) => !(theme === 'hybrid' && c.key === 'whole')).map((c) => (
+        {shown.map((c) => (
           <Chapter key={c.key} index={CHAPTERS.findIndex((x) => x.key === c.key)} k={c.key} ctx={ctx}>{views[c.key]}</Chapter>
         ))}
         {present && <PresentNav chapter={chapter} go={go} />}
       </main>
 
-      {drill && <Drill start={drill} data={data} onClose={() => setDrill(null)} />}
+      {drill && <Drill tone="dark" start={drill} data={data} onClose={() => setDrill(null)} />}
     </div>
   );
 }
 
-function Header({ theme, present, dept, story, cycleLabel, onTheme, onPresent, onPlant }: {
-  theme: Theme; present: boolean; dept: string; story: ExecStory; cycleLabel: string;
-  onTheme: (t: Theme) => void; onPresent: () => void; onPlant: () => void;
+function Header({ present, dept, story, cycleLabel, onPresent, onPlant }: {
+  present: boolean; dept: string; story: ExecStory; cycleLabel: string;
+  onPresent: () => void; onPlant: () => void;
 }) {
   const { t } = useTranslation();
   return (
@@ -176,14 +161,6 @@ function Header({ theme, present, dept, story, cycleLabel, onTheme, onPresent, o
             </span>
             {t('exec.progress', { pct: fmt(story.progress.pct) })}
           </span>
-          <div role="group" aria-label={t('exec.theme')} className="inline-flex rounded-full border border-[color:var(--x-line)] p-0.5 text-xs">
-            {(['command', 'hybrid'] as const).map((th) => (
-              <button key={th} type="button" aria-pressed={theme === th} onClick={() => onTheme(th)}
-                className={`rounded-full px-3 py-1 font-medium transition ${theme === th ? 'bg-[var(--x-ink)] text-[color:var(--x-bg)]' : `${muted} hover:text-[color:var(--x-ink)]`}`}>
-                {t(th === 'command' ? 'exec.themeCommand' : 'exec.themeHybrid')}
-              </button>
-            ))}
-          </div>
           <button type="button" onClick={onPresent}
             className="inline-flex items-center gap-1.5 rounded-full bg-[var(--x-brand)] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:brightness-110">
             {present ? <X className="h-3.5 w-3.5" aria-hidden="true" /> : <MonitorPlay className="h-3.5 w-3.5" aria-hidden="true" />}
@@ -605,16 +582,15 @@ function Growth({ ctx }: { ctx: Ctx }) {
   const { t } = useTranslation();
   const { labelOf, optionsFor } = useRef_();
   const { growth } = ctx.story;
-  const pbm = m.pbmDistribution(ctx.ds, optionsFor('pbm_principle').map((o) => o.value));
-  const pbmMax = Math.max(1, ...pbm.flatMap((p) => [p.strengths, p.improvements]));
-  const topImprove = pbm.slice().sort((a, b) => b.improvements - a.improvements)[0];
+  const pbm = pbmView(ctx.ds, optionsFor('pbm_principle').map((o) => o.value));
+  const topImprove = pbm.topImprove[0];
   const readyMax = Math.max(1, ...growth.readiness.map((g) => g.ids.length));
   const goalTotal = growth.totalGoals || 1;
   return (
     <>
       <Lead>
         {t('exec.growth.story', { pool: growth.pool.length, total: growth.totalGoals, stalled: growth.stalledGoals })}{' '}
-        {topImprove && topImprove.improvements > 0 && t('exec.growth.storyPbm', { value: labelOf('pbm_principle', topImprove.principle) })}
+        {topImprove && t('exec.growth.storyPbm', { value: labelOf('pbm_principle', topImprove.principle) })}
       </Lead>
       <div className="grid gap-4 lg:grid-cols-3">
         <div className={`${panel} flex flex-col p-5`}>
@@ -630,7 +606,6 @@ function Growth({ ctx }: { ctx: Ctx }) {
             ))}
           </ol>
         </div>
-        <div className="flex flex-col gap-4">
           <div className={`${panel} flex items-center gap-4 p-5`}>
             <Compass className="h-8 w-8 shrink-0 text-[color:var(--x-data)]" aria-hidden="true" />
             <div>
@@ -640,7 +615,7 @@ function Growth({ ctx }: { ctx: Ctx }) {
               <p className={`text-sm ${muted}`}>{t('exec.growth.poolNote')}</p>
             </div>
           </div>
-          <div className={`${panel} flex-1 p-5`}>
+          <div className={`${panel} p-5`}>
             <h3 className="mb-3 text-base font-semibold">{t('exec.growth.plans')}</h3>
             <div className="flex h-4 gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
               {growth.plans.map((p) => <span key={p.status} style={{ width: `${(p.goals / goalTotal) * 100}%`, background: PLAN_COLOR[p.status] }} />)}
@@ -654,35 +629,82 @@ function Growth({ ctx }: { ctx: Ctx }) {
               ))}
             </ul>
           </div>
-        </div>
-        <div className={`${panel} p-5`}>
-          <div className="mb-3 flex items-baseline justify-between gap-2">
-            <h3 className="text-base font-semibold">{t('exec.growth.pbm')}</h3>
-            <span className="flex gap-3 text-xs">
-              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--x-warn)]" aria-hidden="true" />{t('exec.growth.improvements')}</span>
-              <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--x-data)]" aria-hidden="true" />{t('exec.growth.strengths')}</span>
-            </span>
-          </div>
-          <ul className="space-y-2.5">
-            {pbm.map((p) => (
-              <li key={p.principle} className="text-sm">
-                <p className="truncate text-xs">{labelOf('pbm_principle', p.principle)}</p>
-                <div className="mt-1 grid grid-cols-2 items-center gap-0.5">
-                  <span className="flex items-center justify-end gap-1.5">
-                    <span className={`num text-xs ${muted}`}>{p.improvements}</span>
-                    <span className="h-2.5 rounded-l-full bg-[var(--x-warn)]" style={{ width: `${(p.improvements / pbmMax) * 85}%` }} aria-hidden="true" />
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2.5 rounded-r-full bg-[var(--x-data)]" style={{ width: `${(p.strengths / pbmMax) * 85}%` }} aria-hidden="true" />
-                    <span className={`num text-xs ${muted}`}>{p.strengths}</span>
-                  </span>
-                </div>
+      </div>
+      <PbmPanel ctx={ctx} pbm={pbm} />
+    </>
+  );
+}
+
+/** PBM Our Values, meaning first: the shared improvement areas (group training) and the shared strength (role models). */
+function PbmPanel({ ctx, pbm }: { ctx: Ctx; pbm: ReturnType<typeof pbmView> }) {
+  const { t } = useTranslation();
+  const { labelOf } = useRef_();
+  const share = (ids: number[]) => fmt(m.pct(ids.length, pbm.keyCount));
+  const max = Math.max(1, ...pbm.rows.flatMap((r) => [r.improveIds.length, r.strengthIds.length]));
+  const name = (v: string) => labelOf('pbm_principle', v);
+  return (
+    <div className={`${panel} mt-4 p-5`}>
+      <h3 className="text-base font-semibold">{t('exec.growth.pbmTitle')}</h3>
+      <p className={`mt-1 max-w-4xl text-sm ${muted}`}>{t('exec.growth.pbmIntro')}</p>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="rounded-xl border border-[color:var(--x-warn)]/40 bg-[var(--x-warnbg)] p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[color:var(--x-warn)]">{t('exec.growth.pbmImproveHead')}</p>
+          <ul className="mt-2 space-y-1">
+            {pbm.topImprove.map((r) => (
+              <li key={r.principle} className="flex items-baseline justify-between gap-3">
+                <span className="text-lg font-semibold">{name(r.principle)}</span>
+                <Count ctx={ctx} title={`${t('exec.growth.improvements')}：${name(r.principle)}`} ids={r.improveIds}
+                  value={<span className="font-semibold">{t('exec.people', { count: r.improveIds.length })}</span>} unit={share(r.improveIds)} />
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-sm">{t('exec.growth.pbmImproveUse')}</p>
+        </div>
+        <div className="rounded-xl border border-[color:var(--x-data)]/40 bg-[var(--x-datasoft)] p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[color:var(--x-data)]">{t('exec.growth.pbmStrengthHead')}</p>
+          <ul className="mt-2 space-y-1">
+            {pbm.topStrength.map((r) => (
+              <li key={r.principle} className="flex items-baseline justify-between gap-3">
+                <span className="text-lg font-semibold">{name(r.principle)}</span>
+                <Count ctx={ctx} title={`${t('exec.growth.strengths')}：${name(r.principle)}`} ids={r.strengthIds}
+                  value={<span className="font-semibold">{t('exec.people', { count: r.strengthIds.length })}</span>} unit={share(r.strengthIds)} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm">{t('exec.growth.pbmStrengthUse')}</p>
         </div>
       </div>
-    </>
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-[36rem] text-sm">
+          <thead>
+            <tr className={`text-left text-xs ${muted}`}>
+              <th scope="col" className="pb-2 font-medium">{t('exec.growth.pbmValue')}</th>
+              <th scope="col" className="pb-2 font-medium">{t('exec.growth.improvements')}</th>
+              <th scope="col" className="pb-2 font-medium">{t('exec.growth.strengths')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pbm.rows.map((r) => (
+              <tr key={r.principle} className="border-t border-[color:var(--x-line)]">
+                <th scope="row" className="w-48 py-2 pr-3 text-left font-medium">{name(r.principle)}</th>
+                {([['improveIds', 'var(--x-warn)', 'improvements'], ['strengthIds', 'var(--x-data)', 'strengths']] as const).map(([k, color, label]) => (
+                  <td key={k} className="py-2 pr-6">
+                    <div className="flex items-center gap-3">
+                      <span className="h-2 flex-1 rounded-full bg-[var(--x-track)]" aria-hidden="true">
+                        <span className="block h-full rounded-full" style={{ width: `${(r[k].length / max) * 100}%`, background: color }} />
+                      </span>
+                      <Count ctx={ctx} title={`${t(`exec.growth.${label}`)}：${name(r.principle)}`} ids={r[k]}
+                        value={<span className="inline-block w-8 text-right font-semibold">{r[k].length}</span>} unit={share(r[k])} className="w-24 shrink-0" />
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className={`mt-2 text-xs ${muted}`}>{t('exec.growth.pbmNote')}</p>
+      </div>
+    </div>
   );
 }
 

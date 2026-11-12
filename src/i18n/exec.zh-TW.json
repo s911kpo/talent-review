@@ -6,9 +6,6 @@
     "cycle": "{{cycle}} 人才盤點",
     "progress": "盤點完成 {{pct}}",
     "progressNote": "{{done}} / {{total}} 位關鍵人才已提交",
-    "theme": "風格",
-    "themeCommand": "戰情室",
-    "themeHybrid": "雙層",
     "present": "簡報模式",
     "exitPresent": "離開簡報",
     "backToConsole": "回到 HR 後台",
@@ -55,7 +52,7 @@
       "growth": {
         "t": "發展與流動",
         "q": "人才準備好了嗎？發展計畫有在動嗎？",
-        "def": "下一步準備度：每人取最近的一個。內部人才庫：兩年內可接任、且願意在兩年內流動。發展目標依狀態計數（未開始、進行中、有風險、已完成）。PBM Our Values：被列為強項與改善機會的次數。",
+        "def": "下一步準備度：每人取最近的一個。內部人才庫：兩年內可接任、且願意在兩年內流動。發展目標依狀態計數（未開始、進行中、有風險、已完成）。PBM Our Values：被 Supervisor 選為強項、改善機會的關鍵人才人數。",
         "value": "準備好卻沒有機會的人，流失風險會上升。發展計畫停在「未開始」或「有風險」，代表盤點沒有轉成行動。PBM 的共同改善項，適合用團體課程一次處理。",
         "use": "開缺時先看內部人才庫；有風險、未開始的目標在下一次檢核點前找出原因；PBM 改善機會排名第一的價值，列入明年訓練計畫。"
       },
@@ -133,9 +130,16 @@
       "pool": "內部人才庫",
       "poolNote": "開缺時先從這裡找",
       "plans": "發展目標執行",
-      "pbm": "PBM Our Values",
       "strengths": "強項",
-      "improvements": "改善機會"
+      "improvements": "改善機會",
+      "pbmTitle": "PBM Our Values：關鍵人才的組織強項與共同改善點",
+      "pbmIntro": "盤點時，Supervisor 為每位關鍵人才在 8 項 Our Values 中選出 1–3 項最突出的強項、1–3 項最需要加強的改善機會，並寫下行為證據。以下是被選到的人數與佔關鍵人才的比例。",
+      "pbmImproveHead": "共同改善點",
+      "pbmImproveUse": "多數人共同的短板，適合安排全廠團體課程，或由 Supervisor 在部門會議帶領案例討論，比逐一輔導有效率。",
+      "pbmStrengthHead": "組織強項",
+      "pbmStrengthUse": "可以請這些人分享具體做法，擔任內部導師或新人帶領者，把強項複製到其他團隊。",
+      "pbmValue": "Our Values",
+      "pbmNote": "依改善機會人數排序。點人數可看名單，進入個人檔案可看 Supervisor 寫的行為證據。"
     },
     "actions": {
       "story": "以下 {{count}} 件事需要指定負責人與完成時間。",

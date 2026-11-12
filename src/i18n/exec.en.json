@@ -6,9 +6,6 @@
     "cycle": "{{cycle}} talent review",
     "progress": "{{pct}} reviewed",
     "progressNote": "{{done}} / {{total}} key talents submitted",
-    "theme": "Style",
-    "themeCommand": "Command",
-    "themeHybrid": "Layered",
     "present": "Present",
     "exitPresent": "Exit presentation",
     "backToConsole": "Back to HR console",
@@ -55,7 +52,7 @@
       "growth": {
         "t": "Development and mobility",
         "q": "Are people getting ready, and are plans moving?",
-        "def": "Next-step readiness: each person's nearest. Internal pool: ready within two years and open to moving within two years. Goals counted by status (not started, on track, at risk, completed). PBM Our Values: times named as a strength or an improvement area.",
+        "def": "Next-step readiness: each person's nearest. Internal pool: ready within two years and open to moving within two years. Goals counted by status (not started, on track, at risk, completed). PBM Our Values: key talents whose Supervisor picked each value as a strength or an improvement area.",
         "value": "People who are ready with nowhere to go become a retention risk. Goals stuck at not started or at risk mean the review has not turned into action. Shared PBM improvement areas suit a group program.",
         "use": "Check the internal pool before opening a role; find out why goals are stuck before the next checkpoint; put the top PBM improvement area into next year's training plan."
       },
@@ -133,9 +130,16 @@
       "pool": "Internal pool",
       "poolNote": "Look here first when a role opens",
       "plans": "Goal execution",
-      "pbm": "PBM Our Values",
       "strengths": "Strength",
-      "improvements": "Improvement"
+      "improvements": "Improvement",
+      "pbmTitle": "PBM Our Values: shared strengths and shared improvement areas",
+      "pbmIntro": "For each key talent, the Supervisor picked 1–3 of the 8 Our Values as standout strengths and 1–3 as improvement areas, with behavior evidence. Below: how many people each value was picked for, and the share of key talent.",
+      "pbmImproveHead": "Shared improvement areas",
+      "pbmImproveUse": "A gap many people share suits a plant-wide group program, or case discussions led by Supervisors in team meetings, rather than one-by-one coaching.",
+      "pbmStrengthHead": "Organizational strength",
+      "pbmStrengthUse": "Ask these people to share what they do and act as internal mentors, so the strength spreads to other teams.",
+      "pbmValue": "Our Values",
+      "pbmNote": "Sorted by improvement areas. Click a number for the list; the profile shows the Supervisor's behavior evidence."
     },
     "actions": {
       "story": "{{count}} items need an owner and a date.",

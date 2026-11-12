@@ -54,3 +54,28 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/*
+ * Dark drill-down sheet for the executive view (/hr/exec). The sheet reuses the dashboard's drill
+ * components; this scope maps their light tokens onto the executive dark palette so names, tags
+ * and the full review stay readable. Values match DARK in src/features/exec/ExecPage.tsx.
+ */
+.drill-dark { color: #EAF0FA; color-scheme: dark; }
+.drill-dark .bg-canvas { background-color: #060C18; }
+.drill-dark .bg-card, .drill-dark .card { background-color: #0C1527; border-color: rgba(148, 163, 184, 0.18); box-shadow: none; }
+.drill-dark .bg-subtle { background-color: #111D35; }
+.drill-dark .bg-subtle\/60, .drill-dark .hover\:bg-subtle\/60:hover { background-color: rgba(17, 29, 53, 0.7); }
+.drill-dark .text-ink { color: #EAF0FA; }
+.drill-dark .text-muted { color: #97A5BF; }
+.drill-dark .border-line, .drill-dark .divide-line > * + * { border-color: rgba(148, 163, 184, 0.18); }
+.drill-dark .bg-info-bg { background-color: rgba(78, 168, 255, 0.16); }
+.drill-dark .text-info-fg, .drill-dark .text-primary, .drill-dark .text-primary-ink { color: #8CC6FF; }
+.drill-dark .bg-primary-soft { background-color: rgba(78, 168, 255, 0.18); }
+.drill-dark .bg-primary-soft\/60 { background-color: rgba(78, 168, 255, 0.10); }
+.drill-dark .border-primary\/20 { border-color: rgba(78, 168, 255, 0.35); }
+.drill-dark .hover\:border-primary\/40:hover { border-color: rgba(78, 168, 255, 0.6); }
+.drill-dark .hover\:text-primary:hover { color: #8CC6FF; }
+.drill-dark .btn-ghost { color: #97A5BF; }
+.drill-dark .btn-ghost:hover { background-color: #111D35; color: #EAF0FA; }
+.drill-dark .shadow-lift { box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.18), 0 24px 64px rgba(0, 0, 0, 0.6); }
+.drill-dark .bg-ink\/40 { background-color: rgba(2, 6, 14, 0.7); }

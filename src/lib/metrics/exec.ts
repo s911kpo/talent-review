@@ -81,3 +81,19 @@ export function execStory(ds: Dataset) {
   };
 }
 export type ExecStory = ReturnType<typeof execStory>;
+
+/**
+ * PBM Our Values: for each value, the key talents whose Supervisor picked it as a strength (template column M)
+ * or as an improvement area (column N). People, not mentions, so shares read as "x% of key talent".
+ */
+export function pbmView({ reviews }: Dataset, values: string[]) {
+  const of = (field: 'pbm_strengths' | 'pbm_improvements', v: string) =>
+    reviews.filter((r) => r[field].some((p) => p.principle === v)).map((r) => r.employee_id);
+  const rows = values.map((principle) => ({ principle, strengthIds: of('pbm_strengths', principle), improveIds: of('pbm_improvements', principle) }));
+  return {
+    rows: rows.slice().sort((a, b) => b.improveIds.length - a.improveIds.length || a.principle.localeCompare(b.principle)),
+    topImprove: rows.slice().sort((a, b) => b.improveIds.length - a.improveIds.length).slice(0, 2).filter((r) => r.improveIds.length > 0),
+    topStrength: rows.slice().sort((a, b) => b.strengthIds.length - a.strengthIds.length).slice(0, 1).filter((r) => r.strengthIds.length > 0),
+    keyCount: reviews.length,
+  };
+}

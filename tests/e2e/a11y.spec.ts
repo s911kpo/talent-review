@@ -70,15 +70,12 @@ test('HR console has no WCAG A or AA violations', async ({ page }) => {
   }
 });
 
-test('executive view: both looks pass WCAG, presentation mode steps through chapters, a number opens its list', async ({ page }) => {
+test('executive view passes WCAG (page and dark drill sheet), presentation mode steps through chapters, a number opens its list', async ({ page }) => {
   await page.goto('/login');
   await page.evaluate(seed, -1);
   await page.goto('/hr/exec');
   await expect(page.getByRole('heading', { name: '人才盤點全貌' })).toBeVisible();
   await scan(page, 'exec-command');
-  await page.getByRole('button', { name: '雙層' }).click();
-  await expect(page).toHaveURL(/theme=hybrid/);
-  await scan(page, 'exec-hybrid');
   await page.getByRole('button', { name: '定義與管理意義' }).first().click();
   await expect(page.getByText('定義與公式').first()).toBeVisible();
   await page.getByRole('button', { name: '簡報模式' }).click();
@@ -89,4 +86,8 @@ test('executive view: both looks pass WCAG, presentation mode steps through chap
   await page.getByRole('button', { name: '離開簡報' }).click();
   await page.locator('#ch-whole').getByRole('button', { name: /查看名單|看名單/ }).first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
+  await scan(page, 'exec-drill-list');
+  await page.getByRole('dialog').getByRole('button', { name: /開啟 .* 的檔案/ }).first().click();
+  await expect(page.getByText('對話準備').or(page.getByText('展開完整內容')).first()).toBeVisible();
+  await scan(page, 'exec-drill-person');
 });
