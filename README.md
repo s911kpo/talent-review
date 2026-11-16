@@ -29,11 +29,14 @@ npx playwright test   # E2E（375 與 1440 兩種寬度）
 | `npm run test:stress` | 資料庫與儀表板計算，5,000 人 | 約 1 分鐘 |
 | `npm run test:stress:ui` | 5,000 人的畫面操作 | 約 30 秒 |
 | `npm run test:resilience` | 8 種報錯情境，連到 Supabase | 約 1 分鐘 |
+| `npm run test:golive` | 上線驗收：填答 → 資料庫 → 重新登入 → 匯出 Excel 逐格比對，連到 Supabase | 約 1 分鐘 |
 | `node scripts/load-remote.mjs` | 11 位主管同時存檔，連到 Supabase | 約 10 秒 |
 
 最近一次結果：`docs/TEST_REPORT_SCALE.md`。
 
 ## 部署
+
+測試／正式兩套環境與上線步驟見 `docs/GO_LIVE.md`。以下是單一環境的基本步驟。
 
 1. 在 `.env.local` 填入 Supabase 與 Anthropic 的值。
 2. `npx supabase login`，`npx supabase link --project-ref <ref>`

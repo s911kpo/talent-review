@@ -123,13 +123,26 @@ export function useAutosave(initial: Review, canEdit: boolean) {
     if (dirty.current) timer.current = window.setTimeout(() => void flush(), DEBOUNCE_MS);
     const online = () => void flush();
     const beforeIdle = () => void flush();
+    // Switching tabs, minimising or locking the screen: save now instead of waiting for the timer.
+    const hidden = () => { if (document.visibilityState === 'hidden') void flush(); };
+    // Closing or leaving with unsent changes: ask first. The text is also held on this device.
+    const beforeUnload = (e: BeforeUnloadEvent) => {
+      if (!canEdit || (!dirty.current && !inFlight.current)) return;
+      void flush();
+      e.preventDefault();
+      e.returnValue = '';
+    };
     window.addEventListener('online', online);
     window.addEventListener('app:before-idle-logout', beforeIdle);
+    document.addEventListener('visibilitychange', hidden);
+    window.addEventListener('beforeunload', beforeUnload);
     return () => {
       window.removeEventListener('online', online);
       window.removeEventListener('app:before-idle-logout', beforeIdle);
+      document.removeEventListener('visibilitychange', hidden);
+      window.removeEventListener('beforeunload', beforeUnload);
     };
-  }, [flush]);
+  }, [flush, canEdit]);
 
   return { review, update, state, savedAt, flush, leave };
 }

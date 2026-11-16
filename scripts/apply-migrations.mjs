@@ -1,7 +1,7 @@
 // Applies supabase/migrations over HTTPS through the Management API, for networks that block
 // direct Postgres connections. Records versions in supabase_migrations.schema_migrations exactly as
 // `supabase db push` does, so the two methods can be mixed later.
-// Usage: node scripts/apply-migrations.mjs [--seed] [--dry-run]
+// Usage: node scripts/apply-migrations.mjs [--seed] [--dry-run]   (TR_TARGET=production for the live project)
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
@@ -16,7 +16,10 @@ if (!token || !ref) throw new Error('SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_
 
 const dryRun = process.argv.includes('--dry-run');
 const withSeed = process.argv.includes('--seed');
-if (withSeed && IS_PRODUCTION) throw new Error('Refusing to load the fictional seed into production.');
+// Production gets the fictional seed only for the pre-launch acceptance run; prelaunch-reset.mjs removes it.
+if (withSeed && IS_PRODUCTION && !process.argv.includes('--prelaunch-test')) {
+  throw new Error('Refusing to load the fictional seed into production. Pre-launch acceptance only: add --prelaunch-test.');
+}
 announce(dryRun ? 'migrations (dry run)' : 'migrations');
 
 async function query(sql) {
