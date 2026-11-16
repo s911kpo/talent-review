@@ -182,6 +182,7 @@
     "asSupervisor": "Supervisor",
     "asSupervisorNote": "填寫自己團隊的盤點",
     "banner": "示範環境：所有人名與資料皆為虛構。",
+    "staging": "測試環境：僅供練習，請勿填寫真實員工資料，內容可能隨時被清除。",
     "reset": "重設示範資料"
   },
   "hrHome": {

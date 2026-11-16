@@ -2,9 +2,10 @@
 // accounts. Leaves no data behind. Usage: NODE_USE_ENV_PROXY=1 node scripts/verify-remote.mjs
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
 const env = Object.fromEntries(
-  readFileSync('.env.local', 'utf8').split(/\r?\n/)
+  readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)
     .map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()]),
 );
 const url = env.VITE_SUPABASE_URL;

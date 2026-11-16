@@ -60,7 +60,11 @@ export function DemoEntry() {
 /** Thin notice at the top of every demo screen, with a way back to the starting data. */
 export function DemoBanner() {
   const { t } = useTranslation();
-  if (!demoAccounts()) return null;
+  if (!demoAccounts()) {
+    // The test site talks to the staging database: say so on every screen, so no one enters real data there.
+    if (import.meta.env.VITE_ENV_TARGET !== 'staging') return null;
+    return <div role="note" className="bg-warn-bg px-4 py-1.5 text-center text-xs font-medium text-warn-fg">{t('demo.staging')}</div>;
+  }
   return (
     <div role="note" className="bg-warn-bg px-4 py-1.5 text-center text-xs text-warn-fg">
       {t('demo.banner')}{' '}

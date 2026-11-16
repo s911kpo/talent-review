@@ -4,6 +4,7 @@
 //   NODE_USE_ENV_PROXY=1 node scripts/load-remote.mjs [--saves 20] [--hr 20]
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
 const args = process.argv.slice(2);
 const opt = (name, fallback) => (args.includes(name) ? Number(args[args.indexOf(name) + 1]) : fallback);
@@ -11,7 +12,7 @@ const SAVES = opt('--saves', 20);
 const HR_READS = opt('--hr', 20);
 
 const env = Object.fromEntries(
-  readFileSync('.env.local', 'utf8').split(/\r?\n/)
+  readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)
     .map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()]),
 );
 const url = env.VITE_SUPABASE_URL;

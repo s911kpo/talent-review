@@ -8,7 +8,7 @@
   import { FPS, loadImages, music, renderMp4 } from './engine.js';
   import { anthem } from './anthem.js';
   const which = new URLSearchParams(location.search).get('v');
-  const MODULES = { guide: './guide.js', promo: './promo.js', 'promo-anthem': './promo-anthem.js' };
+  const MODULES = { guide: './guide.js', promo: './promo.js', 'promo-anthem': './promo-anthem.js', 'promo-v1': './archive/promo-v1.js' };
   const mod = await import(MODULES[which] ?? './promo.js');
   const shots = await (await fetch('/video-build/shots/manifest.json')).json();
   const imgs = { logo: '/src/assets/molex-logo.png' };

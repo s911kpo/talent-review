@@ -3,14 +3,15 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
-const FILE = '.env.local';
+const FILE = ENV_FILE;
 const text = readFileSync(FILE, 'utf8');
 const get = (name) => text.match(new RegExp(`^${name}=(.*)$`, 'm'))?.[1]?.trim() ?? '';
 
 const token = get('SUPABASE_ACCESS_TOKEN');
 if (!token) {
-  console.error('SUPABASE_ACCESS_TOKEN is empty in .env.local.');
+  console.error('SUPABASE_ACCESS_TOKEN is empty in ' + ENV_FILE);
   process.exit(1);
 }
 

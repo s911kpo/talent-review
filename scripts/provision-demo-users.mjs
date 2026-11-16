@@ -2,8 +2,9 @@
 // Usage: npm run demo:provision | npm run demo:remove
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
-for (const line of readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
+for (const line of readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)) {
   const m = line.match(/^([A-Z_]+)=(.*)$/);
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
 }
@@ -11,13 +12,19 @@ for (const line of readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
 const url = process.env.VITE_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
-  console.error('Fill VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local first.');
+  console.error('Fill VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in ' + ENV_FILE + ' first.');
   process.exit(1);
 }
 
 const admin = createClient(url, key, { auth: { persistSession: false } });
 const { managers, hr } = JSON.parse(readFileSync('supabase/seed/demo_accounts.json', 'utf8'));
 const remove = process.argv.includes('--remove');
+// On production, fictional logins exist only during the pre-launch acceptance run, then are removed.
+if (IS_PRODUCTION && !remove && !process.argv.includes('--prelaunch-test')) {
+  console.error('Refusing to create demo logins on production. For the pre-launch acceptance run only, add --prelaunch-test.');
+  process.exit(1);
+}
+announce(remove ? 'remove demo logins' : 'create demo logins');
 
 const { data: list, error: listError } = await admin.auth.admin.listUsers({ perPage: 1000 });
 if (listError) throw listError;

@@ -7,18 +7,19 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TABLES } from './lib/backup-format.mjs';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
 const args = process.argv.slice(2);
 const dirArg = args.indexOf('--dir');
-const dir = dirArg >= 0 ? args[dirArg + 1] : 'C:\\dev\\talent-review-backups';
+const dir = dirArg >= 0 ? args[dirArg + 1] : (IS_PRODUCTION ? 'C:\\dev\\talent-review-backups-prod' : 'C:\\dev\\talent-review-backups');
 
 const env = Object.fromEntries(
-  readFileSync(new URL('../.env.local', import.meta.url), 'utf8').split(/\r?\n/)
+  readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)
     .map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()]),
 );
 const url = env.VITE_SUPABASE_URL;
 const key = env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !key) throw new Error('.env.local is missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+if (!url || !key) throw new Error(ENV_FILE + ' is missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
 const headers = { apikey: key, Authorization: `Bearer ${key}` };
 
 async function getJson(path) {

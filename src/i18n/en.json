@@ -182,6 +182,7 @@
     "asSupervisor": "Supervisor",
     "asSupervisorNote": "Complete your own team review",
     "banner": "Demo environment: all names and data are fictional.",
+    "staging": "Test environment: for practice only. Do not enter real employee data; content may be cleared at any time.",
     "reset": "Reset demo data"
   },
   "hrHome": {

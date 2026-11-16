@@ -1,6 +1,6 @@
 # Supabase's free plan pauses a project after 7 days without activity.
 # This runs a small database read twice a week (Monday and Thursday). If it fails,
-# GitHub emails the repository owner. The URL and anon key are the public values in netlify.toml.
+# GitHub emails the repository owner. Every project listed in deploy/targets.json (public values) is pinged.
 name: Keep Supabase awake
 
 on:
@@ -17,11 +17,15 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Read the database through the public API
+      - name: Read each database through the public API
         run: |
-          url=$(grep -oP 'VITE_SUPABASE_URL = "\K[^"]+' netlify.toml)
-          key=$(grep -oP 'VITE_SUPABASE_ANON_KEY = "\K[^"]+' netlify.toml)
-          code=$(curl -s -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 20 \
-            -X POST "$url/rest/v1/rpc/keep_alive" -H "apikey: $key" -H "Authorization: Bearer $key" -H "Content-Type: application/json" -d "{}")
-          echo "Supabase answered HTTP $code"
-          test "$code" = "200"
+          fail=0
+          for t in $(jq -r 'to_entries[] | select(.key != "_comment" and .value.supabaseUrl != "") | .key' deploy/targets.json); do
+            url=$(jq -r ".$t.supabaseUrl" deploy/targets.json)
+            key=$(jq -r ".$t.anonKey" deploy/targets.json)
+            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 3 --retry-delay 20 \
+              -X POST "$url/rest/v1/rpc/keep_alive" -H "apikey: $key" -H "Authorization: Bearer $key" -H "Content-Type: application/json" -d "{}")
+            echo "$t answered HTTP $code"
+            test "$code" = "200" || fail=1
+          done
+          exit $fail

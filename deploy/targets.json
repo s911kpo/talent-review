@@ -1,0 +1,15 @@
+{
+  "_comment": "Public browser values per site (they ship in the bundle anyway; data is protected by RLS). Never put service_role keys or passwords here.",
+  "staging": {
+    "site": "https://papaya-madeleine-31cdad.netlify.app",
+    "supabaseUrl": "https://cnytmdpvzpezijadohxl.supabase.co",
+    "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNueXRtZHB2enBlemlqYWRvaHhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMzcwNDUsImV4cCI6MjEwOTkxMzA0NX0.82SsmfCrnpsabGoHQxx0cOXcimiIY3zh8787JavrZXY",
+    "showcase": true
+  },
+  "production": {
+    "site": "",
+    "supabaseUrl": "",
+    "anonKey": "",
+    "showcase": false
+  }
+}

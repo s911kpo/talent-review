@@ -4,17 +4,20 @@
 // Usage: node scripts/apply-migrations.mjs [--seed] [--dry-run]
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ENV_FILE, ENV_PATH, IS_PRODUCTION, TARGET, announce } from './lib/env.mjs';
 
 // Behind a proxy, run with NODE_USE_ENV_PROXY=1 so fetch honors HTTPS_PROXY.
 const env = Object.fromEntries(
-  readFileSync('.env.local', 'utf8').split(/\r?\n/)
+  readFileSync(ENV_PATH, 'utf8').split(/\r?\n/)
     .map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m[1], m[2].trim()]),
 );
 const { SUPABASE_ACCESS_TOKEN: token, SUPABASE_PROJECT_REF: ref } = env;
-if (!token || !ref) throw new Error('SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF are required in .env.local');
+if (!token || !ref) throw new Error('SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF are required in ' + ENV_FILE);
 
 const dryRun = process.argv.includes('--dry-run');
 const withSeed = process.argv.includes('--seed');
+if (withSeed && IS_PRODUCTION) throw new Error('Refusing to load the fictional seed into production.');
+announce(dryRun ? 'migrations (dry run)' : 'migrations');
 
 async function query(sql) {
   const res = await fetch(`https://api.supabase.com/v1/projects/${ref}/database/query`, {

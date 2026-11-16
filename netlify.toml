@@ -1,11 +1,10 @@
 [build]
-  command = "npm run build:site"
+  command = "node scripts/build-site.mjs"
   publish = "dist"
 
-# Public client values: they ship inside the browser bundle anyway. Data is protected by RLS.
+# Which backend a site uses is set per Netlify site with DEPLOY_TARGET (staging by default, production
+# on the live site); the public URL and anon key per target are in deploy/targets.json.
 # Never put the service_role key, VITE_DATA_MODE, or other secrets here.
 [build.environment]
   NODE_VERSION = "22"
-  VITE_SUPABASE_URL = "https://cnytmdpvzpezijadohxl.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNueXRtZHB2enBlemlqYWRvaHhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMzcwNDUsImV4cCI6MjEwOTkxMzA0NX0.82SsmfCrnpsabGoHQxx0cOXcimiIY3zh8787JavrZXY"
   VITE_AI_ENABLED = "false"
