@@ -13,7 +13,7 @@
 2. `node scripts/video/capture.mjs`：截圖到 `video-build/shots/`（1920×1080，並記錄每個重點元件的位置）。
 3. `node scripts/video/render.mjs promo`、`node scripts/video/render.mjs guide`：輸出 MP4（H.264＋AAC，在瀏覽器內以 WebCodecs 編碼，不需要 ffmpeg）。
 4. `node scripts/video/verify.mjs video-build/promo.mp4 10`：確認可播放、有聲音，並輸出一張畫面檢查。
-5. 章節短片與章節時間表：`node scripts/video/render-chapters.mjs`。
+5. 在完整版寫入章節（播放器進度條上的章節點）：`node scripts/video/add-chapters.mjs video-build/guide.mp4 video-build/guide-timeline.json`。每次重新輸出 guide.mp4 後都要再執行一次。另可用 `render-chapters.mjs` 輸出各章短片。
 6. 預覽單張畫面：`node scripts/video/render.mjs guide --stills 30,100`，輸出到 `video-build/stills/`。
 
 ## 修改內容
