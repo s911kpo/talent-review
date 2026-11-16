@@ -25,7 +25,8 @@
     "test:stress": "vitest run --config vitest.stress.config.ts",
     "test:stress:ui": "playwright test --config playwright.stress.config.ts",
     "test:resilience": "playwright test --config playwright.resilience.config.ts",
-    "test:golive": "playwright test --config playwright.golive.config.ts"
+    "test:golive": "playwright test --config playwright.golive.config.ts",
+    "test:rehearsal": "playwright test --config playwright.rehearsal.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

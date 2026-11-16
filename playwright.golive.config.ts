@@ -11,7 +11,9 @@ export default defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report/golive', open: 'never' }]],
   use: {
-    baseURL: remote ?? 'http://localhost:5178', locale: 'zh-TW', viewport: { width: 1440, height: 900 },
+    baseURL: remote ?? 'http://localhost:5178', locale: 'zh-TW',
+    // GOLIVE_MOBILE=1 runs at phone width.
+    viewport: process.env.GOLIVE_MOBILE ? { width: 375, height: 812 } : { width: 1440, height: 900 },
     proxy, trace: 'retain-on-failure', acceptDownloads: true,
   },
   webServer: remote ? undefined : {

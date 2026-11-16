@@ -1,5 +1,10 @@
 ﻿# 由每週排程執行：備份到本機 git 資料夾，結果寫進 backup.log，失敗時跳出提示。
-param([string]$BackupDir = 'C:\dev\talent-review-backups')
+# -Target production backs up the live system into its own folder.
+param([string]$Target = 'staging', [string]$BackupDir = '')
+if (-not $BackupDir) {
+  $BackupDir = if ($Target -eq 'production') { 'C:\dev\talent-review-backups-prod' } else { 'C:\dev\talent-review-backups' }
+}
+if ($Target -eq 'production') { $env:TR_TARGET = 'production' }
 $ErrorActionPreference = 'Continue'
 $repo = Split-Path -Parent $PSScriptRoot
 New-Item -ItemType Directory -Force $BackupDir | Out-Null

@@ -1,50 +1,71 @@
-# 明早待辦（Tim）
+# 11/17 早上待辦（Tim，約 20 分鐘）
 
-## 先看成果（不需要任何金鑰，5 分鐘）
+半夜已在**正式網址**用虛構資料完整模擬過你今天要做的每一步，全部通過，之後已清空。今天你只要照下面做，放入真實資料。
 
-在 `C:\dev\talent-review` 開終端機，執行：
+- 正式網址：https://molex-talent-review.netlify.app
+- HR 登入：https://molex-talent-review.netlify.app/hr/login
+- 測試網址（維持示範，頂端有黃條）：https://papaya-madeleine-31cdad.netlify.app
 
+## 1. 建立你的 HR 帳號（2 分鐘）
+
+在 Claude 的終端機分頁（或 PowerShell，先進到 `C:\dev\talent-review`）貼上這一行，把 Email、姓名、工號換成你自己的，按 Enter：
+
+```powershell
+$env:TR_TARGET='production'; node scripts/create-first-hr.mjs --email 你的Email --name "你的姓名" --employee-id 你的工號
 ```
-npm run demo
+
+畫面會出現一次 `Password ...: xxxxxxxx`，**立刻存進密碼管理器**，之後看不到。若你不在名單內，可以拿掉 `--employee-id 你的工號`。
+
+## 2. 用 HR 帳號登入，建立週期（2 分鐘）
+
+左側「系統設定」→「週期管理」：
+
+| 欄位 | 填 |
+|---|---|
+| 週期代碼 | `Q4-2026` |
+| 季度標籤 | `Q4 2026`（會寫進 Excel A 欄，要和範本一致） |
+| 截止日 | 正式截止日 |
+
+按「建立週期」，再按該列的「開啟」，狀態變成「進行中」。
+
+## 3. 上傳名單（3 分鐘）
+
+「名單上傳」→ 選 Namelist xlsx。畫面會顯示「共 N 人，盤點範圍 N 人，Supervisor N 位」：
+
+- 有「必須修正」：照列號修 Excel，再上傳一次。
+- 只有「提醒」：看過即可。
+- 數字對了，按「確認寫入」。
+
+生日月份會在你的電腦上就被丟掉，不會上傳。
+
+## 4. 產生 PIN、建立 Diana 的帳號（5 分鐘）
+
+「帳號與 PIN」：
+
+1. 勾「全選 Supervisor」→「建立或重設 PIN」→「下載 PIN 清單」。**只能下載一次**，存在只有你能開的地方，不要放 OneDrive 共用資料夾。
+2. 下方「HR 帳號」：填 Diana 的 Email、姓名、**她的工號**（她也在名單內，填了才看不到自己被評的那一筆）→「建立 HR 帳號」。畫面顯示的密碼私下交給她，按「我已確認」。
+
+## 5. 抽查（5 分鐘）
+
+1. 「以 Supervisor 身分預覽」選 1–2 位主管，看名單對不對。
+2. 用**真正的 Excel** 打開 `C:\dev\talent-review\playwright-report\golive\Excel驗收樣本_虛構資料.xlsx`（昨晚在正式網站匯出的檔案，虛構資料）：不跳修復提示、Planning Tool 的下拉選單可以用。這是目前唯一還沒驗證的項目。剛上傳名單時還沒有人填寫，正式匯出要等主管提交後。
+
+## 6. 開啟正式環境每日備份（1 分鐘，建議）
+
+```powershell
+.\scripts\register-backup-task.ps1 -Target production
 ```
 
-瀏覽器開 http://localhost:5173 ：
-- 主管：工號 `900002`（一般主管）或 `900001`（GM，看得到組織線），PIN 任填 8 碼
-- HR：登入頁點「HR 登入」，Email 填 `demo-hr@talentreview.local`，密碼任填
+盤點期間每天 12:30 備份到 `C:\dev\talent-review-backups-prod`（只在這台電腦）。半夜已手動跑過一次，成功。
 
-這是瀏覽器內的示範資料，全部虛構，只用來看畫面與流程。正式打包不含這些資料。
+## 11/20 發送
 
-## 只有你能做的設定
+- 每位主管一封：自己的工號＋PIN＋正式網址（PIN 清單一人一行，不要整份寄出）。
+- 影片：`C:\dev\talent-review\video-build\release\`
+  - 宣傳：`上線宣傳影片\TalentReview_宣傳影片_v3_激勵配樂_41s.mp4`
+  - 操作指南：`主管操作指南\TalentReview_主管操作指南_v2_章節版_3m20s.mp4`（上傳 Stream 後照 `Stream章節清單.txt` 設章節）
+- 提醒主管：測試網址有黃條，那裡填的不算數。
 
-### 1. 開帳號（對應操作指引 A1）
-| 服務 | 要做的事 | 要記下的值 |
-|---|---|---|
-| GitHub | 建 **Private** repo，例如 `talent-review` | repo 網址 |
-| Supabase | New project，Region 選 **Singapore** | Project URL、anon key、service_role key、DB 密碼、Personal Access Token、Project ref |
-| Anthropic Console | 建 API key，設用量上限 | API key、模型 ID |
-| Netlify | 用 GitHub 登入 | 無 |
+## 遇到問題
 
-### 2. 填 `C:\dev\talent-review\.env.local`
-8 個欄位的空白範本已放好。**金鑰不要貼到對話裡**，直接存進這個檔案。
-
-### 3. 告訴我「金鑰填好了」，並給我 GitHub repo 網址
-我接著會做：套用 migrations、部署 Edge Functions、建立示範帳號、在真實 Supabase 上重跑權限驗證、push、接 Netlify。
-
-## 上線前必須決定
-
-1. **IT 核准範圍。** 真實名單上傳前（最遲 11/13），需確認 IT 同意下列兩項：108 人的離職風險與接班資料放在你個人的 Supabase；盤點內容含姓名送到 Anthropic API。SPEC §16 只把 IT 核准寫在 AI 那一項。
-2. **PBM 十項原則用詞。** 目前依 SPEC 暫定（例如 Transformation），請對照公司最新官方用詞，可在後台「下拉選項」直接改。
-3. **HR 帳號要連結工號。** 你和 Diana 若也在名單內，建立 HR 帳號時要填工號，否則系統無從排除「自己被評的那一筆」。
-
-## 目前完成到哪裡
-
-P0–P3 的功能都寫完並通過本機測試，P4 做了無障礙與 README。細節見 `docs/CHANGELOG.md`。尚未完成：英文版匯出選項、Lighthouse 量測，以及所有需要金鑰的項目（真實 Supabase、Edge Functions、AI 實際呼叫、部署）。
-
-## 請實際用 Excel 開一次匯出檔
-
-匯出的自動驗收全部通過，但都是程式讀回檔案驗證，**還沒有用真正的 Excel 開過**。請在示範模式完成一位員工、用 HR 匯出，確認開檔無修復提示、下拉選單能用。匯出格式是不能上線的項目。
-
-## 上線前必做
-
-- 執行 `npm run demo:remove` 移除示範帳號（帳密存在 repo 裡，留在正式環境等於開後門）
-- 正式環境不要用 `--include-seed`，假資料只給 staging
+把畫面截圖或錯誤訊息給 Claude。真實姓名、PIN、密碼不要貼進對話。

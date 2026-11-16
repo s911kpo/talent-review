@@ -34,12 +34,18 @@ async function cleanup() {
   await admin.from('team_submissions').delete().eq('cycle_id', CYCLE).eq('reviewer_id', MGR);
 }
 
-async function apiLogin(): Promise<SupabaseClient> {
+async function apiLogin(attempt = 1): Promise<SupabaseClient> {
   const res = await fetch(`${env.VITE_SUPABASE_URL}/functions/v1/auth-pin`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${env.VITE_SUPABASE_ANON_KEY}` },
     body: JSON.stringify({ employeeId: String(MGR), pin: PIN }),
   });
+  // The login function can return a brief gateway error; retry like a person pressing the button again.
+  if (!res.ok) {
+    if (attempt >= 3) throw new Error(`auth-pin HTTP ${res.status}`);
+    await new Promise((r) => setTimeout(r, 3000));
+    return apiLogin(attempt + 1);
+  }
   const body = await res.json();
   const client = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   await client.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token });
@@ -309,7 +315,7 @@ test('typing and leaving before the autosave fires: the browser warns, and the t
 });
 
 async function freshPage(browser: Browser): Promise<Page> {
-  const context = await browser.newContext({ locale: 'zh-TW', viewport: { width: 1440, height: 900 }, baseURL: test.info().project.use.baseURL });
+  const context = await browser.newContext({ locale: 'zh-TW', viewport: test.info().project.use.viewport ?? { width: 1440, height: 900 }, baseURL: test.info().project.use.baseURL });
   return context.newPage();
 }
 
