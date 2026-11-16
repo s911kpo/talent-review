@@ -5,13 +5,14 @@
 | 影片 | 檔案 | 長度 | 內容 |
 |---|---|---|---|
 | 上線宣傳 | `video-build/promo.mp4` | 41.5 秒 | 痛點 → 轉變 → 數據全貌 → 三個關鍵時刻 → 帶走的價值 → 上線日期，配原創合成音樂 |
+| 上線宣傳（激勵配樂版） | `video-build/promo-anthem.mp4` | 41.5 秒 | 畫面同上；配樂改為 D 大調推進曲（`anthem.js`）：開場緊張脈動、轉場重擊、主段四拍大鼓與主旋律、結尾漸強落在上線日 |
 | 主管操作指南 | `video-build/guide.mp4`，章節短片在 `video-build/chapters/` | 3 分 20 秒 | 8 章：開始之前 → 登入 → 選人 → 12 題 → 提交 → HRBP 討論 → 用數據帶團隊 → 盤點之後 |
 
 ## 重新產生
 
 1. 啟動兩個開發伺服器：示範模式（`vite --mode demo`，port 5173）與 showcase 模式（port 5174）。在 Claude Code 中是 `.claude/launch.json` 的 `talent-review-demo` 與 `talent-review-showcase`。
 2. `node scripts/video/capture.mjs`：截圖到 `video-build/shots/`（1920×1080，並記錄每個重點元件的位置）。
-3. `node scripts/video/render.mjs promo`、`node scripts/video/render.mjs guide`：輸出 MP4（H.264＋AAC，在瀏覽器內以 WebCodecs 編碼，不需要 ffmpeg）。
+3. `node scripts/video/render.mjs promo`、`node scripts/video/render.mjs promo-anthem`、`node scripts/video/render.mjs guide`：輸出 MP4（H.264＋AAC，在瀏覽器內以 WebCodecs 編碼，不需要 ffmpeg）。
 4. `node scripts/video/verify.mjs video-build/promo.mp4 10`：確認可播放、有聲音，並輸出一張畫面檢查。
 5. 在完整版寫入章節（播放器進度條上的章節點）：`node scripts/video/add-chapters.mjs video-build/guide.mp4 video-build/guide-timeline.json`。每次重新輸出 guide.mp4 後都要再執行一次。另可用 `render-chapters.mjs` 輸出各章短片。
 6. 預覽單張畫面：`node scripts/video/render.mjs guide --stills 30,100`，輸出到 `video-build/stills/`。

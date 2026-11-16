@@ -12,7 +12,7 @@ const BANNER = 49; // demo banner height in the screenshots, cropped out
 const SHOT_RATIO = (1080 - BANNER) / 1920;
 
 // Scene starts (s). Every scene boundary lands on a beat.
-const S = { turn: 6.5, data: 9.5, m1: 16, m2: 21.5, m3: 27, take: 32.5, launch: 37 };
+export const S = { turn: 6.5, data: 9.5, m1: 16, m2: 21.5, m3: 27, take: 32.5, launch: 37 };
 
 export const MUSIC = {
   duration: DURATION,

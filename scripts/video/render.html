@@ -6,8 +6,10 @@
 <p id="status">loading</p>
 <script type="module">
   import { FPS, loadImages, music, renderMp4 } from './engine.js';
+  import { anthem } from './anthem.js';
   const which = new URLSearchParams(location.search).get('v');
-  const mod = await import(which === 'guide' ? './guide.js' : './promo.js');
+  const MODULES = { guide: './guide.js', promo: './promo.js', 'promo-anthem': './promo-anthem.js' };
+  const mod = await import(MODULES[which] ?? './promo.js');
   const shots = await (await fetch('/video-build/shots/manifest.json')).json();
   const imgs = { logo: '/src/assets/molex-logo.png' };
   for (const [id, s] of Object.entries(shots)) imgs[id.split('-')[0]] = `/video-build/shots/${s.file}`;
@@ -31,7 +33,7 @@
       const f = Math.max(1 - t / 0.3, (t - (duration - 0.5)) / 0.5);
       if (f > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.min(1, f)})`; ctx.fillRect(0, 0, 1920, 1080); }
     };
-    const audio = await music({ ...mod.MUSIC, duration });
+    const audio = await (mod.MUSIC.style === 'anthem' ? anthem : music)({ ...mod.MUSIC, duration });
     const bytes = await renderMp4({ duration, draw, audio, bitrate: mod.BITRATE ?? 10e6, onProgress: (p) => { status.textContent = `${Math.round(p * 100)}%`; } });
     status.textContent = 'saving';
     const CH = 4 * 1024 * 1024;
