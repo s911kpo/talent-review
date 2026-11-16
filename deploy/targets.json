@@ -8,8 +8,8 @@
   },
   "production": {
     "site": "",
-    "supabaseUrl": "",
-    "anonKey": "",
+    "supabaseUrl": "https://ohbpjhwctlqymtnybiho.supabase.co",
+    "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oYnBqaHdjdGxxeW10bnliaWhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4MzgzODMsImV4cCI6MjExMDQxNDM4M30.fHqMshT-GcMWp-e6LZEvPqTZsSyu8Mf20w_FM2yGE30",
     "showcase": false
   }
 }

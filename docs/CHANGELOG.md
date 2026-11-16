@@ -9,8 +9,14 @@
 - 自動存檔：離開頁面時若有未送出的修改會先詢問；切到背景立即存檔
 - `prelaunch-reset.mjs`、`check-auth-config.mjs`、`create-first-hr.mjs`；上線手冊 `docs/GO_LIVE.md`
 
+**正式後端（同日稍晚）**
+- 正式 Supabase 專案 `talent-review-prod`（Singapore）：10 個 migration、`auth-pin` 與 `admin-users` 函式、關閉公開註冊
+- 上線前驗收（虛構資料）全部通過：遠端安全檢查 19 項、上線驗收 5 項、異常情境 8 項、11 位主管同時存檔 440 次無錯誤
+- 驗收後清空：所有資料表與登入帳號為 0，保留下拉選項 50 筆、題庫 14 題
+- 發現測試環境的題庫引導文字比程式碼舊（9 題）；正式環境是最新版。測試環境尚未同步
+
 **尚未完成（需要 Tim）**
-- 建立正式 Supabase 專案與 Netlify 網站（`docs/GO_LIVE.md` 第 1 步），之後才能在正式環境跑驗收與放入真實資料
+- 建立 Netlify 正式網站（`docs/GO_LIVE.md` 第 1 步第 3 點）
 - 用真正的 Excel 開一次匯出檔
 
 ## 2026-11-16 上線宣傳影片重做

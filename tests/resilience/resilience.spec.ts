@@ -4,11 +4,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { env } from '../golive/env'; // .env.local, or .env.production.local with TR_TARGET=production
 
-const env = Object.fromEntries(
-  readFileSync('.env.local', 'utf8').split(/\r?\n/)
-    .map((l) => l.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)).filter(Boolean).map((m) => [m![1], m![2].trim()]),
-);
 const URL_ = env.VITE_SUPABASE_URL;
 const ANON = env.VITE_SUPABASE_ANON_KEY;
 const accounts = JSON.parse(readFileSync('supabase/seed/demo_accounts.json', 'utf8'));
