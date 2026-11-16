@@ -22,3 +22,6 @@ Talent_Review_Emit*.xlsx
 .claude/
 test-results/
 playwright/.cache/
+
+# Rendered launch and training videos (large binaries; delivered separately)
+video-build/

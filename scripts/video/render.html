@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>video render</title>
+<style>body{margin:0;background:#111;color:#ccc;font:14px sans-serif}canvas{width:960px;height:540px;display:block}</style></head>
+<body>
+<p id="status">loading</p>
+<script type="module">
+  import { FPS, loadImages, music, renderMp4 } from './engine.js';
+  const which = new URLSearchParams(location.search).get('v');
+  const mod = await import(which === 'guide' ? './guide.js' : './promo.js');
+  const shots = await (await fetch('/video-build/shots/manifest.json')).json();
+  const imgs = { logo: '/src/assets/molex-logo.png' };
+  for (const [id, s] of Object.entries(shots)) imgs[id.split('-')[0]] = `/video-build/shots/${s.file}`;
+  await loadImages(imgs);
+  window.SHOTS = Object.fromEntries(Object.entries(shots).map(([id, s]) => [id.split('-')[0], s.boxes]));
+  const status = document.getElementById('status');
+  if (new URLSearchParams(location.search).get('still') !== null) {
+    // Preview mode: draw single frames on demand for review.
+    const c = document.createElement('canvas'); c.width = 1920; c.height = 1080; document.body.appendChild(c);
+    window.still = (t) => { const ctx = c.getContext('2d'); ctx.save(); mod.draw(ctx, t); ctx.restore(); return c.toDataURL('image/jpeg', 0.85); };
+    window.DURATION = mod.DURATION; window.MARKS = mod.MARKS ?? []; status.textContent = 'ready'; window.ready = true;
+  } else {
+    status.textContent = 'music';
+    const audio = await music(mod.MUSIC);
+    const bytes = await renderMp4({ duration: mod.DURATION, draw: mod.draw, audio, bitrate: mod.BITRATE ?? 10e6, onProgress: (p) => { status.textContent = `${Math.round(p * 100)}%`; } });
+    status.textContent = 'saving';
+    const CH = 4 * 1024 * 1024;
+    for (let i = 0; i < bytes.length; i += CH) {
+      let s = ''; const part = bytes.subarray(i, i + CH);
+      for (let j = 0; j < part.length; j += 0x8000) s += String.fromCharCode(...part.subarray(j, j + 0x8000));
+      await window.saveChunk(btoa(s), i === 0);
+    }
+    status.textContent = 'done'; window.finished = bytes.length;
+  }
+  void FPS;
+</script>
+</body></html>
