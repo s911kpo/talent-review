@@ -74,7 +74,7 @@ TR_TARGET=production node scripts/prelaunch-reset.mjs --confirm  （清空並確
 
 ### 6. 上線後
 
-- 備份：在 Tim 的電腦排程正式環境每週備份，存到 `C:\dev\talent-review-backups-prod`（只在本機，不加 remote、不放 OneDrive）。
+- 備份：`.\scripts\register-backup-task.ps1 -Target production`，盤點期間每天 12:30 備份到 `C:\dev\talent-review-backups-prod`（只在本機，不加 remote、不放 OneDrive）。
 - 防暫停：GitHub Actions 每週一、四會自動呼叫 `deploy/targets.json` 裡的每個資料庫。
 - 每週一早上看 HR 後台「總覽」的進度。
 
