@@ -1,7 +1,7 @@
 // Launch trailer (about 36 s, 120 BPM so every cut lands on a beat). Light UI shown in a dark, branded frame.
 import { H, W, clamp, ease, images, lerp, roundRect, seg, text, wrap } from './engine.js';
 
-export const DURATION = 36;
+export const DURATION = 31;
 const RED = '#E72E3C';
 const BLUE = '#5B8CFF';
 const BANNER = 49; // demo banner height in the screenshots, cropped out
@@ -10,9 +10,9 @@ export const MUSIC = {
   duration: DURATION,
   bpm: 120,
   chords: [[57, 60, 64], [53, 57, 60], [55, 60, 64], [55, 59, 62]],
-  energy: (b) => [0.2, 0.4, 0.55, 0.9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.65, 0.35, 0.2][b] ?? 0.2,
-  hits: [4, 30.5],
-  risers: [[2.4, 4], [28.8, 30.5]],
+  energy: (b) => [0.2, 0.4, 0.55, 0.9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.65, 0.35, 0.2][b] ?? 0.2,
+  hits: [4, 25.5],
+  risers: [[2.4, 4], [23.8, 25.5]],
 };
 
 /* ------------------------------------------------------------------ backdrop */
@@ -86,7 +86,7 @@ function demoTag(ctx, alpha = 1) {
 function feature(ctx, t, start, { n, head, sub, img, from, to, side = 'right', extra }) {
   const lt = t - start;
   const pIn = ease.out(seg(lt, 0, 0.7));
-  const pOut = seg(lt, 3.6, 4);
+  const pOut = seg(lt, 2.65, 3);
   const alpha = 1 - pOut;
   // Text block.
   const tx = side === 'right' ? 130 : 1150;
@@ -103,7 +103,7 @@ function feature(ctx, t, start, { n, head, sub, img, from, to, side = 'right', e
   const shotX = side === 'right' ? 1330 : 590;
   const slide = (1 - pIn) * (side === 'right' ? 500 : -500);
   const dst = fit(shotX + slide, 540, 980);
-  const zoom = ease.inOut(seg(lt, 0.9, 3.4));
+  const zoom = ease.inOut(seg(lt, 0.6, 2.6));
   windowShot(ctx, images[img], zoomRect(from, to, zoom), dst, { alpha: alpha * clamp(lt * 2.5), tilt: side === 'right' ? -0.05 : 0.05 });
   if (extra) extra(ctx, lt, alpha);
   demoTag(ctx, alpha * 0.9);
@@ -163,38 +163,38 @@ export function draw(ctx, t) {
     ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
   }
 
-  // 6.5–26.5: five features.
-  if (t >= 6.5 && t < 10.5) feature(ctx, t, 6.5, {
+  // 6.5–21.5: five features, 3 s each.
+  if (t >= 6.5 && t < 9.5) feature(ctx, t, 6.5, {
     n: '01', head: ['一次一題', '15 分鐘完成一位'], sub: '12 題依序引導，自動存檔，可以分次填寫。',
     img: 't102', from: full, to: { x: 520, y: 300, w: 760, h: 760 * 1031 / 1920 },
-    extra: (c, lt, a) => badge(c, '自動存檔', 1600, 300, seg(lt, 1.6, 2.1) * a, '#11A36A'),
+    extra: (c, lt, a) => badge(c, '自動存檔', 1600, 300, seg(lt, 1.1, 1.5) * a, '#11A36A'),
   });
-  if (t >= 10.5 && t < 14.5) feature(ctx, t, 10.5, {
+  if (t >= 9.5 && t < 12.5) feature(ctx, t, 9.5, {
     n: '02', head: ['不知道怎麼寫？', '看範例就會'], sub: '每一題都有判斷方式、好範例、弱範例與常見陷阱。',
     img: 't102', side: 'left', from: full, to: { x: 1180, y: 320, w: 760, h: 760 * 1031 / 1920 },
   });
-  if (t >= 14.5 && t < 18.5) feature(ctx, t, 14.5, {
+  if (t >= 12.5 && t < 15.5) feature(ctx, t, 12.5, {
     n: '03', head: ['一張儀表板', '看懂整個團隊'], sub: '完成率、關鍵人才、留任警示、接班就緒率、職涯對話缺口。',
     img: 'g01', from: full, to: { x: 360, y: 460, w: 1560, h: 1560 * 1031 / 1920 },
   });
-  if (t >= 18.5 && t < 22.5) feature(ctx, t, 18.5, {
+  if (t >= 15.5 && t < 18.5) feature(ctx, t, 15.5, {
     n: '04', head: ['誰可能離開？', '誰接得上？'], sub: '留任風險與接班梯隊，一眼看出要先處理的人與職位。',
     img: 'g02', side: 'left', from: full, to: { x: 380, y: 480, w: 760, h: 760 * 1031 / 1920 },
     extra: (c, lt, a) => {
-      const p = ease.out(seg(lt, 1.5, 2.1));
+      const p = ease.out(seg(lt, 1.0, 1.5));
       if (p > 0) windowShot(c, images.g04, { x: 390, y: 490, w: 990, h: 990 * 1031 / 1920 }, { x: 560 - (1 - p) * 80, y: 600, w: 560, h: 560 * 1031 / 1920 }, { alpha: p * a, tilt: 0.04 });
     },
   });
-  if (t >= 22.5 && t < 26.5) feature(ctx, t, 22.5, {
+  if (t >= 18.5 && t < 21.5) feature(ctx, t, 18.5, {
     n: '05', head: ['點一下', '從數字到人'], sub: '對話準備：系統依填寫內容，幫你想好下一句話怎麼問。',
     img: 'g03', from: full, to: { x: 1150, y: 270, w: 770, h: 770 * 1031 / 1920 },
   });
 
-  // 26.5–30.5: montage, one cut per beat.
-  if (t >= 26.5 && t < 30.5) {
+  // 21.5–25.5: montage, one cut per beat.
+  if (t >= 21.5 && t < 25.5) {
     const cuts = [['t04', '我的團隊'], ['t06', '選出關鍵人才'], ['t21', '提交前品質提醒'], ['m01', '手機也能看'], ['g05', '組織畫像'], ['g06', '發展計畫追蹤'], ['g04', '接班梯隊'], ['t23', '一鍵提交 HR']];
-    const i = Math.min(cuts.length - 1, Math.floor((t - 26.5) / 0.5));
-    const lt = (t - 26.5) % 0.5;
+    const i = Math.min(cuts.length - 1, Math.floor((t - 21.5) / 0.5));
+    const lt = (t - 21.5) % 0.5;
     const [img, word] = cuts[i];
     const zoom = 1 + lt * 0.12;
     if (img === 'm01') {
@@ -205,14 +205,14 @@ export function draw(ctx, t) {
     }
     ctx.fillStyle = 'rgba(6,13,28,0.35)'; ctx.fillRect(0, 0, W, H);
     badge(ctx, word, W / 2, H / 2, seg(lt, 0, 0.12) * 1.0, i % 2 ? '#2A5BD7' : RED);
-    flash(ctx, t, 26.5 + i * 0.5, 0.12);
+    flash(ctx, t, 21.5 + i * 0.5, 0.12);
     demoTag(ctx, 0.9);
   }
-  flash(ctx, t, 30.5, 0.4);
+  flash(ctx, t, 25.5, 0.4);
 
-  // 30.5–36: launch card.
-  if (t >= 30.5) {
-    const lt = t - 30.5;
+  // 25.5–31: launch card.
+  if (t >= 25.5) {
+    const lt = t - 25.5;
     const logo = images.logo; const lw = 300, lh = lw * logo.height / logo.width;
     ctx.save(); ctx.globalAlpha = seg(lt, 0, 0.4); ctx.drawImage(logo, W / 2 - lw / 2, 230, lw, lh); ctx.restore();
     kinetic(ctx, 'Talent Review', W / 2, 440, seg(lt, 0.1, 0.6), { size: 88, align: 'center' });

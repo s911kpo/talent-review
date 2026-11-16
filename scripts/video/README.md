@@ -4,8 +4,8 @@
 
 | 影片 | 檔案 | 長度 | 內容 |
 |---|---|---|---|
-| 上線宣傳 | `video-build/promo.mp4` | 36 秒 | 產品亮點、功能重點、上線日期，配原創合成音樂 |
-| 主管操作指南 | `video-build/guide.mp4` | 約 5 分 50 秒 | 8 章：開始之前 → 登入 → 選人 → 12 題 → 提交 → HRBP 討論 → 用數據帶團隊 → 盤點之後 |
+| 上線宣傳 | `video-build/promo.mp4` | 31 秒 | 產品亮點、功能重點、上線日期，配原創合成音樂 |
+| 主管操作指南 | `video-build/guide.mp4`，章節短片在 `video-build/chapters/` | 3 分 20 秒 | 8 章：開始之前 → 登入 → 選人 → 12 題 → 提交 → HRBP 討論 → 用數據帶團隊 → 盤點之後 |
 
 ## 重新產生
 
@@ -13,7 +13,8 @@
 2. `node scripts/video/capture.mjs`：截圖到 `video-build/shots/`（1920×1080，並記錄每個重點元件的位置）。
 3. `node scripts/video/render.mjs promo`、`node scripts/video/render.mjs guide`：輸出 MP4（H.264＋AAC，在瀏覽器內以 WebCodecs 編碼，不需要 ffmpeg）。
 4. `node scripts/video/verify.mjs video-build/promo.mp4 10`：確認可播放、有聲音，並輸出一張畫面檢查。
-5. 預覽單張畫面：`node scripts/video/render.mjs guide --stills 30,100`，輸出到 `video-build/stills/`。
+5. 章節短片與章節時間表：`node scripts/video/render-chapters.mjs`。
+6. 預覽單張畫面：`node scripts/video/render.mjs guide --stills 30,100`，輸出到 `video-build/stills/`。
 
 ## 修改內容
 
@@ -23,3 +24,10 @@
 - AI 功能在正式環境關閉，截圖時會自動隱藏 AI 選單。
 
 `video-build/` 不進 git（影片檔很大）。
+
+## 節奏規則
+
+- 停留時間跟著字數：字數 ÷ 8 字／秒 ＋ 0.8 秒，3.5～7 秒；文字與鏡頭動作同時出現。
+- 每步文字約 40 字內：標題、一句做法、一句為什麼重要。
+- 重點題（1、2、9、10、11）完整說明；其他題 3.5 秒一句帶過。
+- 章節卡 1.5 秒，片頭與結尾各 4 秒，說明卡 8 秒。

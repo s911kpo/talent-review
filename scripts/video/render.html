@@ -21,8 +21,18 @@
     window.DURATION = mod.DURATION; window.MARKS = mod.MARKS ?? []; status.textContent = 'ready'; window.ready = true;
   } else {
     status.textContent = 'music';
-    const audio = await music(mod.MUSIC);
-    const bytes = await renderMp4({ duration: mod.DURATION, draw: mod.draw, audio, bitrate: mod.BITRATE ?? 10e6, onProgress: (p) => { status.textContent = `${Math.round(p * 100)}%`; } });
+    // Optional time range (chapter clips): from/to in seconds, with a short fade at both ends.
+    const q = new URLSearchParams(location.search);
+    const from = Number(q.get('from') ?? 0);
+    const to = Number(q.get('to') ?? mod.DURATION);
+    const duration = to - from;
+    const draw = from === 0 && to === mod.DURATION ? mod.draw : (ctx, t) => {
+      mod.draw(ctx, t + from);
+      const f = Math.max(1 - t / 0.3, (t - (duration - 0.5)) / 0.5);
+      if (f > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.min(1, f)})`; ctx.fillRect(0, 0, 1920, 1080); }
+    };
+    const audio = await music({ ...mod.MUSIC, duration });
+    const bytes = await renderMp4({ duration, draw, audio, bitrate: mod.BITRATE ?? 10e6, onProgress: (p) => { status.textContent = `${Math.round(p * 100)}%`; } });
     status.textContent = 'saving';
     const CH = 4 * 1024 * 1024;
     for (let i = 0; i < bytes.length; i += CH) {
