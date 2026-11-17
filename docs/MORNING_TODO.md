@@ -48,7 +48,7 @@
 ## 5. 抽查（5 分鐘）
 
 1. 「以 Supervisor 身分預覽」選 1–2 位主管，看名單對不對。
-2. 用**真正的 Excel** 打開 `C:\dev\talent-review\playwright-report\golive\Excel驗收樣本_虛構資料.xlsx`（昨晚在正式網站匯出的檔案，虛構資料）：不跳修復提示、Planning Tool 的下拉選單可以用。這是目前唯一還沒驗證的項目。剛上傳名單時還沒有人填寫，正式匯出要等主管提交後。
+2. 用**真正的 Excel** 打開 `C:\dev\talent-review\acceptance-samples\Excel驗收樣本_虛構資料_staging.xlsx`（上線驗收自動匯出的檔案，虛構資料）：不跳修復提示、Planning Tool 的下拉選單可以用。這是目前唯一還沒驗證的項目。剛上傳名單時還沒有人填寫，正式匯出要等主管提交後。
 
 ## 6. 開啟正式環境每日備份（1 分鐘，建議）
 

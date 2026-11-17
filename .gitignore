@@ -25,3 +25,6 @@ playwright/.cache/
 
 # Rendered launch and training videos (large binaries; delivered separately)
 video-build/
+
+# Sample exports from acceptance runs (fictional data only), kept outside test-results so they are not wiped
+acceptance-samples/

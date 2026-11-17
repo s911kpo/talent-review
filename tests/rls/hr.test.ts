@@ -170,6 +170,30 @@ describe('access', () => {
     await expect(asManager(db, GM, (q) => q(sql, params))).rejects.toThrow(/forbidden/);
   });
 
+  it('lets HR move the due date and records the old and new date', async () => {
+    const to = '2027-01-15T15:59:59.000Z';
+    const before = (await db.query<{ due_at: string | null }>(`select due_at from public.cycles where id = $1`, [CYCLE])).rows[0].due_at;
+    await hr(`select public.hr_set_cycle_due($1, $2)`, [CYCLE, to]);
+    const after = (await db.query<{ due_at: Date }>(`select due_at from public.cycles where id = $1`, [CYCLE])).rows[0].due_at;
+    expect(new Date(after).toISOString()).toBe(to);
+    const audit = (await db.query<{ action: string; detail: { from: string | null; to: string } }>(
+      `select action, detail from public.audit_log where entity = 'cycle'`)).rows;
+    expect(audit).toHaveLength(1);
+    expect(audit[0].action).toBe('cycle_due_changed');
+    expect(new Date(audit[0].detail.to).toISOString()).toBe(to);
+    expect(audit[0].detail.from === null ? null : new Date(audit[0].detail.from).getTime()).toBe(before === null ? null : new Date(before).getTime());
+    await db.query(`update public.cycles set due_at = $2 where id = $1`, [CYCLE, before]);
+  });
+
+  it('refuses due-date changes from managers, and managers cannot update cycles directly', async () => {
+    await expect(asManager(db, GM, (q) => q(`select public.hr_set_cycle_due($1, now())`, [CYCLE]))).rejects.toThrow(/forbidden/);
+    await asManager(db, GM, async (q) => {
+      await q(`update public.cycles set due_at = now() + interval '90 days' where id = $1`, [CYCLE]);
+    });
+    const due = (await db.query<{ due_at: Date | null }>(`select due_at from public.cycles where id = $1`, [CYCLE])).rows[0].due_at;
+    expect(due === null || new Date(due).getTime() < Date.now() + 80 * 86400_000).toBe(true);
+  });
+
   it('keeps internal writers away from clients', async () => {
     await expect(asHr(db, (q) => q(`select public.record_audit('a', 'b', 'c', '{}')`))).rejects.toThrow(/permission denied/);
   });

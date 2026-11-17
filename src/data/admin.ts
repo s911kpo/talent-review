@@ -24,6 +24,20 @@ export async function setCycleStatus(id: string, status: Cycle['status']): Promi
   if (error) throw error;
 }
 
+/** End of the chosen day in Taipei (23:59:59 +08:00), the moment supervisors see as the deadline. */
+export const dueAtFromDate = (date: string) => new Date(`${date}T23:59:59+08:00`).toISOString();
+
+/** HR only: moves the deadline (extensions happen); the database records the old and new date. */
+export async function setCycleDue(id: string, date: string): Promise<void> {
+  const dueAt = dueAtFromDate(date);
+  if (isDemoMode) {
+    demo.cycle.due_at = dueAt;
+    return;
+  }
+  const { error } = await supabase().rpc('hr_set_cycle_due', { p_cycle_id: id, p_due_at: dueAt });
+  if (error) throw error;
+}
+
 export async function listPopulation(cycleId: string): Promise<ExistingPopulation[]> {
   if (isDemoMode) return demo.population();
   const pageSize = 1000;

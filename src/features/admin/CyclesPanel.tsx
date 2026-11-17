@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorNotice } from '../../components/AppShell';
-import { createCycle, listCycles, setCycleStatus } from '../../data/admin';
+import { Pencil } from 'lucide-react';
+import { createCycle, dueAtFromDate, listCycles, setCycleDue, setCycleStatus } from '../../data/admin';
 import type { Cycle } from '../../data/team';
 
 export function CyclesPanel() {
@@ -11,6 +12,10 @@ export function CyclesPanel() {
   const [code, setCode] = useState('');
   const [quarter, setQuarter] = useState('');
   const [due, setDue] = useState('');
+  // Due-date editing: one row at a time.
+  const [editing, setEditing] = useState<string | null>(null);
+  const [newDue, setNewDue] = useState('');
+  const [notice, setNotice] = useState('');
 
   const load = useCallback(async () => {
     setFailed(false);
@@ -39,7 +44,7 @@ export function CyclesPanel() {
       await createCycle({
         code: code.trim(),
         quarter_label: quarter.trim(),
-        due_at: due ? new Date(`${due}T23:59:59+08:00`).toISOString() : null,
+        due_at: due ? dueAtFromDate(due) : null,
       });
       setCode('');
       setQuarter('');
@@ -47,9 +52,22 @@ export function CyclesPanel() {
     });
   }
 
+  /** The due date as YYYY-MM-DD in Taipei, for the date field. */
+  const taipeiDate = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + 8 * 3600_000).toISOString().slice(0, 10) : '');
+
+  function saveDue(c: Cycle) {
+    if (!newDue) return;
+    void run(async () => {
+      await setCycleDue(c.id, newDue);
+      setEditing(null);
+      setNotice(t('cycles.dueSaved', { code: c.code, date: new Date(dueAtFromDate(newDue)).toLocaleDateString(i18n.language) }));
+    });
+  }
+
   return (
     <div className="space-y-6">
       {failed && <ErrorNotice onRetry={() => void load()} />}
+      {notice && <p role="status" className="rounded-card bg-ok-bg px-3 py-2 text-sm text-ok-fg">{notice}</p>}
 
       <section className="card overflow-x-auto p-4">
         <h2 className="font-semibold">{t('cycles.listTitle')}</h2>
@@ -71,7 +89,26 @@ export function CyclesPanel() {
                   <td className="td">{c.code}</td>
                   <td className="td">{c.quarter_label}</td>
                   <td className="td">{t(`cycles.status.${c.status}`)}</td>
-                  <td className="td">{c.due_at ? new Date(c.due_at).toLocaleDateString(i18n.language) : ''}</td>
+                  <td className="td">
+                    {editing === c.id ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label className="sr-only" htmlFor={`due-${c.id}`}>{t('cycles.dueFor', { code: c.code })}</label>
+                        <input id={`due-${c.id}`} className="field w-auto" type="date" value={newDue} onChange={(e) => setNewDue(e.target.value)} />
+                        <button type="button" className="btn-primary px-2.5 py-1" disabled={!newDue} onClick={() => saveDue(c)}>{t('cycles.saveDue')}</button>
+                        <button type="button" className="btn-secondary px-2.5 py-1" onClick={() => setEditing(null)}>{t('cycles.cancelDue')}</button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span>{c.due_at ? new Date(c.due_at).toLocaleDateString(i18n.language) : t('cycles.noDue')}</span>
+                        <button
+                          type="button" className="btn-secondary px-2 py-1 text-xs"
+                          onClick={() => { setEditing(c.id); setNewDue(taipeiDate(c.due_at)); setNotice(''); }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />{t('cycles.editDue')}
+                        </button>
+                      </div>
+                    )}
+                  </td>
                   <td className="td">
                     {c.status !== 'open' && (
                       <button type="button" className="btn-secondary px-2.5 py-1" onClick={() => void run(() => setCycleStatus(c.id, 'open'))}>

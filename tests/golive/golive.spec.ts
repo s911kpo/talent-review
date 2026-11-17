@@ -8,7 +8,7 @@
 //
 // Everything this test writes is removed before and after it runs.
 import { expect, test, type Browser, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
 import ExcelJS from 'exceljs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { goNav } from '../e2e/nav';
@@ -351,6 +351,9 @@ test('HR confirms the team and the Excel for Diana matches the template and ever
   const file = await download(page, () => page.getByRole('button', { name: '匯出', exact: true }).click());
   expect(file.name).toMatch(/^TalentReview_Q4-2026_.+_\d{8}-\d{4}\.xlsx$/);
   const wb = await load(file);
+  // Keep a copy outside test-results (which every run clears) for opening in real Excel.
+  mkdirSync('acceptance-samples', { recursive: true });
+  copyFileSync(file.path, `acceptance-samples/Excel驗收樣本_虛構資料_${process.env.TR_TARGET === 'production' ? 'production' : 'staging'}.xlsx`);
   const template = new ExcelJS.Workbook();
   await template.xlsx.readFile('public/templates/template.xlsx');
 
@@ -418,6 +421,34 @@ test('HR confirms the team and the Excel for Diana matches the template and ever
     [A.id, 'Strong Performance Impact; Successor Candidate', 'confirmed'],
     [B.id, 'Critical Role Holder', 'confirmed'],
   ].sort());
+});
+
+/* ------------------------------------------------------------------ 4. extending the deadline */
+test('HR extends the due date on screen; the database and audit log record it; supervisors cannot', async ({ page }) => {
+  const { data: before } = await admin.from('cycles').select('due_at').eq('id', CYCLE).single();
+  const taipei = (iso: string) => new Date(new Date(iso).getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+  const setOnScreen = async (date: string) => {
+    await page.getByRole('button', { name: '修改截止日' }).first().click();
+    await page.getByLabel(/的新截止日$/).fill(date);
+    await page.getByRole('button', { name: '儲存', exact: true }).click();
+    await expect(page.getByText(/的截止日已改為/)).toBeVisible({ timeout: 15_000 });
+  };
+  await loginHr(page);
+  await goNav(page, '週期管理');
+  await setOnScreen('2027-01-15');
+  const { data: after } = await admin.from('cycles').select('due_at').eq('id', CYCLE).single();
+  expect(new Date(after!.due_at).toISOString()).toBe('2027-01-15T15:59:59.000Z');
+  const { data: audit } = await admin.from('audit_log').select('action, detail').eq('entity', 'cycle').eq('entity_id', CYCLE)
+    .order('created_at', { ascending: false }).limit(1).single();
+  expect(audit!.action).toBe('cycle_due_changed');
+  expect(new Date(audit!.detail.to).toISOString()).toBe('2027-01-15T15:59:59.000Z');
+
+  const { error } = await manager.rpc('hr_set_cycle_due', { p_cycle_id: CYCLE, p_due_at: '2030-01-01T00:00:00Z' });
+  expect(error?.message).toMatch(/forbidden/);
+
+  if (before!.due_at) await setOnScreen(taipei(before!.due_at)); // put the original date back
+  const { data: restored } = await admin.from('cycles').select('due_at').eq('id', CYCLE).single();
+  expect(restored!.due_at === null ? null : new Date(restored!.due_at).getTime()).toBe(before!.due_at === null ? null : new Date(before!.due_at).getTime());
 });
 
 /* ------------------------------------------------------------------ file helpers */

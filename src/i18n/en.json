@@ -97,6 +97,12 @@
     "colAction": "Action",
     "open": "Open",
     "close": "Close",
+    "editDue": "Change due date",
+    "dueFor": "New due date for {{code}}",
+    "saveDue": "Save",
+    "cancelDue": "Cancel",
+    "noDue": "Not set",
+    "dueSaved": "The due date for {{code}} is now {{date}} (23:59 that day). Supervisors see it when they reload their home page; the change is in the audit log.",
     "status": {
       "setup": "Setup",
       "open": "Open",
