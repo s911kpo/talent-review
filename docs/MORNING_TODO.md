@@ -8,13 +8,13 @@
 
 ## 1. 建立你的 HR 帳號（2 分鐘）
 
-在 Claude 的終端機分頁（或 PowerShell，先進到 `C:\dev\talent-review`）貼上這一行，把 Email、姓名、工號換成你自己的，按 Enter：
+在檔案總管雙擊 `C:\dev\talent-review\建立HR帳號.cmd`。跳出的黑色視窗會依序問：
 
-```powershell
-$env:TR_TARGET='production'; node scripts/create-first-hr.mjs --email 你的Email --name "你的姓名" --employee-id 你的工號
-```
+1. 公司 Email（登入用）
+2. 顯示名稱
+3. 工號：不在名單內就直接按 Enter
 
-畫面會出現一次 `Password ...: xxxxxxxx`，**立刻存進密碼管理器**，之後看不到。若你不在名單內，可以拿掉 `--employee-id 你的工號`。
+接著畫面會出現一次 `Password ...: xxxxxxxx`，**立刻存進密碼管理器或抄下來**，關掉視窗就看不到了。密碼不會存成檔案，也不會經過 Claude。
 
 ## 2. 用 HR 帳號登入，建立週期（2 分鐘）
 
