@@ -28,3 +28,6 @@ video-build/
 
 # Sample exports from acceptance runs (fictional data only), kept outside test-results so they are not wiped
 acceptance-samples/
+
+# Launch package for Tim (videos are large; documents are generated, no real data)
+launch-package/
