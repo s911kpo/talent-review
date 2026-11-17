@@ -1,4 +1,5 @@
 // HR console data access and export assembly.
+import type { AuditEntry, AuditNames } from '../lib/audit/describe';
 import type { ExportRow } from '../lib/export/planningTool';
 import type { OptionItem, Question, Review } from '../lib/review/types';
 import { isDemoMode, supabase } from './client';
@@ -27,15 +28,6 @@ export interface VersionRow {
   comment: string | null;
   created_at: string;
   snapshot: Record<string, unknown>;
-}
-
-export interface AuditRow {
-  id: string;
-  action: string;
-  entity: string | null;
-  entity_id: string | null;
-  detail: unknown;
-  created_at: string;
 }
 
 export interface EditableOption extends OptionItem {
@@ -124,14 +116,52 @@ export async function saveQuestion(q: Question): Promise<void> {
   if (error) throw error;
 }
 
-export async function listAudit(action: string): Promise<AuditRow[]> {
-  if (isDemoMode) return [];
-  let query = supabase().from('audit_log').select('id, action, entity, entity_id, detail, created_at')
-    .order('created_at', { ascending: false }).limit(200);
-  if (action.trim()) query = query.ilike('action', `%${action.trim()}%`);
-  const { data, error } = await query;
+/** The latest 300 audit entries plus the names needed to describe them in plain words. */
+export async function listAuditReadable(): Promise<{ rows: AuditEntry[]; names: AuditNames }> {
+  if (isDemoMode) return demoAudit();
+  const db = supabase();
+  const { data, error } = await db.from('audit_log').select('id, actor, action, entity, entity_id, detail, created_at')
+    .order('created_at', { ascending: false }).limit(300);
   if (error) throw error;
-  return data ?? [];
+  const rows = (data ?? []) as AuditEntry[];
+  const ids = new Set<number>();
+  const add = (v: unknown) => { const n = Number(v); if (v !== null && v !== undefined && v !== '' && Number.isFinite(n)) ids.add(n); };
+  for (const r of rows) {
+    if (r.entity === 'team' || r.entity === 'account') add(r.entity_id);
+    const d = (r.detail ?? {}) as Record<string, unknown>;
+    add(d.employee_id); add(d.from); add(d.to);
+  }
+  const [users, employees, cycles] = await Promise.all([
+    db.from('app_users').select('user_id, display_name, employee_id'),
+    ids.size ? db.from('employees').select('employee_id, full_name').in('employee_id', [...ids]) : Promise.resolve({ data: [], error: null }),
+    db.from('cycles').select('id, code'),
+  ]);
+  for (const r of [users, employees, cycles]) if (r.error) throw r.error;
+  const empNames = new Map<number, string>((employees.data ?? []).map((e: { employee_id: number; full_name: string }) => [Number(e.employee_id), e.full_name]));
+  const userNames = new Map<string, string>((users.data ?? []).map((u: { user_id: string; display_name: string | null; employee_id: number | null }) =>
+    [u.user_id, u.display_name ?? (u.employee_id ? empNames.get(Number(u.employee_id)) ?? String(u.employee_id) : '')]));
+  return {
+    rows,
+    names: { users: userNames, employees: empNames, cycles: new Map((cycles.data ?? []).map((c: { id: string; code: string }) => [c.id, c.code])) },
+  };
+}
+
+/** Fictional entries so the demo shows what the log looks like. */
+function demoAudit(): { rows: AuditEntry[]; names: AuditNames } {
+  const hr = 'demo-hr';
+  const at = (h: number) => new Date(Date.UTC(2026, 10, 17, h)).toISOString();
+  return {
+    rows: [
+      { id: '3', actor: hr, action: 'cycle_due_changed', entity: 'cycle', entity_id: demo.cycle.id, detail: { from: '2026-11-30T15:59:59Z', to: '2026-12-15T15:59:59Z' }, created_at: at(3) },
+      { id: '2', actor: hr, action: 'reviews_returned', entity: 'team', entity_id: '900002', detail: { count: 2 }, created_at: at(2) },
+      { id: '1', actor: hr, action: 'account_created', entity: 'account', entity_id: '900002', detail: null, created_at: at(1) },
+    ],
+    names: {
+      users: new Map([[hr, 'Demo HR']]),
+      employees: new Map([[900002, 'Huang, Grove2']]),
+      cycles: new Map([[demo.cycle.id, demo.cycle.code]]),
+    },
+  };
 }
 
 const PAGE = 1000;

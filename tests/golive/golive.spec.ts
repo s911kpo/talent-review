@@ -446,6 +446,14 @@ test('HR extends the due date on screen; the database and audit log record it; s
   const { error } = await manager.rpc('hr_set_cycle_due', { p_cycle_id: CYCLE, p_due_at: '2030-01-01T00:00:00Z' });
   expect(error?.message).toMatch(/forbidden/);
 
+  // The audit page says it in plain words: who, what, which cycle, from → to.
+  await goNav(page, '稽核紀錄');
+  const line = page.getByRole('row').filter({ hasText: '修改截止日' }).first();
+  await expect(line).toContainText(accounts.hr.displayName);
+  await expect(line).toContainText('週期 Q4-2026');
+  await expect(line).toContainText(/→ 2027\/1\/15/);
+  await goNav(page, '週期管理');
+
   if (before!.due_at) await setOnScreen(taipei(before!.due_at)); // put the original date back
   const { data: restored } = await admin.from('cycles').select('due_at').eq('id', CYCLE).single();
   expect(restored!.due_at === null ? null : new Date(restored!.due_at).getTime()).toBe(before!.due_at === null ? null : new Date(before!.due_at).getTime());

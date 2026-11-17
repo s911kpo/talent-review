@@ -17,7 +17,11 @@
     "colDiscussion": "討論",
     "colReopen": "修改申請",
     "reopenPending": "待處理",
-    "discussion": { "not_scheduled": "未預約", "scheduled": "已預約", "done": "已完成" },
+    "discussion": {
+      "not_scheduled": "未預約",
+      "scheduled": "已預約",
+      "done": "已完成"
+    },
     "filterStatus": "篩選狀態",
     "all": "全部",
     "downloadProgress": "匯出進度表",
@@ -84,12 +88,53 @@
     "saved": "已儲存"
   },
   "aud": {
-    "filter": "篩選動作",
+    "filter": "類別",
+    "all": "全部",
     "time": "時間",
-    "action": "動作",
+    "who": "誰",
+    "action": "做了什麼",
     "target": "對象",
-    "detail": "內容",
-    "empty": "沒有符合的紀錄。"
+    "detail": "變更內容",
+    "empty": "沒有符合的紀錄。",
+    "system": "系統（名單上傳時自動處理）",
+    "unknownUser": "已刪除的帳號",
+    "unknownPerson": "名單外人員",
+    "notSet": "未設定",
+    "cycle": "週期 {{code}}",
+    "team": "{{name}} 的團隊",
+    "people": "{{count}} 人",
+    "fromTo": "{{from}} → {{to}}",
+    "backTo": "改回「{{status}}」",
+    "sep": "，",
+    "group": {
+      "deadline": "截止日",
+      "review": "審核",
+      "account": "帳號與 PIN",
+      "namelist": "名單異動",
+      "ai": "AI"
+    },
+    "status": {
+      "draft": "草稿（主管可修改）",
+      "confirmed": "已確認",
+      "submitted": "已提交"
+    },
+    "do": {
+      "cycle_due_changed": "修改截止日",
+      "reviews_returned": "退回給主管修改",
+      "team_confirmed": "確認團隊",
+      "team_locked": "鎖定團隊",
+      "team_unlocked": "解鎖團隊",
+      "reopen_approved": "核准主管的修改申請",
+      "reopen_rejected": "駁回主管的修改申請",
+      "account_created": "建立主管帳號與 PIN",
+      "pin_reset": "重設主管 PIN",
+      "account_enabled": "啟用帳號",
+      "account_disabled": "停用帳號",
+      "hr_account_created": "建立 HR 帳號",
+      "review_reassigned": "換主管：評核轉給新主管",
+      "ai_generated": "產生 AI 內容"
+    },
+    "tableLabel": "稽核紀錄表"
   },
   "pv": {
     "select": "選擇 Supervisor",

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorNotice } from '../../components/AppShell';
-import { listAllOptions, listAllQuestions, listAudit, saveOption, saveQuestion, type AuditRow, type EditableOption } from '../../data/hr';
+import { listAllOptions, listAllQuestions, listAuditReadable, saveOption, saveQuestion, type EditableOption } from '../../data/hr';
+import { AUDIT_GROUPS, describeAudit, type AuditEntry, type AuditGroup, type AuditNames } from '../../lib/audit/describe';
 import type { Question } from '../../lib/review/types';
 import { Markdown } from '../manager/GuidePanel';
 
@@ -167,45 +168,58 @@ export function QuestionsPanel() {
 
 export function AuditPanel() {
   const { t, i18n } = useTranslation();
-  const [filter, setFilter] = useState('');
-  const [rows, setRows] = useState<AuditRow[] | null>(null);
+  const [group, setGroup] = useState<AuditGroup | ''>('');
+  const [data, setData] = useState<{ rows: AuditEntry[]; names: AuditNames } | null>(null);
   const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
     setFailed(false);
     try {
-      setRows(await listAudit(filter));
+      setData(await listAuditReadable());
     } catch {
       setFailed(true);
     }
-  }, [filter]);
+  }, []);
 
-  useEffect(() => {
-    const handle = window.setTimeout(() => void load(), 300);
-    return () => window.clearTimeout(handle);
-  }, [load]);
+  useEffect(() => void load(), [load]);
+
+  const lines = useMemo(() => {
+    if (!data) return null;
+    const formatDate = (iso: string) => new Date(iso).toLocaleDateString(i18n.language);
+    return data.rows
+      .map((r) => ({ id: r.id, at: r.created_at, ...describeAudit(r, data.names, t, formatDate) }))
+      .filter((l) => !group || l.group === group);
+  }, [data, group, t, i18n.language]);
 
   return (
     <div className="space-y-4">
       {failed && <ErrorNotice onRetry={() => void load()} />}
       <div className="max-w-xs">
         <label className="label" htmlFor="au-filter">{t('aud.filter')}</label>
-        <input id="au-filter" className="field" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <select id="au-filter" className="field" value={group} onChange={(e) => setGroup(e.target.value as AuditGroup | '')}>
+          <option value="">{t('aud.all')}</option>
+          {AUDIT_GROUPS.map((g) => <option key={g} value={g}>{t(`aud.group.${g}`)}</option>)}
+        </select>
       </div>
-      <div className="card overflow-x-auto p-2">
-        {rows?.length === 0 && <p className="p-4 text-muted">{t('aud.empty')}</p>}
-        {rows && rows.length > 0 && (
+      {/* Scrolls sideways on phones; focusable so keyboard users can scroll it too. */}
+      <div className="card overflow-x-auto p-2" tabIndex={0} role="region" aria-label={t('aud.tableLabel')}>
+        {lines?.length === 0 && <p className="p-4 text-muted">{t('aud.empty')}</p>}
+        {lines && lines.length > 0 && (
           <table className="w-full">
             <thead>
-              <tr><th className="th">{t('aud.time')}</th><th className="th">{t('aud.action')}</th><th className="th">{t('aud.target')}</th><th className="th">{t('aud.detail')}</th></tr>
+              <tr>
+                <th className="th">{t('aud.time')}</th><th className="th">{t('aud.who')}</th><th className="th">{t('aud.action')}</th>
+                <th className="th">{t('aud.target')}</th><th className="th">{t('aud.detail')}</th>
+              </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.id}>
-                  <td className="td whitespace-nowrap">{new Date(r.created_at).toLocaleString(i18n.language)}</td>
-                  <td className="td">{r.action}</td>
-                  <td className="td">{r.entity} {r.entity_id}</td>
-                  <td className="td break-all">{r.detail ? JSON.stringify(r.detail) : ''}</td>
+              {lines.map((l) => (
+                <tr key={l.id}>
+                  <td className="td whitespace-nowrap">{new Date(l.at).toLocaleString(i18n.language)}</td>
+                  <td className="td whitespace-nowrap">{l.who}</td>
+                  <td className="td">{l.what}</td>
+                  <td className="td">{l.target}</td>
+                  <td className="td break-words">{l.change}</td>
                 </tr>
               ))}
             </tbody>

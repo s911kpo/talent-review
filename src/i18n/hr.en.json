@@ -17,7 +17,11 @@
     "colDiscussion": "Discussion",
     "colReopen": "Change request",
     "reopenPending": "Pending",
-    "discussion": { "not_scheduled": "Not booked", "scheduled": "Booked", "done": "Done" },
+    "discussion": {
+      "not_scheduled": "Not booked",
+      "scheduled": "Booked",
+      "done": "Done"
+    },
     "filterStatus": "Filter by status",
     "all": "All",
     "downloadProgress": "Export progress",
@@ -84,12 +88,53 @@
     "saved": "Saved"
   },
   "aud": {
-    "filter": "Filter by action",
+    "filter": "Category",
+    "all": "All",
     "time": "Time",
-    "action": "Action",
-    "target": "Target",
-    "detail": "Detail",
-    "empty": "No matching records."
+    "who": "Who",
+    "action": "What",
+    "target": "For",
+    "detail": "Change",
+    "empty": "No matching records.",
+    "system": "System (namelist upload)",
+    "unknownUser": "Deleted account",
+    "unknownPerson": "Not in the namelist",
+    "notSet": "Not set",
+    "cycle": "Cycle {{code}}",
+    "team": "{{name}}'s team",
+    "people": "{{count}} people",
+    "fromTo": "{{from}} → {{to}}",
+    "backTo": "back to \"{{status}}\"",
+    "sep": ", ",
+    "group": {
+      "deadline": "Due date",
+      "review": "Review",
+      "account": "Accounts and PINs",
+      "namelist": "Namelist changes",
+      "ai": "AI"
+    },
+    "status": {
+      "draft": "Draft (supervisor can edit)",
+      "confirmed": "Confirmed",
+      "submitted": "Submitted"
+    },
+    "do": {
+      "cycle_due_changed": "Changed the due date",
+      "reviews_returned": "Returned to the supervisor for changes",
+      "team_confirmed": "Confirmed the team",
+      "team_locked": "Locked the team",
+      "team_unlocked": "Unlocked the team",
+      "reopen_approved": "Approved a change request",
+      "reopen_rejected": "Declined a change request",
+      "account_created": "Created a supervisor login and PIN",
+      "pin_reset": "Reset a supervisor PIN",
+      "account_enabled": "Enabled a login",
+      "account_disabled": "Disabled a login",
+      "hr_account_created": "Created an HR login",
+      "review_reassigned": "Supervisor changed: review moved to the new supervisor",
+      "ai_generated": "Generated AI content"
+    },
+    "tableLabel": "Audit log table"
   },
   "pv": {
     "select": "Choose Supervisor",
