@@ -1,6 +1,8 @@
 [build]
   command = "node scripts/build-site.mjs"
   publish = "dist"
+  # Builds only when the commit message says [deploy prod], [deploy staging] or [deploy all] (saves credits).
+  ignore = "bash scripts/netlify-ignore.sh"
 
 # Which backend a site uses is set per Netlify site with DEPLOY_TARGET (staging by default, production
 # on the live site); the public URL and anon key per target are in deploy/targets.json.
