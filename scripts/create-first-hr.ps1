@@ -38,7 +38,7 @@ Write-Host ''
 if ($LASTEXITCODE -eq 0) {
   Write-Host ''
   Write-Host '請立刻把上面的密碼存進密碼管理器（或抄下來），關閉視窗後就看不到了。' -ForegroundColor Yellow
-  Write-Host '登入網址：https://molex-talent-review.netlify.app/hr/login' -ForegroundColor Green
+  Write-Host '登入網址：https://molex-talent-review.pages.dev/hr/login' -ForegroundColor Green
 } else {
   Write-Host '建立失敗，請把這個視窗截圖給 Claude（截圖前先遮住 Email 也可以）。' -ForegroundColor Red
 }

@@ -6,7 +6,7 @@
 
 | | 測試網址（維持示範用途） | 正式網址 |
 |---|---|---|
-| 網址 | https://papaya-madeleine-31cdad.netlify.app（另有 `/demo/` 展示站） | https://molex-talent-review.netlify.app |
+| 網址 | https://papaya-madeleine-31cdad.netlify.app（另有 `/demo/` 展示站，Netlify） | https://molex-talent-review.pages.dev（Cloudflare Pages）；備援 https://molex-talent-review.netlify.app（Netlify，同一個資料庫） |
 | 資料庫 | Supabase 專案 `cnytmdpvzpezijadohxl`，全部虛構資料 | 新的 Supabase 專案，只放真實資料 |
 | 帳號 | 示範主管與示範 HR（帳密在 repo，任何人都可能看到） | 真實主管 PIN、Tim 與 Diana 的 HR 帳號 |
 | 畫面標示 | 每頁頂端黃條：「測試環境：請勿填寫真實員工資料」 | 無標示 |
@@ -14,6 +14,12 @@
 | 本機設定檔 | `.env.local` | `.env.production.local`（已建立空白範本，不進 git） |
 
 兩邊用同一份程式碼。Netlify 的每個網站用環境變數 `DEPLOY_TARGET` 決定連哪個資料庫；公開值寫在 `deploy/targets.json`。正式版建置時會檢查：打包檔裡不能出現測試資料庫的網址。
+
+## 主機（2026-11-17 更新）
+
+- 正式網站在 **Cloudflare Pages**：純靜態網站流量不限、免費，每次 push 自動部署（每月 500 次）。設定見 `docs/CLOUDFLARE.md`；退回上一版：Cloudflare 專案 → Deployments → Rollback。
+- Netlify 免費方案只剩 30 credits（重置日 12/14），所以 Netlify 只在 commit 訊息含 `[deploy prod]`／`[deploy staging]`／`[deploy all]` 時建置。測試網址留在 Netlify。
+- **正式資料庫已有真實資料**：`test:golive`、`test:rehearsal`、`prelaunch-reset` 不要再對正式環境執行（三者都有保護：找不到虛構主管、系統不是空的、出現真實工號時會自動停止）。
 
 ## 目前進度（2026-11-17 凌晨）
 

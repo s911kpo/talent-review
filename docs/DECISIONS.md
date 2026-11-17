@@ -87,4 +87,4 @@ SPEC 未定義細節的決定。格式：日期｜決定｜理由｜替代方案
 | 2026-11-17 | HR 可隨時修改週期截止日（週期管理每列「修改截止日」），透過只有 HR 能呼叫的資料庫函式 `hr_set_cycle_due`，每次修改寫入稽核紀錄（原日期與新日期） | Tim：實務上常需要延長盤點時間，系統要有彈性，且只有 HR 能調整 | 直接更新 cycles 表（沒有變更紀錄）；請 Claude 改資料庫 |
 | 2026-11-17 | Netlify 只在 commit 訊息含 `[deploy prod]`／`[deploy staging]`／`[deploy all]` 時建置（`scripts/netlify-ignore.sh`） | 免費方案 300 credits／月，每次正式部署 15；兩個網站每次 push 共 30，用完全站暫停，可能落在盤點期間 | 關閉測試站自動部署（需 Tim 進後台）；改用其他主機 |
 | 2026-11-17 | 稽核紀錄在前端翻成白話（`src/lib/audit/describe.ts`），不改資料庫 | HR 本來就能讀帳號、員工、週期名稱；不需要 migration | 新增資料庫函式組好文字 |
-
+| 2026-11-17 | 正式網站改放 Cloudflare Pages（`molex-talent-review.pages.dev`），Netlify 正式站保留當備援，測試站留在 Netlify | Netlify 免費額度剩 30 credits 要撐到 12/14，一次部署就用掉一半；Cloudflare 對靜態網站流量不限、部署免費。主管尚未收到網址，改網址沒有成本 | 升級 Netlify 付費（需公司核銷）；留在 Netlify 不再更新（流量可能耗盡導致暫停） |

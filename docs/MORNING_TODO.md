@@ -2,8 +2,8 @@
 
 半夜已在**正式網址**用虛構資料完整模擬過你今天要做的每一步，全部通過，之後已清空。今天你只要照下面做，放入真實資料。
 
-- 正式網址：https://molex-talent-review.netlify.app
-- HR 登入：https://molex-talent-review.netlify.app/hr/login
+- 正式網址：https://molex-talent-review.pages.dev（Cloudflare；舊的 Netlify 網址保留當備援，不要發給主管）
+- HR 登入：https://molex-talent-review.pages.dev/hr/login
 - 測試網址（維持示範，頂端有黃條）：https://papaya-madeleine-31cdad.netlify.app
 
 ## 1. 建立你的 HR 帳號（2 分鐘）
@@ -60,7 +60,7 @@
 
 ## 11/20 發送
 
-- 每位主管一封：自己的工號＋PIN＋正式網址（PIN 清單一人一行，不要整份寄出）。
+- 每位主管一封：自己的工號＋PIN＋正式網址 https://molex-talent-review.pages.dev（PIN 清單一人一行，不要整份寄出）。
 - 影片：`C:\dev\talent-review\video-build\release\`
   - 宣傳：`上線宣傳影片\TalentReview_宣傳影片_v3_激勵配樂_41s.mp4`
   - 操作指南：`主管操作指南\TalentReview_主管操作指南_v2_章節版_3m20s.mp4`（上傳 Stream 後照 `Stream章節清單.txt` 設章節）
