@@ -78,7 +78,9 @@ for (let i = 0; i < rows.length; i++) {
       : `unexpected answer from the login service (HTTP ${status}, ${code ?? 'no code'})`;
     console.log(`${tag} FAIL   ${why}`);
     results.push('fail');
-    if (++failStreak >= 3) { console.log('\nStopped: three rows in a row failed. If the reason above is "could not reach", it is a network problem, not the PINs.'); break; }
+    if (++failStreak >= 3) { console.log('\nStopped: three rows in a row failed. If the reason above is "could not reach", it is a network problem, not the PINs.\n' +
+      'On the company network, send Node through the Zscaler local proxy first:\n' +
+      "  $env:HTTPS_PROXY='http://127.0.0.1:9000'; $env:NODE_USE_ENV_PROXY='1'"); break; }
   } else {
     failStreak = 0;
     // Signed in: see what this supervisor's account can read, then sign out (revokes the session).
