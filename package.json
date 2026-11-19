@@ -19,6 +19,7 @@
     "db:push": "supabase db push --linked",
     "demo:provision": "node scripts/provision-demo-users.mjs",
     "demo:remove": "node scripts/provision-demo-users.mjs --remove",
+    "pin:selfcheck": "node scripts/pin-selfcheck.mjs",
     "demo:showcase": "vite --mode showcase",
     "build:showcase": "vite build --mode showcase --base /demo/ --outDir dist/demo",
     "build:site": "npm run build && npm run build:showcase",
