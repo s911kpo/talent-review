@@ -9,15 +9,18 @@
 // attempt (the lock is 5), and the script stops early if three rows in a row fail, so a wrong file can't
 // pile up failures.
 import { createRequire } from 'node:module';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { loadEnv, announce } from './lib/env.mjs';
 
 const require = createRequire(import.meta.url);
 const { createClient } = require('@supabase/supabase-js');
 const ExcelJS = require('exceljs');
 
-const file = process.argv[2];
-if (!file || !existsSync(file)) {
+// A path with spaces can arrive split into several arguments or wrapped in extra quotes
+// (e.g. after dragging a file into PowerShell inside quotes): rejoin and strip them.
+const file = process.argv.slice(2).join(' ').replace(/["']/g, '').trim();
+if (!file || !existsSync(file) || !statSync(file).isFile()) {
+  console.error(`File not found: ${file || '(none)'}`);
   console.error('Usage: node scripts/pin-selfcheck.mjs "<PIN_list.xlsx>"');
   process.exit(2);
 }
