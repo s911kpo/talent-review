@@ -63,14 +63,22 @@ for (let i = 0; i < rows.length; i++) {
   }
   const { data, error } = await anon.functions.invoke('auth-pin', { body: { employeeId: id, pin } });
   if (error || !data?.access_token) {
-    let code = 'invalid';
-    try { code = (await error?.context?.json())?.code ?? code; } catch { /* keep default */ }
-    const why = code === 'locked' ? 'account is locked for 15 minutes (too many wrong PINs)'
+    // Only an HTTP answer from the login service says anything about the PIN; anything else
+    // (no network, proxy, certificate) means the request never got there.
+    const status = error?.context?.status;
+    let code = null;
+    if (error?.name === 'FunctionsHttpError') {
+      try { code = (await error.context.json())?.code ?? null; } catch { /* no body */ }
+    }
+    const why = error?.name !== 'FunctionsHttpError'
+      ? `could not reach the login service (${error?.name ?? 'no response'}: ${error?.context?.cause?.code ?? error?.context?.message ?? error?.message ?? ''})`
+      : code === 'locked' ? 'account is locked for 15 minutes (too many wrong PINs)'
       : code === 'unavailable' ? 'login service unavailable, try again later'
-      : 'employee ID and PIN do not match';
+      : code === 'invalid_credentials' || status === 401 || status === 400 ? `employee ID and PIN do not match (HTTP ${status})`
+      : `unexpected answer from the login service (HTTP ${status}, ${code ?? 'no code'})`;
     console.log(`${tag} FAIL   ${why}`);
     results.push('fail');
-    if (++failStreak >= 3) { console.log('\nStopped: three rows in a row failed. Check that this is the latest PIN list.'); break; }
+    if (++failStreak >= 3) { console.log('\nStopped: three rows in a row failed. If the reason above is "could not reach", it is a network problem, not the PINs.'); break; }
   } else {
     failStreak = 0;
     // Signed in: see what this supervisor's account can read, then sign out (revokes the session).
