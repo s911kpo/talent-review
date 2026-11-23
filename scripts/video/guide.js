@@ -299,7 +299,7 @@ function drawTitle(ctx, s, lt, end = false) {
     });
   } else {
     text(ctx, '開始你的第一次人才盤點', W / 2, 450, { size: 80, weight: 800, align: 'center', alpha: a(0.3) });
-    text(ctx, '11 / 20（五）正式上線', W / 2, 570, { size: 64, weight: 800, color: '#FF5A6E', align: 'center', alpha: a(0.7) });
+    text(ctx, '11 / 30（一）正式上線', W / 2, 570, { size: 64, weight: 800, color: '#FF5A6E', align: 'center', alpha: a(0.7) });
     text(ctx, '有任何問題，請聯絡你的 HRBP', W / 2, 680, { size: 40, color: '#B9C3D9', align: 'center', alpha: a(1.1) });
   }
   ctx.restore();

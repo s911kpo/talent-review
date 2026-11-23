@@ -356,7 +356,7 @@ function sceneLaunch(ctx, t) {
   const logo = images.logo; const lw = 300, lh = lw * logo.height / logo.width;
   ctx.save(); ctx.globalAlpha = seg(lt, 0, 0.4); ctx.drawImage(logo, W / 2 - lw / 2, 200, lw, lh); ctx.restore();
   kinetic(ctx, 'Talent Review', W / 2, 420, seg(lt, 0.1, 0.6), { size: 92, align: 'center' });
-  kinetic(ctx, '11 / 20（五）正式上線', W / 2, 590, seg(lt, 0.4, 1.0), { size: 120, color: RED, align: 'center' });
+  kinetic(ctx, '11 / 30（一）正式上線', W / 2, 590, seg(lt, 0.4, 1.0), { size: 120, color: RED, align: 'center' });
   const p = seg(lt, 1.0, 1.5);
   if (p > 0) {
     const bw = 1100, bx = (W - bw) / 2, by = 670;
